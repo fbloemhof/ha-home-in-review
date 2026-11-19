@@ -3,9 +3,11 @@
 ## Unreleased
 
 **New**
-- Theme "Home Assistant": the report takes the colours and font of your active Home Assistant theme, and the
-  colours of the energy dashboard for grid, solar, battery and return. It follows light/dark mode while open.
-  Outside Home Assistant (a report opened on its own) it looks like "auto".
+- Theme "Home Assistant": the report looks like part of Home Assistant. It takes the colours, font and card style
+  (corners, border, shadow) of your active theme, and the colours of the energy dashboard for grid, solar, battery
+  and return. Each topic is a card with a plain title, scrolling like a dashboard instead of full-screen slides.
+  It follows light/dark mode while open. Outside Home Assistant it uses neutral colours.
+- The panel's script is now cached by its content, so a browser picks up a new version without a hard refresh.
 
 **Docs**
 - New page [Your own figures](docs/own-figures.md): the calculations, appliance runs, and a helper sensor for

@@ -20,6 +20,11 @@ const HA_THEME_VARS = {
   "--s3": ["--energy-grid-return-color"],
   "--s4": ["--energy-solar-color"],
   "--s5": ["--energy-battery-out-color"],
+  "--card-solid": ["--card-background-color"],
+  "--ha-radius": ["--ha-card-border-radius"],
+  "--ha-border": ["--ha-card-border-color", "--divider-color"],
+  "--ha-border-w": ["--ha-card-border-width"],
+  "--ha-shadow": ["--ha-card-box-shadow"],
   "--sans": ["--ha-font-family-body", "--paper-font-body1_-_font-family"],
   "--serif": ["--ha-font-family-body", "--paper-font-body1_-_font-family"],
 };

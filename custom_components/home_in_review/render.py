@@ -202,6 +202,37 @@ ul.src{margin:0;padding-left:1.1em;color:var(--ink2);font-size:14.5px}
 .idx a span{color:var(--ink2);font-variant-numeric:tabular-nums}
 .idx a:hover b{color:var(--hi)}
 .idx .y{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-top:26px}
+/* Theme "ha": also the shape of Home Assistant: each slide is a card, quiet titles, no editorial flourishes. Colours,
+   font and card style come from the active HA theme (sent by the panel); outside HA the defaults below apply. */
+:root[data-theme="ha"]{--serif:var(--sans);scroll-snap-type:none}
+:root[data-theme="ha"] body{padding:58px clamp(8px,2vw,16px) 16px}
+@media (min-width:701px){:root[data-theme="ha"] body{padding-right:56px}}
+:root[data-theme="ha"] .slide{min-height:0;scroll-snap-align:none;margin:0 0 16px;align-content:start;gap:clamp(14px,2vw,22px);
+  padding:16px clamp(16px,2.4vw,24px) 24px;background:var(--paper);border:var(--ha-border-w,1px) solid var(--ha-border,var(--line));
+  border-radius:var(--ha-radius,12px);box-shadow:var(--ha-shadow,none)}
+:root[data-theme="ha"] .kicker{font-size:24px;letter-spacing:-.012em;text-transform:none;color:var(--ink);gap:0}
+:root[data-theme="ha"] .kicker b,:root[data-theme="ha"] .kicker .ic,:root[data-theme="ha"] .kicker:after,
+:root[data-theme="ha"] .wm,:root[data-theme="ha"] .pg,:root[data-theme="ha"] .bar{display:none}
+:root[data-theme="ha"] h2{font-size:clamp(17px,1.5vw,20px);font-weight:400;letter-spacing:0;color:var(--ink2);max-width:none;line-height:1.35}
+:root[data-theme="ha"] h2 em{font-style:normal;font-weight:500}
+:root[data-theme="ha"] .hero{font-size:clamp(36px,4vw,52px);font-weight:400;letter-spacing:-.01em}
+:root[data-theme="ha"] .cover{gap:28px}
+:root[data-theme="ha"] .cover h1{font-size:clamp(40px,6vw,72px);font-weight:400;letter-spacing:-.01em;line-height:1}
+:root[data-theme="ha"] .cover h1 span{font-style:normal;font-size:.36em}
+:root[data-theme="ha"] .figs div,:root[data-theme="ha"] .card,:root[data-theme="ha"] .mfoot a{border-top:1px solid var(--line)}
+:root[data-theme="ha"] .rec .tot{border-top:1px solid var(--ink2)}
+:root[data-theme="ha"] .figs b,:root[data-theme="ha"] .stat .v,:root[data-theme="ha"] .card .cv,:root[data-theme="ha"] .bb .bh b,
+:root[data-theme="ha"] .mfoot a b,:root[data-theme="ha"] .idx a b{font-weight:400;letter-spacing:0}
+:root[data-theme="ha"] .figs b{font-size:clamp(24px,2.6vw,34px)}
+:root[data-theme="ha"] .stat .v{font-size:24px}
+:root[data-theme="ha"] .card .cv{font-size:clamp(26px,2.6vw,34px)}
+:root[data-theme="ha"] .story p{font-size:16px}
+:root[data-theme="ha"] .story p:first-child{font-size:18px}
+:root[data-theme="ha"] #tip,:root[data-theme="ha"] .themes select,:root[data-theme="ha"] .nav a:hover:after{background:var(--card-solid,var(--paper))}
+:root[data-theme="ha"] .topbar a,:root[data-theme="ha"] .topbar select,:root[data-theme="ha"] .topbar .hmenu{background:var(--card-solid,var(--paper))}
+:root[data-theme="ha"] .topbar{background:var(--bg);padding-bottom:10px}
+:root[data-theme="ha"] .slide{max-width:1180px;margin-left:auto;margin-right:auto}
+:root[data-theme="ha"] .split,:root[data-theme="ha"] .head2{align-items:start}
 """
 
 # Fonts ship with the integration (SIL Open Font License, see frontend/fonts): nothing is loaded from elsewhere.

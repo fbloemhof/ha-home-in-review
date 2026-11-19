@@ -329,7 +329,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 def _version() -> str:
+    """Cache key for panel.js: a hash of the file itself, so browsers load a changed panel without a version bump."""
     try:
-        return json.loads((Path(__file__).parent / "manifest.json").read_text())["version"]
-    except (OSError, ValueError, KeyError):
+        return hashlib.sha256((Path(__file__).parent / "frontend" / "panel.js").read_bytes()).hexdigest()[:12]
+    except OSError:
         return "0"
