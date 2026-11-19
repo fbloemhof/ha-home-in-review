@@ -174,6 +174,9 @@ async def first_month(src) -> tuple[int, int] | None:
 # ----------------------------------------------------------------------------- collector
 class Collector:
     def __init__(self, source: Any, options: dict | None = None, cache: dict | None = None) -> None:
+        self.price: dict[int, float] = {}
+        self.avg_price: float | None = None
+        self.mean_price: float | None = None
         self.src = source
         self.opt = options or {}
         self.cache = cache if cache is not None else {}
@@ -201,6 +204,11 @@ class Collector:
         }
         prefs = parse_energy_prefs(await self.src.energy_prefs())
         price = await self._energy(doc, prefs, start, end, hours, tz)
+        # Hourly price (what a kWh cost in that hour) for valuing the heat pump and home charging.
+        self.price = price
+        self.avg_price = (doc.get("energy") or {}).get("avg_import_price")
+        # Plain average of the hourly prices: the reference for "smart" use (charging when it is cheap).
+        self.mean_price = (sum(price.values()) / len(price)) if price else None
         await self._devices(doc, prefs, start, end, hours, price)
         await self._volume(doc, prefs, "water", start, end, hours, units["water"], cap=2000 if metric else 500)
         await self._volume(doc, prefs, "gas", start, end, hours, units["gas"], cap=25 if metric else 900)
@@ -221,6 +229,8 @@ class Collector:
                 if sensors.get("car"):
                     doc["car"]["km"] = sensors["car"]["km"]
                     doc["car"]["odometer_cars"] = sensors["car"]["cars"]
+                    if doc["car"].get("cost") is not None and doc["car"]["km"] > 10:
+                        doc["car"]["cost_per_100km"] = doc["car"]["cost"] / doc["car"]["km"] * 100
         if "car" not in doc:
             await extras.car_generic(self, doc, start, end, hours, cap)
         await extras.custom_tiles(self, doc, start, end, hours)
@@ -329,7 +339,10 @@ class Collector:
         for h in hours:
             t = dt.datetime.fromtimestamp(h, tz)
             k = t.strftime("%Y-%m-%d")
-            x = days.setdefault(k, {"d": k, "import": 0.0, "export": 0.0, "solar": 0.0, "load": 0.0, "cost": 0.0})
+            x = days.setdefault(k, {"d": k, "import": 0.0, "export": 0.0, "solar": 0.0, "load": 0.0, "cost": 0.0,
+                                    "bat_out": 0.0, "bat_in": 0.0})
+            x["bat_out"] += dis.get(h, 0)
+            x["bat_in"] += chg.get(h, 0)
             x["import"] += imp.get(h, 0)
             x["export"] += exp.get(h, 0)
             x["solar"] += solar.get(h, 0)
@@ -393,6 +406,10 @@ class Collector:
             return
         e["gas_cost"] = gas
         e["total_cost"] = sum(p for p in parts if p is not None) + (e.get("fixed_costs") or 0)
+        # Water is not energy, but belongs on the household bill: kept apart so either total can be shown.
+        water = (doc.get("water") or {}).get("cost")
+        e["water_cost"] = water
+        e["bill_total"] = e["total_cost"] + (water or 0)
 
     def _fixed_costs(self, days: int) -> float | None:
         daily = self.opt.get("fixed_costs_daily")

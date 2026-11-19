@@ -37,13 +37,15 @@
               "report_day": "Jour du mois",
               "report_time": "Heure",
               "year_start_month": "Le bilan annuel commence en",
-              "admin_only": "Seuls les administrateurs peuvent voir les rapports"
+              "admin_only": "Seuls les administrateurs peuvent voir les rapports",
+              "default_theme": "Thème par défaut"
             },
             "data_description": {
               "notify_services": "La notification ouvre le rapport.",
               "report_day": "Le rapport du mois précédent est créé ce jour-là.",
               "year_start_month": "Janvier pour une année civile ; par exemple juillet pour une saison de chauffe ou le début de votre contrat.",
-              "admin_only": "Désactivé : tout utilisateur de Home Assistant du foyer peut les ouvrir (ils montrent consommation, coûts et usage des pièces)."
+              "admin_only": "Désactivé : tout utilisateur de Home Assistant du foyer peut les ouvrir (ils montrent consommation, coûts et usage des pièces).",
+              "default_theme": "Utilisé jusqu'à ce qu'un lecteur choisisse un autre thème en fin de rapport (mémorisé par navigateur)."
             }
           },
           "energy": {
@@ -57,7 +59,7 @@
               "gas_base_per_day": "Gaz pour eau chaude et cuisson par jour"
             },
             "data_description": {
-              "fixed_costs_daily": "Facultatif, TTC : abonnement et frais de réseau.",
+              "fixed_costs_daily": "Facultatif, TTC : abonnement et frais de réseau moins une remise fixe par jour (peut être négatif).",
               "fixed_costs_monthly": "Facultatif, TTC. Montant négatif pour un crédit d'impôt fixe.",
               "max_hourly_kwh": "Les sauts au-delà sont considérés comme des erreurs. Environ votre raccordement : 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
               "heat_pump_devices": "Toute marque : un ou plusieurs capteurs d'énergie (intégration de la pompe, compteur ou prise, p. ex. compresseur et appoint). Ajoute une diapositive pompe à chaleur.",
@@ -167,6 +169,15 @@
         "hours_above": "Heures au-dessus du seuil",
         "days_above": "Jours au-dessus du seuil",
         "runs_above": "Cycles (puissance au-dessus du seuil)"
+      }
+    },
+    "theme": {
+      "options": {
+        "auto": "Automatique (clair/sombre)",
+        "light": "Clair",
+        "dark": "Sombre",
+        "night": "Nuit",
+        "mono": "Noir et blanc"
       }
     }
   },

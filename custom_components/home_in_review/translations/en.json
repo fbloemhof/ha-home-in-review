@@ -37,13 +37,15 @@
               "report_day": "Day of the month",
               "report_time": "Time",
               "year_start_month": "Year review starts in",
-              "admin_only": "Only administrators can view the reports"
+              "admin_only": "Only administrators can view the reports",
+              "default_theme": "Default theme"
             },
             "data_description": {
               "notify_services": "The notification opens the report.",
               "report_day": "Last month's report is made on this day.",
               "year_start_month": "January for a calendar year; for example July for a heating season or the month your energy contract starts.",
-              "admin_only": "Off: every Home Assistant user in the household can open them (they show energy use, costs and when rooms are used)."
+              "admin_only": "Off: every Home Assistant user in the household can open them (they show energy use, costs and when rooms are used).",
+              "default_theme": "Used until a viewer picks another theme at the end of a report (remembered per browser)."
             }
           },
           "energy": {
@@ -57,7 +59,7 @@
               "gas_base_per_day": "Gas for hot water and cooking per day"
             },
             "data_description": {
-              "fixed_costs_daily": "Optional, including tax: standing charges and grid fees.",
+              "fixed_costs_daily": "Optional, including tax: standing charges and grid fees minus a fixed daily tax credit (may be negative).",
               "fixed_costs_monthly": "Optional, including tax. Use a negative amount for a fixed tax credit.",
               "max_hourly_kwh": "Meter jumps above this per hour are treated as glitches. Roughly your connection: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
               "heat_pump_devices": "Any brand: one or more energy sensors (the heat pump's own integration, a kWh meter or smart plug, e.g. compressor and backup heater). Adds a heat pump slide with electricity per degree day.",
@@ -167,6 +169,15 @@
         "hours_above": "Hours above threshold",
         "days_above": "Days above threshold",
         "runs_above": "Runs (from power above threshold)"
+      }
+    },
+    "theme": {
+      "options": {
+        "auto": "Automatic (follows light/dark)",
+        "light": "Light",
+        "dark": "Dark",
+        "night": "Night",
+        "mono": "Black and white"
       }
     }
   },

@@ -41,6 +41,7 @@ from .const import (
     CONF_RAIN_SENSOR,
     CONF_REPORT_DAY,
     CONF_REPORT_TIME,
+    CONF_THEME,
     CONF_TILES,
     CONF_TM_HOME,
     CONF_TM_TOKEN,
@@ -97,7 +98,7 @@ def _suggest(value: Any) -> dict:
 
 # Settings form: one form with collapsible sections; key -> fields in that section.
 SECTIONS = {
-    "general": [CONF_NOTIFY, CONF_REPORT_DAY, CONF_REPORT_TIME, CONF_YEAR_START, CONF_ADMIN_ONLY],
+    "general": [CONF_NOTIFY, CONF_REPORT_DAY, CONF_REPORT_TIME, CONF_YEAR_START, CONF_THEME, CONF_ADMIN_ONLY],
     "energy": [CONF_FIXED_DAILY, CONF_FIXED_MONTHLY, CONF_MAX_HOURLY_KWH, CONF_GAS_BASE, CONF_HP_DEVICES, CONF_HP_HEAT],
     "climate": [CONF_EXCLUDED_AREAS, CONF_OUTDOOR_SENSOR, CONF_RAIN_SENSOR, CONF_USE_OPEN_METEO],
     "car": [CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS, CONF_EVCC_URL, CONF_TM_URL, CONF_TM_TOKEN, CONF_TM_HOME],
@@ -166,11 +167,14 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             vol.Required(CONF_YEAR_START, default=str(o.get(CONF_YEAR_START, 1))): selector.SelectSelector(
                 selector.SelectSelectorConfig(options=[str(i) for i in range(1, 13)], translation_key="month",
                                               mode=selector.SelectSelectorMode.DROPDOWN)),
+            vol.Required(CONF_THEME, default=o.get(CONF_THEME, "auto")): selector.SelectSelector(
+                selector.SelectSelectorConfig(options=["auto", "light", "dark", "night", "mono"], translation_key="theme",
+                                              mode=selector.SelectSelectorMode.DROPDOWN)),
             vol.Required(CONF_ADMIN_ONLY, default=bool(o.get(CONF_ADMIN_ONLY, False))): selector.BooleanSelector(),
         })
         energy = vol.Schema({
             vol.Optional(CONF_FIXED_DAILY, description=_suggest(o.get(CONF_FIXED_DAILY))): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=0, max=100, step="any", mode=BOX)),
+                selector.NumberSelectorConfig(min=-100, max=100, step="any", mode=BOX)),
             vol.Optional(CONF_FIXED_MONTHLY, description=_suggest(o.get(CONF_FIXED_MONTHLY))): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=-1000, max=10000, step="any", mode=BOX)),
             vol.Required(CONF_MAX_HOURLY_KWH, default=o.get(CONF_MAX_HOURLY_KWH, DEFAULT_MAX_HOURLY_KWH)): selector.NumberSelector(

@@ -510,6 +510,25 @@ SERVICES["backfill"]["fields"]["months"] = (t("Months", "Maanden", "Monate", "Mo
     "Hoeveel maanden terug. Standaard: tot het begin van vorig jaar (volgens de startmaand van je jaaroverzicht).",
     "Wie viele Monate zurück. Standard: bis zum Beginn des letzten Jahres (gemäß Startmonat des Jahresrückblicks).",
     "Combien de mois en arrière. Par défaut : jusqu'au début de l'année dernière (selon le mois de début du bilan annuel)."))
+_gen = STEPS["settings"]["sections"]["general"]
+_gen["data"]["default_theme"] = t("Default theme", "Standaardthema", "Standarddesign", "Thème par défaut")
+_gen["data_description"]["default_theme"] = t(
+    "Used until a viewer picks another theme at the end of a report (remembered per browser).",
+    "Geldt tot iemand onderaan een rapport een ander thema kiest (dat wordt per browser onthouden).",
+    "Gilt, bis jemand am Ende eines Berichts ein anderes Design wählt (pro Browser gespeichert).",
+    "Utilisé jusqu'à ce qu'un lecteur choisisse un autre thème en fin de rapport (mémorisé par navigateur).")
+THEME_NAMES = {
+    "auto": t("Automatic (follows light/dark)", "Automatisch (volgt licht/donker)", "Automatisch (hell/dunkel)", "Automatique (clair/sombre)"),
+    "light": t("Light", "Licht", "Hell", "Clair"),
+    "dark": t("Dark", "Donker", "Dunkel", "Sombre"),
+    "night": t("Night", "Nacht", "Nacht", "Nuit"),
+    "mono": t("Black and white", "Zwart-wit", "Schwarz-weiß", "Noir et blanc"),
+}
+_en["data_description"]["fixed_costs_daily"] = t(
+    "Optional, including tax: standing charges and grid fees minus a fixed daily tax credit (may be negative).",
+    "Optioneel, inclusief btw: vaste leveringskosten en netbeheer min een vaste korting per dag (mag negatief zijn).",
+    "Optional, inkl. Steuern: Grundgebühr und Netzentgelte abzüglich einer festen Gutschrift pro Tag (darf negativ sein).",
+    "Facultatif, TTC : abonnement et frais de réseau moins une remise fixe par jour (peut être négatif).")
 ERRORS = {
     "statistic_required": t("Choose a statistic.", "Kies een statistiek.", "Wählen Sie eine Statistik.", "Choisissez une statistique."),
     "invalid_url": t("Enter a valid http:// or https:// address without query or fragment.",
@@ -567,6 +586,7 @@ for lang in LANGS:
         "selector": {
             "month": {"options": {str(i + 1): m for i, m in enumerate(MONTHS[lang])}},
             "tile_type": {"options": {k: v[lang] for k, v in TILE.items()}},
+            "theme": {"options": {k: v[lang] for k, v in THEME_NAMES.items()}},
         },
         "services": {k: {"name": v["name"][lang], "description": v["description"][lang],
                          "fields": {f: {"name": n[lang], "description": d[lang]} for f, (n, d) in v["fields"].items()}}

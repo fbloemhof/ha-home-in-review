@@ -13,7 +13,7 @@ from homeassistant.components.http import KEY_HASS_USER, HomeAssistantView
 from homeassistant.core import HomeAssistant
 
 from . import render
-from .const import CONF_ADMIN_ONLY, CONF_YEAR_START, DOMAIN, URL_BASE
+from .const import CONF_ADMIN_ONLY, CONF_THEME, CONF_YEAR_START, DOMAIN, URL_BASE
 
 YM = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 LANG = re.compile(r"^[a-z]{2}(-[A-Za-z]{2,4})?$")
@@ -22,7 +22,7 @@ HEADERS = {
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "no-referrer",
     # Inline styles and scripts only; nothing from elsewhere, no outgoing requests, framed only by Home Assistant.
-    "Content-Security-Policy": ("default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; "
+    "Content-Security-Policy": ("default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; font-src 'self'; "
                                 "img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'"),
 }
 
@@ -46,15 +46,16 @@ class ReportView(HomeAssistantView):
         lang = lang if LANG.match(lang) else hass.config.language
         home = hass.config.location_name
         start = int(rt.options.get(CONF_YEAR_START, 1))
+        theme = rt.options.get(CONF_THEME, "auto")
         if name == "index":
-            html = render.render_index(docs, lang, home, hass.config.currency, start)
+            html = render.render_index(docs, lang, home, hass.config.currency, start, theme)
         elif name.startswith("year-") and YM.match(name[5:]):
             try:
-                html = await hass.async_add_executor_job(render.render_year, name[5:], docs, lang, home, start)
+                html = await hass.async_add_executor_job(render.render_year, name[5:], docs, lang, home, start, theme)
             except KeyError:
                 return web.Response(status=404)
         elif YM.match(name) and name in docs:
-            html = await hass.async_add_executor_job(render.render_month, name, docs, lang, home, start)
+            html = await hass.async_add_executor_job(render.render_month, name, docs, lang, home, start, theme)
         else:
             return web.Response(status=404)
         return web.Response(text=html, content_type="text/html", charset="utf-8", headers=HEADERS)

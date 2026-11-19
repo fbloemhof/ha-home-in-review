@@ -37,13 +37,15 @@
               "report_day": "Giorno del mese",
               "report_time": "Ora",
               "year_start_month": "Il riepilogo annuale inizia a",
-              "admin_only": "Solo gli amministratori possono vedere i resoconti"
+              "admin_only": "Solo gli amministratori possono vedere i resoconti",
+              "default_theme": "Tema predefinito"
             },
             "data_description": {
               "notify_services": "La notifica apre il resoconto.",
               "report_day": "In questo giorno viene creato il resoconto del mese precedente.",
               "year_start_month": "Gennaio per l'anno solare; ad esempio luglio per una stagione di riscaldamento o il mese in cui inizia il contratto energetico.",
-              "admin_only": "Disattivato: ogni utente di Home Assistant in casa può aprirli (mostrano consumi, costi e uso degli ambienti)."
+              "admin_only": "Disattivato: ogni utente di Home Assistant in casa può aprirli (mostrano consumi, costi e uso degli ambienti).",
+              "default_theme": "Usato finché qualcuno sceglie un altro tema alla fine di un resoconto (memorizzato per browser)."
             }
           },
           "energy": {
@@ -57,7 +59,7 @@
               "gas_base_per_day": "Gas per acqua calda e cucina al giorno"
             },
             "data_description": {
-              "fixed_costs_daily": "Facoltativo, IVA inclusa: quota fissa e oneri di rete.",
+              "fixed_costs_daily": "Facoltativo, IVA inclusa: quota fissa e oneri di rete meno uno sconto fisso giornaliero (può essere negativo).",
               "fixed_costs_monthly": "Facoltativo, IVA inclusa. Usa un importo negativo per uno sconto fisso.",
               "max_hourly_kwh": "I salti del contatore oltre questo valore orario sono considerati errori. Circa il tuo allaccio: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
               "heat_pump_devices": "Qualsiasi marca: uno o più sensori di energia (l'integrazione della pompa, un contatore o una presa smart, ad es. compressore e resistenza integrativa). Aggiunge una slide della pompa di calore con l'elettricità per grado giorno.",
@@ -167,6 +169,15 @@
         "hours_above": "Ore sopra la soglia",
         "days_above": "Giorni sopra la soglia",
         "runs_above": "Cicli (potenza sopra la soglia)"
+      }
+    },
+    "theme": {
+      "options": {
+        "auto": "Automatico (segue chiaro/scuro)",
+        "light": "Chiaro",
+        "dark": "Scuro",
+        "night": "Notte",
+        "mono": "Bianco e nero"
       }
     }
   },

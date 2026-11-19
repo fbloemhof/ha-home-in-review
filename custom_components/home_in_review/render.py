@@ -44,19 +44,19 @@ CSS = r"""
 :root{
   color-scheme:light;
   --bg:#f3efe6;--paper:#faf8f2;--ink:#16181d;--ink2:#4a4d55;--mut:#7d8088;--line:#ddd7c9;
-  --s1:#2a78d6;--s3:#1baf7a;--s4:#d99400;--hi:#d9602b;--cost:#6b6e76;
-  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
-  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --s1:#2a78d6;--s3:#1baf7a;--s4:#d99400;--s5:#8a6fd1;--hi:#d9602b;--cost:#6b6e76;
+  --serif:"Fraunces","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="paper"]){
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="night"]):not([data-theme="mono"]){
   color-scheme:dark;--bg:#0f1115;--paper:#171a21;--ink:#f0efec;--ink2:#c3c2b7;--mut:#8f8f8a;--line:#2a2e36;
-  --s1:#4a90e2;--s3:#22a777;--s4:#d29a1c;--hi:#e8743f;--cost:#9a9ca3}}
+  --s1:#4a90e2;--s3:#22a777;--s4:#d29a1c;--s5:#9b85e6;--hi:#e8743f;--cost:#9a9ca3}}
 :root[data-theme="dark"]{color-scheme:dark;--bg:#0f1115;--paper:#171a21;--ink:#f0efec;--ink2:#c3c2b7;--mut:#8f8f8a;--line:#2a2e36;
-  --s1:#4a90e2;--s3:#22a777;--s4:#d29a1c;--hi:#e8743f;--cost:#9a9ca3}
-:root[data-theme="night"]{color-scheme:dark;--bg:#0a1020;--paper:#111a2e;--ink:#eef2fa;--ink2:#b9c3d6;--mut:#7f8ba3;--line:#1f2a42;
-  --s1:#3f86e0;--s3:#1fa37a;--s4:#c9961c;--hi:#d68a2a;--cost:#8a96ad}
+  --s1:#4a90e2;--s3:#22a777;--s4:#d29a1c;--s5:#9b85e6;--hi:#e8743f;--cost:#9a9ca3}
+:root[data-theme="night"]{color-scheme:dark;--bg:#0a1020;--paper:#111a2e;--ink:#eef2fa;--ink2:#b9c3d6;--mut:#7c88a0;--line:#1f2a42;
+  --s1:#3f86e0;--s3:#1fa37a;--s4:#d9a62b;--s5:#8f7be0;--hi:#c4801c;--cost:#8a96ad}
 :root[data-theme="mono"]{color-scheme:light;--bg:#f6f6f4;--paper:#fff;--ink:#0b0b0b;--ink2:#4a4a48;--mut:#85857f;--line:#e2e2df;
-  --s1:#3d3d3b;--s3:#2f5bea;--s4:#9a9a96;--hi:#2f5bea;--cost:#a3a39e;--serif:var(--sans)}
+  --s1:#3d3d3b;--s3:#2f5bea;--s4:#9a9a96;--s5:#6e6e6a;--hi:#2f5bea;--cost:#a3a39e;--serif:var(--sans)}
 *{box-sizing:border-box}
 html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
@@ -82,7 +82,7 @@ h2 em{font-style:italic;color:var(--hi)}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px 28px}
 .stat{border-top:1px solid var(--line);padding-top:10px}
 .stat .l{font-size:13px;color:var(--mut)}
-.stat .v{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-.01em;line-height:1.15}
+.stat .v{white-space:nowrap;font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-.01em;line-height:1.15}
 .stat .v small{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--ink2);margin-left:4px;letter-spacing:0}
 .stat .c{font-size:12.5px;color:var(--mut)}
 .note{font-size:13px;color:var(--mut);max-width:48em;margin:0}
@@ -198,10 +198,30 @@ ul.src{margin:0;padding-left:1.1em;color:var(--ink2);font-size:14.5px}
 .idx .y{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-top:26px}
 """
 
-# Navigation between reports: inside the panel the page is in an iframe and asks the panel to load another report.
-THEME_HEAD = r"""<script>(()=>{const r=document.documentElement;let t=new URLSearchParams(location.search).get('theme');
-const h=/theme=([a-z]+)/.exec(location.hash);if(h)t=h[1];if(!t){try{t=localStorage.getItem('hir-theme')}catch(e){}}
-if(t&&t!=='auto')r.dataset.theme=t;})()</script>"""
+# Fonts ship with the integration (SIL Open Font License, see frontend/fonts): nothing is loaded from elsewhere.
+FONT_BASE = "/home_in_review_static/fonts"
+FONT_FACES = (
+    ("Fraunces", "italic", "400 700", "fraunces-italic-latin-ext.woff2", "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"),
+    ("Fraunces", "italic", "400 700", "fraunces-italic-latin.woff2", "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"),
+    ("Fraunces", "normal", "400 700", "fraunces-normal-latin-ext.woff2", "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"),
+    ("Fraunces", "normal", "400 700", "fraunces-normal-latin.woff2", "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"),
+    ("Inter", "normal", "400 700", "inter-normal-latin-ext.woff2", "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"),
+    ("Inter", "normal", "400 700", "inter-normal-latin.woff2", "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"),
+)
+THEMES = ("auto", "light", "dark", "night", "mono")
+
+
+def font_css() -> str:
+    return "".join(f"@font-face{{font-family:'{f}';font-style:{st};font-weight:{w};font-display:swap;"
+                   f"src:url('{FONT_BASE}/{n}') format('woff2');unicode-range:{r}}}" for f, st, w, n, r in FONT_FACES)
+
+
+def theme_head(default: str = "auto") -> str:
+    """Theme before first paint: ?theme= / #theme=, else the viewer's own choice, else the configured default."""
+    default = default if default in THEMES else "auto"
+    return ("<script>(()=>{const r=document.documentElement;let t=new URLSearchParams(location.search).get('theme');"
+            "const h=/theme=([a-z]+)/.exec(location.hash);if(h)t=h[1];if(!t){try{t=localStorage.getItem('hir-theme')}catch(e){}}"
+            f"if(!t)t='{default}';if(t&&t!=='auto')r.dataset.theme=t;}})()</script>")
 
 JS = r"""
 window.hirGo=f=>{if(window.parent!==window)parent.postMessage({homeInReview:f},location.origin);else location.href='./'+f+'.html'};
@@ -306,35 +326,51 @@ def trend(L: Lang, series: list[tuple[str, float | None]], cap: str, fmt: Callab
     return "".join(out)
 
 
+def day_sources(x: dict) -> tuple[float, float, float]:
+    """Where a day's electricity came from: grid, solar used directly, battery."""
+    bat = x.get("bat_out", 0.0)
+    solar_direct = max(0.0, x.get("load", 0.0) - x["import"] - bat) if x.get("solar") else 0.0
+    return x["import"], solar_direct, bat
+
+
 def daily_energy_chart(L: Lang, daily: list[dict], W=1000, H=340, every=7) -> str:
-    """Grid import up, export down, per day."""
+    """Per day: what the house used, stacked by source (grid, solar directly, battery); returned to the grid below."""
     if not daily:
         return ""
     pl, top, bot = 44, 14, 26
-    step = nice_step(max(max(x["import"] for x in daily), max(x["export"] for x in daily)), 2)
-    up = step * max(1, math.ceil(max(x["import"] for x in daily) / step))
+    ups = [sum(day_sources(x)) for x in daily]
+    step = nice_step(max(max(ups), max(x["export"] for x in daily)), 3)
+    up = step * max(1, math.ceil(max(ups) / step))
     dn = step * math.ceil(max(x["export"] for x in daily) / step)
     span = up + dn
     y0 = top + (H - top - bot) * up / span
     sc = (H - top - bot) / span
     bw = (W - pl) / len(daily)
-    out = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="{esc(L("imported"))} / {esc(L("exported"))}">']
+    out = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="{esc(L("kwh_per_day"))}">']
     for v in (up, -dn) if dn else (up,):
         y = y0 - v * sc
         out.append(f'<line x1="{pl}" x2="{W}" y1="{y:.1f}" y2="{y:.1f}" class="grid"/><text x="{pl - 8}" y="{y + 4:.1f}" class="ax" text-anchor="end">{L.num(abs(v))}</text>')
     out.append(f'<line x1="{pl}" x2="{W}" y1="{y0:.1f}" y2="{y0:.1f}" stroke="var(--ink2)" stroke-width="1"/>')
     for i, x in enumerate(daily):
         px = pl + i * bw
-        hu, hd = x["import"] * sc, x["export"] * sc
         w = max(bw - 3, 2)
-        if hu > 0.3:
-            out.append(f'<rect x="{px + 1.5:.1f}" y="{y0 - hu:.1f}" width="{w:.1f}" height="{hu:.1f}" rx="{min(4, w / 2):.1f}" fill="var(--s1)"/>')
+        grid, solar, bat = day_sources(x)
+        y = y0
+        for v, col in ((grid, "var(--s1)"), (solar, "var(--s4)"), (bat, "var(--s5)")):
+            h = v * sc
+            if h > 0.3:
+                out.append(f'<rect x="{px + 1.5:.1f}" y="{y - h:.1f}" width="{w:.1f}" height="{h:.1f}" fill="{col}"/>')
+                y -= h
+        hd = x["export"] * sc
         if hd > 0.3:
-            out.append(f'<rect x="{px + 1.5:.1f}" y="{y0:.1f}" width="{w:.1f}" height="{hd:.1f}" rx="{min(4, w / 2):.1f}" fill="var(--s3)"/>')
+            out.append(f'<rect x="{px + 1.5:.1f}" y="{y0:.1f}" width="{w:.1f}" height="{hd:.1f}" fill="var(--s3)"/>')
         d = dt.date.fromisoformat(x["d"])
-        tip = f'{d.day} {L.month_short(d.month)} · {L("imported")} {L.num(x["import"], 1)} kWh · {L("exported")} {L.num(x["export"], 1)} kWh'
+        tip = f'{d.day} {L.month_short(d.month)} · {L("imported")} {L.num(grid, 1)}'
         if x.get("solar"):
-            tip += f' · {L("solar")} {L.num(x["solar"], 1)} kWh'
+            tip += f' · {L("solar_direct")} {L.num(solar, 1)}'
+        if bat:
+            tip += f' · {L("from_battery")} {L.num(bat, 1)}'
+        tip += f' · {L("exported")} {L.num(x["export"], 1)} kWh'
         out.append(f'<rect class="hit" x="{px:.1f}" y="0" width="{bw:.1f}" height="{H}" data-tip="{esc(tip)}"/>')
         if (d.day - 1) % every == 0:
             out.append(f'<text x="{px + bw / 2:.1f}" y="{H - 6}" class="ax" text-anchor="middle">{d.day} {esc(L.month_short(d.month))}</text>')
@@ -576,7 +612,7 @@ def _get(fn):
 
 # ============================================================================ month report
 def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: str | None = None,
-                 start_month: int = 1) -> str:
+                 start_month: int = 1, theme: str = "auto") -> str:
     d = docs[ym]
     u = d["units"]
     L = Lang(lang, u.get("currency", "EUR"))
@@ -593,7 +629,9 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
     if e:
         figs.append(f'<div>{icon("house")}<b>{kwh(e["consumption"])}</b><span>{esc(L("used"))}</span></div>')
     if e.get("total_cost") is not None:
-        figs.append(f'<div>{icon("euro")}<b>{money(e["total_cost"])}</b><span>{esc(L("net_cost"))}</span></div>')
+        bill = e.get("bill_total", e["total_cost"])
+        lbl = L("cost_with_water") if e.get("water_cost") is not None else L("net_cost")
+        figs.append(f'<div>{icon("euro")}<b>{money(bill)}</b><span>{esc(lbl)}</span></div>')
     if e.get("solar"):
         figs.append(f'<div>{icon("sun")}<b>{kwh(e["solar"])}</b><span>{esc(L("from_sun"))}</span></div>')
     if g(d, "weather", "temp") is not None:
@@ -625,6 +663,11 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
             head = L("h_energy_first", v=kwh(cons))
         stats = [P.stat(L("load"), kwh(cons), cons, _get(lambda x: x["energy"]["consumption"])),
                  P.stat(L("imported"), kwh(e["import"]), e["import"], _get(lambda x: x["energy"]["import"]))]
+        if e.get("solar"):
+            stats.append(P.stat(L("solar"), kwh(e["solar"]), e["solar"], _get(lambda x: x["energy"]["solar"])))
+        if e.get("battery_discharge"):
+            stats.append(P.stat(L("from_battery"), kwh(e["battery_discharge"]), e["battery_discharge"],
+                                _get(lambda x: x["energy"]["battery_discharge"])))
         if e.get("export"):
             stats.append(P.stat(L("exported"), kwh(e["export"]), e["export"], _get(lambda x: x["energy"]["export"])))
         if e.get("self_sufficiency") is not None:
@@ -633,6 +676,10 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
             stats.append(P.stat(L("base_load"), f'{L.num(e["base_load_w"])} W', e["base_load_w"], _get(lambda x: x["energy"]["base_load_w"])))
         tr = trend(L, P.series13(_get(lambda x: x["energy"]["consumption"])), L("trend_use"), lambda v: kwh(v))
         legend = f'<span><i style="background:var(--s1)"></i>{esc(L("imported"))}</span>'
+        if e.get("solar"):
+            legend += f'<span><i style="background:var(--s4)"></i>{esc(L("solar_direct"))}</span>'
+        if e.get("battery_discharge"):
+            legend += f'<span><i style="background:var(--s5)"></i>{esc(L("from_battery"))}</span>'
         if e.get("export"):
             legend += f'<span><i style="background:var(--s3)"></i>{esc(L("exported"))}</span>'
         P.add("energy", L("s_energy"), "bolt", f'''{P.kicker(L("s_energy"), "bolt")}
@@ -643,8 +690,12 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
 
     # ---------------------------------------------------------------- costs
     if e.get("total_cost") is not None:
-        tot = e["total_cost"]
-        avg, refs = P.compare(lambda x: x["energy"]["total_cost"])
+        # The household bill: energy (electricity, gas, fixed costs) plus water when it has a price.
+        def billf(x):
+            return x["energy"].get("bill_total", x["energy"]["total_cost"])
+        tot = billf(d)
+        bill_label = L("cost_with_water") if e.get("water_cost") is not None else L("net_cost")
+        avg, refs = P.compare(billf)
         if tot < 0:
             head = L("h_cost_earned")
         elif avg is not None:
@@ -656,9 +707,13 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         paid = [(L("import_cost"), e["cost_import"], "var(--cost)")] if e.get("cost_import") is not None else []
         if e.get("gas_cost"):
             paid.append((L("gas_cost"), e["gas_cost"], "color-mix(in srgb,var(--s4) 70%,var(--bg))"))
-        if e.get("fixed_costs"):
+        if e.get("fixed_costs") and e["fixed_costs"] > 0:
             paid.append((L("fixed"), e["fixed_costs"], "color-mix(in srgb,var(--cost) 55%,var(--bg))"))
+        if e.get("water_cost"):
+            paid.append((L("water_cost"), e["water_cost"], "color-mix(in srgb,var(--s1) 45%,var(--bg))"))
         back = [(L("compensation"), e["compensation"], "var(--s3)")] if e.get("compensation") else []
+        if e.get("fixed_costs") and e["fixed_costs"] < 0:  # e.g. a fixed tax credit
+            back.append((L("fixed_credit"), -e["fixed_costs"], "color-mix(in srgb,var(--s3) 55%,var(--bg))"))
         tp, tb = sum(v for _, v, _ in paid), sum(v for _, v, _ in back)
         mx = max(tp, tb, 0.01)
 
@@ -670,14 +725,14 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         lines += "".join(f'<div class="rl"><span><i style="background:{c}"></i>{esc(n)}</span><span>−{money(v, 2)}</span></div>' for n, v, c in back)
         bill = f'''<div class="bill">{bar(L("paid"), paid, tp)}{bar(L("received"), back, tb) if back else ""}
 <div class="rec">{lines}<div class="rl tot"><span>{esc(L("total") if tot >= 0 else L("credit"))}</span><span>{money(abs(tot), 2)}</span></div></div></div>'''
-        tr = trend(L, P.series13(_get(lambda x: x["energy"]["total_cost"])), L("trend_cost"), lambda v: money(v))
+        tr = trend(L, P.series13(_get(billf)), L("trend_cost"), lambda v: money(v))
         note = L("cost_note") + (" " + L("cost_note_fixed") if e.get("fixed_costs") else "")
         price = ""
         if e.get("avg_import_price") is not None:
             price = f'<div class="cmp">{esc(L("avg_price"))}: <b>{money(e["avg_import_price"], 3)}</b>/kWh</div>'
         P.add("cost", L("s_cost"), "receipt", f'''{P.kicker(L("s_cost"), "receipt")}
 <div class="split"><div><h2>{head}</h2>
-<div class="hero" style="margin-top:22px">{money(abs(tot))}<small>{esc(L("net_cost"))}</small></div>{price}
+<div class="hero" style="margin-top:22px">{money(abs(tot))}<small>{esc(bill_label)}</small></div>{price}
 <div style="margin-top:28px">{tr}</div></div>
 <div>{bill}<p class="note" style="margin-top:14px">{esc(note)}</p></div></div>''')
 
@@ -748,90 +803,110 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
     # ---------------------------------------------------------------- heat pump (optional)
     hp = d.get("heat_pump")
     if hp and hp.get("electricity"):
+        cop_fn = _get(lambda x: x["heat_pump"]["cop"])
         if hp.get("cop"):
-            head = L("h_hp_cop", v=kwh(hp["electricity"]), cop=L.num(hp["cop"], 1))
+            ref, refs = P.compare(cop_fn)
+            if ref:
+                p = (hp["cop"] - ref) / ref
+                head = (L("h_hp_cop_same", **refs) if abs(p) < .05 else
+                        L("h_hp_cop_better" if p > 0 else "h_hp_cop_worse", **refs))
+            else:
+                head = L("h_hp_cop", v=kwh(hp["electricity"]), cop=L.num(hp["cop"], 1))
+            hero = f'{L.num(hp["cop"], 1)}<small>COP</small>'
+            hero_note = f'<p class="note" style="margin-top:10px">{esc(L("hp_cop_explained", cop=L.num(hp["cop"], 1)))}</p>'
+            if ref:
+                hero_note = (f'<div class="cmp">{esc(L("last_year") if refs.get("kind") == "ly" else L("average"))} '
+                             f'{L.num(ref, 1)}</div>') + hero_note
         else:
             head = L("h_hp", v=kwh(hp["electricity"]))
-        stats = [P.stat(L("hp_elec"), kwh(hp["electricity"]), hp["electricity"], _get(lambda x: x["heat_pump"]["electricity"]))]
+            hero, hero_note = f'{L.num(hp["electricity"])}<small>kWh</small>', ""
+        stats = []
         if hp.get("heat"):
             stats.append(P.stat(L("hp_heat"), kwh(hp["heat"]), hp["heat"], _get(lambda x: x["heat_pump"]["heat"])))
-        if hp.get("cop"):
-            stats.append(P.stat("COP", L.num(hp["cop"], 1), hp["cop"], _get(lambda x: x["heat_pump"]["cop"]), lambda v: L.num(v, 1)))
+        stats.append(P.stat(L("hp_elec"), kwh(hp["electricity"]), hp["electricity"], _get(lambda x: x["heat_pump"]["electricity"])))
+        if hp.get("cost") is not None:
+            stats.append(P.stat(L("cost_short"), money(hp["cost"]), hp["cost"], _get(lambda x: x["heat_pump"]["cost"]),
+                                lambda v: money(v)))
         if hp.get("kwh_per_degree_day"):
             stats.append(P.stat(L("hp_per_dd"), f'{L.num(hp["kwh_per_degree_day"], 2)} kWh', hp["kwh_per_degree_day"],
                                 _get(lambda x: x["heat_pump"]["kwh_per_degree_day"]), lambda v: L.num(v, 2)))
+        if hp.get("cost_per_degree_day"):
+            stats.append(P.stat(L("hp_cost_per_dd"), money(hp["cost_per_degree_day"], 2), hp["cost_per_degree_day"],
+                                _get(lambda x: x["heat_pump"]["cost_per_degree_day"]), lambda v: money(v, 2)))
         if hp.get("share"):
             stats.append(P.stat(L("share"), L.pct(hp["share"])))
         tr = trend(L, P.series13(_get(lambda x: x["heat_pump"]["electricity"])), L("trend_hp"), lambda v: kwh(v))
         P.add("heatpump", L("s_heat_pump"), "flame", f'''{P.kicker(L("s_heat_pump"), "flame")}
-<div class="split"><div><h2>{head}</h2><div class="hero" style="margin-top:22px">{L.num(hp["electricity"])}<small>kWh</small></div></div>
+<div class="split"><div><h2>{head}</h2><div class="hero" style="margin-top:22px">{hero}</div>{hero_note}</div>
 <div><div class="stats">{"".join(stats)}</div><div style="margin-top:28px">{tr}</div></div></div>
 <p class="note">{esc(L("hp_note", devices=", ".join(hp.get("devices", []))))}</p>''')
 
-    # ---------------------------------------------------------------- car (optional, TeslaMate)
+    # ---------------------------------------------------------------- car (optional: odometer + charger, evcc or TeslaMate)
     car = d.get("car")
-    if car and car.get("source") == "sensors":
+    if car:
         mi = tu == "°F"
-        dist = (lambda v: f"{L.num(v / 1.609344)} mi") if mi else (lambda v: f"{L.num(v)} km")  # noqa: E731
-        head = L("h_car_km", km=dist(car["km"])) if car["km"] else L("h_car_charged", v=kwh(car["charged_home"] or 0))
-        stats = [P.stat(c["name"], dist(c["km"]), c["km"], _get(lambda x, n=c["name"]: next(
-            (y["km"] for y in x["car"]["cars"] if y["name"] == n), None))) for c in car["cars"]]
-        if car.get("charged_home") is not None:
-            stats.append(P.stat(L("car_charged_home"), kwh(car["charged_home"]), car["charged_home"],
-                                _get(lambda x: x["car"]["charged_home"])))
-        if car.get("kwh_per_100km_home"):
-            per = car["kwh_per_100km_home"] * (1.609344 if mi else 1)
-            stats.append(P.stat(L("car_per_100_mi" if mi else "car_per_100"), f"{L.num(per, 1)} kWh"))
-        tr = trend(L, P.series13(_get(lambda x: x["car"]["km"])), L("trend_car"), dist) if car["km"] else ""
-        P.add("car", L("s_car"), "car", f'''{P.kicker(L("s_car"), "car")}
-<div class="head2"><h2>{head}</h2>{tr}</div><div class="stats">{"".join(stats)}</div>
-<p class="note">{esc(L("car_note_generic"))}</p>''')
-    elif car and car.get("source") == "evcc":
-        mi = tu == "°F"
-        dist = (lambda v: f"{L.num(v / 1.609344)} mi") if mi else (lambda v: f"{L.num(v)} km")  # noqa: E731
-        if car.get("solar_share") is not None:
-            head = L("h_evcc_solar", v=kwh(car["charged"]), n=car["sessions"], solar=L.pct(car["solar_share"]))
+        f_km = 1.609344 if mi else 1.0
+        dist = lambda v: f"{L.num(v / f_km)} {'mi' if mi else 'km'}"  # noqa: E731
+        src = car.get("source")
+        C = lambda k: _get(lambda x, k=k: x["car"][k])  # noqa: E731
+        home_key = "home_used_kwh" if car.get("home_used_kwh") is not None else (
+            "charged_home" if car.get("charged_home") is not None else "charged")
+        cost_key = "home_cost" if car.get("home_cost") is not None else "cost"
+        km = car.get("km") or 0
+        if km:
+            ref, refs = P.compare(C("km"))
+            if ref:
+                p = (km - ref) / ref
+                head = (L("h_car_km_same", km=dist(km), **refs) if abs(p) < .05 else
+                        L("h_car_km_more" if p > 0 else "h_car_km_less", km=dist(km), pct=L.pct(abs(p)), **refs))
+            else:
+                head = L("h_car_km", km=dist(km))
         else:
-            head = L("h_evcc", v=kwh(car["charged"]), n=car["sessions"])
-        has_cost = any(c.get("cost") is not None for c in car["cars"])
-        has_solar = any(c.get("solar_share") is not None for c in car["cars"])
-        rows = ""
-        for c in car["cars"]:
-            km = c["km"] if c.get("km_known") else None
-            rows += (f'<tr><td>{esc(c["name"])}</td><td>{c["sessions"]}</td><td>{L.num(c["charged"])}</td>'
-                     + (f'<td>{L.pct(c["solar_share"]) if c.get("solar_share") is not None else "–"}</td>' if has_solar else "")
-                     + (f'<td>{L.money(c["cost"], 2) if c.get("cost") is not None else "–"}</td>' if has_cost else "")
-                     + f'<td>{dist(km) if km is not None else "–"}</td></tr>')
-        th = (f'<th></th><th>{esc(L("car_sessions"))}</th><th>kWh</th>' + (f'<th>{esc(L("solar"))}</th>' if has_solar else "")
-              + (f'<th>{esc(L("cost_short"))}</th>' if has_cost else "") + f'<th>{"mi" if mi else "km"}</th>')
-        stats = [P.stat(L("car_charged"), kwh(car["charged"]), car["charged"], _get(lambda x: x["car"]["charged"]))]
-        if car.get("cost") is not None:
-            stats.append(P.stat(L("cost_short"), L.money(car["cost"], 2), car["cost"], _get(lambda x: x["car"]["cost"]),
-                                lambda v: L.money(v, 2)))
-        if car.get("avg_price") is not None:
-            stats.append(P.stat(L("avg_price"), f'{L.money(car["avg_price"], 3)}/kWh'))
-        if car.get("km"):
-            stats.append(P.stat(L("trend_car"), dist(car["km"]), car["km"], _get(lambda x: x["car"]["km"]), dist))
-        if car.get("km") and car.get("charged"):
-            stats.append(P.stat(L("car_per_100_mi" if mi else "car_per_100"),
-                                f'{L.num(car["charged"] / car["km"] * 100 * (1.609344 if mi else 1), 1)} kWh'))
-        tr = trend(L, P.series13(_get(lambda x: x["car"]["charged"])), L("trend_charged"), lambda v: kwh(v))
+            head = L("h_car_charged", v=kwh(car.get(home_key) or 0))
+        if car.get("cost_per_100km") is not None:
+            hero = f'{money(car["cost_per_100km"] * f_km, 2)}<small>{esc(L("car_per_100_cost_mi" if mi else "car_per_100_cost"))}</small>'
+            hero_note = f'<p class="note" style="margin-top:10px">{esc(L("car_cost_explained"))}</p>'
+        else:
+            hero = f'{L.num(km / f_km)}<small>{"mi" if mi else "km"}</small>' if km else f'{L.num(car.get(home_key) or 0)}<small>kWh</small>'
+            hero_note = ""
+        stats = []
+        if car.get("drives"):
+            stats.append(P.stat(L("car_drives"), L.num(car["drives"]), car["drives"], C("drives")))
+        if car.get("sessions"):
+            stats.append(P.stat(L("car_sessions"), L.num(car["sessions"]), car["sessions"], C("sessions")))
+        if car.get(home_key):
+            stats.append(P.stat(L("car_charged_home"), kwh(car[home_key]), car[home_key], C(home_key)))
+        if car.get(cost_key) is not None:
+            stats.append(P.stat(L("car_home_cost"), money(car[cost_key]), car[cost_key], C(cost_key), lambda v: money(v)))
+        if car.get("avg_charge_price") is not None:
+            stats.append(P.stat(L("car_avg_price"), f'{money(car["avg_charge_price"], 3)}', car["avg_charge_price"],
+                                C("avg_charge_price"), lambda v: money(v, 3)))
+        if car.get("smart_saving") is not None and abs(car["smart_saving"]) >= 0.5:
+            stats.append(P.stat(L("car_smart_saving"), money(car["smart_saving"]), car["smart_saving"], C("smart_saving"),
+                                lambda v: money(v)))
+        if car.get("solar_share") is not None:
+            stats.append(P.stat(L("solar"), L.pct(car["solar_share"])))
+        use = None
+        if car.get("wh_per_km"):
+            use = car["wh_per_km"] / 10
+        elif car.get("kwh_per_100km_home"):
+            use = car["kwh_per_100km_home"]
+        elif km > 10 and car.get("charged"):
+            use = car["charged"] / km * 100
+        if use:
+            stats.append(P.stat(L("car_use"), f'{L.num(use * f_km, 1)} kWh/{"100\u00a0mi" if mi else "100\u00a0km"}'))
+        tr = trend(L, P.series13(C("km")), L("trend_car"), dist) if km else trend(L, P.series13(C(home_key)), L("trend_charged"), lambda v: kwh(v))
+        table = ""
+        if len(car.get("cars", [])) > 1:
+            rows = "".join(f'<tr><td>{esc(c["name"])}</td><td>{dist(c["km"]) if c.get("km") else "–"}</td>'
+                           f'<td>{L.num(c["charged"]) if c.get("charged") is not None else "–"}</td></tr>' for c in car["cars"])
+            table = (f'<div class="tbl"><table><thead><tr><th></th><th>{"mi" if mi else "km"}</th><th>{esc(L("car_charged"))} (kWh)</th>'
+                     f'</tr></thead><tbody>{rows}</tbody></table></div>')
+        note = {"teslamate": "car_note", "evcc": "car_note_evcc"}.get(src, "car_note_generic")
         P.add("car", L("s_car"), "car", f'''{P.kicker(L("s_car"), "car")}
-<div class="head2"><h2>{head}</h2>{tr}</div><div class="stats">{"".join(stats)}</div>
-<div class="tbl"><table><thead><tr>{th}</tr></thead><tbody>{rows}</tbody></table></div>
-<p class="note">{esc(L("car_note_evcc"))}</p>''')
-    elif car:
-        head = L("h_car", km=f'{L.num(car["km"])} km', n=car["drives"])
-        rows = "".join(
-            f'<tr><td>{esc(c["name"])}</td><td>{L.num(c["km"])}</td><td>{c["drives"]}</td><td>{L.num(c["longest_km"])}</td>'
-            f'<td>{L.num(c["charged"])}</td><td>{L.pct(c["charged_home"] / c["charged"]) if c["charged"] else "–"}</td>'
-            f'<td>{L.num(c["wh_per_km"]) if c.get("wh_per_km") else "–"}</td></tr>' for c in car["cars"])
-        tr = trend(L, P.series13(_get(lambda x: x["car"]["km"])), L("trend_car"), lambda v: f"{L.num(v)} km")
-        P.add("car", L("s_car"), "car", f'''{P.kicker(L("s_car"), "car")}
-<div class="head2"><h2>{head}</h2>{tr}</div>
-<div class="tbl"><table><thead><tr><th></th><th>km</th><th>{esc(L("car_drives"))}</th><th>{esc(L("car_longest"))} (km)</th>
-<th>{esc(L("car_charged"))} (kWh)</th><th>{esc(L("car_home"))}</th><th>Wh/km</th></tr></thead><tbody>{rows}</tbody></table></div>
-<p class="note">{esc(L("car_note"))}</p>''')
+<div class="split"><div><h2>{head}</h2><div class="hero" style="margin-top:22px">{hero}</div>{hero_note}</div>
+<div><div class="stats">{"".join(stats)}</div><div style="margin-top:28px">{tr}</div></div></div>
+{table}<p class="note">{esc(L(note))}</p>''')
 
     # ---------------------------------------------------------------- daily rhythm
     if e.get("by_hour_w") and any(e["by_hour_w"]):
@@ -1064,14 +1139,14 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
            + (f'<a href="#" class="next" data-go="{nxt}">›</a>' if nxt else "") + "</div></div>")
     title = f"{L('title')} · {mname} {y}"
     return (f'<!doctype html><html lang="{L.code}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
-            f'<title>{esc(title)}</title>{THEME_HEAD}<style>{CSS}</style></head><body data-ym="{ym}">'
+            f'<title>{esc(title)}</title>{theme_head(theme)}<style>{font_css()}{CSS}</style></head><body data-ym="{ym}">'
             f'<div class="bar"></div>{top}<nav class="nav">{nav}</nav>{"".join(s for _, _, s in P.slides)}<div id="tip"></div>'
             f'<script>{JS}</script></body></html>')
 
 
 # ============================================================================ index
 def render_index(docs: dict[str, dict], lang: str = "en", home_name: str | None = None, currency: str = "EUR",
-                 start_month: int = 1) -> str:
+                 start_month: int = 1, theme: str = "auto") -> str:
     L = Lang(lang, currency)
     rows, year = [], None
     keys = year_keys(docs, start_month)
@@ -1094,7 +1169,7 @@ def render_index(docs: dict[str, dict], lang: str = "en", home_name: str | None 
     body = "".join(rows) if rows else f'<p class="note">{esc(L("index_empty"))}</p>'
     sub = esc(home_name) if home_name else ""
     return (f'<!doctype html><html lang="{L.code}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
-            f'<title>{esc(L("title"))}</title>{THEME_HEAD}<style>{CSS} html{{scroll-snap-type:none}}</style></head><body>'
+            f'<title>{esc(L("title"))}</title>{theme_head(theme)}<style>{font_css()}{CSS} html{{scroll-snap-type:none}}</style></head><body>'
             f'<div class="topbar">{topbar_left(L)}</div>'
             f'<section class="slide" style="align-content:start"><div class="kicker">{icon("house")}{esc(L("title"))}{(" · " + sub) if sub else ""}</div>'
             f'<h2>{esc(L("index_title"))}</h2><div class="idx">{body}</div></section><div class="bar"></div><div id="tip"></div><script>{JS}</script></body></html>')
@@ -1184,7 +1259,7 @@ def month_bars(L: Lang, months: list[str], cur: list[float | None], prev: list[f
 
 
 def render_year(key: str, docs: dict[str, dict], lang: str = "en", home_name: str | None = None,
-                start_month: int = 1) -> str:
+                start_month: int = 1, theme: str = "auto") -> str:
     months = year_months(key)
     prev_key = prev_ym(key, 12)
     prev_months = year_months(prev_key)
@@ -1229,9 +1304,10 @@ def render_year(key: str, docs: dict[str, dict], lang: str = "en", home_name: st
 
     kwh = lambda v: f"{L.num(v)} kWh"  # noqa: E731
     E = lambda k: _get(lambda x: x["energy"][k])  # noqa: E731
+    BILL = _get(lambda x: x["energy"].get("bill_total", x["energy"]["total_cost"]))  # energy plus water
 
     # ---------------------------------------------------------------- cover
-    use, cost, sol = tot(months, E("consumption")), tot(months, E("total_cost")), tot(months, E("solar"))
+    use, cost, sol = tot(months, E("consumption")), tot(months, BILL), tot(months, E("solar"))
     temps = [x for x in series(months, _get(lambda x: x["weather"]["temp"])) if x is not None]
     figs = []
     if use is not None:
@@ -1267,7 +1343,7 @@ def render_year(key: str, docs: dict[str, dict], lang: str = "en", home_name: st
 
     topic("energy", L("s_energy"), "bolt", E("consumption"), kwh, "y_energy")
     if cost is not None:
-        topic("cost", L("s_cost"), "receipt", E("total_cost"), lambda v: L.money(v), "y_cost")
+        topic("cost", L("s_cost"), "receipt", BILL, lambda v: L.money(v), "y_cost")
     if sol:
         topic("solar", L("s_solar"), "sun", E("solar"), kwh, "y_solar")
     if any(m in docs and g(docs[m], "heat_pump", "electricity") for m in months):
@@ -1376,6 +1452,6 @@ def render_year(key: str, docs: dict[str, dict], lang: str = "en", home_name: st
     nav = "".join(f'<a href="#{sid}" data-l="{esc(lab)}"></a>' for sid, lab, _ in P.slides)
     top = f'<div class="topbar">{topbar_left(L)}<div class="mnav"><a href="#" data-go="{have[-1]}">{esc(L.month(int(have[-1][5:])))} {have[-1][:4]}</a></div></div>'
     return (f'<!doctype html><html lang="{L.code}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
-            f'<title>{esc(L("title"))} · {esc(label)}</title>{THEME_HEAD}<style>{CSS}</style></head><body>'
+            f'<title>{esc(L("title"))} · {esc(label)}</title>{theme_head(theme)}<style>{font_css()}{CSS}</style></head><body>'
             f'<div class="bar"></div>{top}<nav class="nav">{nav}</nav>{"".join(s for _, _, s in P.slides)}<div id="tip"></div>'
             f'<script>{JS}</script></body></html>')

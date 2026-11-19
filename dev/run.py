@@ -24,6 +24,8 @@ sys.modules["hir"] = pkg
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 collector = importlib.import_module("hir.collector")
 render = importlib.import_module("hir.render")
+# Outside Home Assistant the fonts come straight from the integration folder.
+render.FONT_BASE = (ROOT / "custom_components" / "home_in_review" / "frontend" / "fonts").as_uri()
 from ws_source import WsSource  # noqa: E402
 
 
@@ -54,7 +56,7 @@ async def main(months: list[str]) -> None:
     for ym in months:
         lang = sys.argv[sys.argv.index("--lang") + 1] if "--lang" in sys.argv else cfg["language"]
         html = render.render_month(ym, docs, lang=lang, home_name=cfg.get("location_name"),
-                                   start_month=int(options.get("year_start_month", 1)))
+                                   start_month=int(options.get("year_start_month", 1)), theme=options.get("default_theme", "auto"))
         (OUT / f"{ym}.html").write_text(html)
         print("written", OUT / f"{ym}.html")
     start = int(options.get("year_start_month", 1))

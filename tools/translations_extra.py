@@ -194,4 +194,20 @@ IT.update({
     "How many months to look back. Default: back to the start of last year (in your year review's months).": "Quanti mesi indietro. Predefinito: fino all'inizio dell'anno scorso (secondo il mese di inizio del riepilogo annuale).",
 })
 
+ES.update({
+    "Default theme": "Tema predeterminado",
+    "Used until a viewer picks another theme at the end of a report (remembered per browser).": "Se usa hasta que alguien elige otro tema al final de un informe (se recuerda por navegador).",
+    "Automatic (follows light/dark)": "Automático (sigue claro/oscuro)", "Light": "Claro", "Dark": "Oscuro", "Night": "Noche",
+    "Black and white": "Blanco y negro",
+})
+IT.update({
+    "Default theme": "Tema predefinito",
+    "Used until a viewer picks another theme at the end of a report (remembered per browser).": "Usato finché qualcuno sceglie un altro tema alla fine di un resoconto (memorizzato per browser).",
+    "Automatic (follows light/dark)": "Automatico (segue chiaro/scuro)", "Light": "Chiaro", "Dark": "Scuro", "Night": "Notte",
+    "Black and white": "Bianco e nero",
+})
+
+ES["Optional, including tax: standing charges and grid fees minus a fixed daily tax credit (may be negative)."] = "Opcional, con impuestos: término fijo y peajes menos una bonificación fija diaria (puede ser negativo)."
+IT["Optional, including tax: standing charges and grid fees minus a fixed daily tax credit (may be negative)."] = "Facoltativo, IVA inclusa: quota fissa e oneri di rete meno uno sconto fisso giornaliero (può essere negativo)."
+
 EXTRA = {"es": ES, "it": IT}

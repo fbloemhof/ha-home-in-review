@@ -37,13 +37,15 @@
               "report_day": "Tag des Monats",
               "report_time": "Uhrzeit",
               "year_start_month": "Jahresrückblick beginnt im",
-              "admin_only": "Nur Administratoren dürfen die Berichte sehen"
+              "admin_only": "Nur Administratoren dürfen die Berichte sehen",
+              "default_theme": "Standarddesign"
             },
             "data_description": {
               "notify_services": "Die Benachrichtigung öffnet den Bericht.",
               "report_day": "An diesem Tag wird der Bericht des Vormonats erstellt.",
               "year_start_month": "Januar für ein Kalenderjahr; zum Beispiel Juli für eine Heizperiode oder den Beginn Ihres Energievertrags.",
-              "admin_only": "Aus: jeder Home-Assistant-Benutzer im Haushalt kann sie öffnen (sie zeigen Energieverbrauch, Kosten und Raumnutzung)."
+              "admin_only": "Aus: jeder Home-Assistant-Benutzer im Haushalt kann sie öffnen (sie zeigen Energieverbrauch, Kosten und Raumnutzung).",
+              "default_theme": "Gilt, bis jemand am Ende eines Berichts ein anderes Design wählt (pro Browser gespeichert)."
             }
           },
           "energy": {
@@ -57,7 +59,7 @@
               "gas_base_per_day": "Gas für Warmwasser und Kochen pro Tag"
             },
             "data_description": {
-              "fixed_costs_daily": "Optional, inkl. Steuern: Grundgebühr und Netzentgelte.",
+              "fixed_costs_daily": "Optional, inkl. Steuern: Grundgebühr und Netzentgelte abzüglich einer festen Gutschrift pro Tag (darf negativ sein).",
               "fixed_costs_monthly": "Optional, inkl. Steuern. Negativ für eine feste Steuergutschrift.",
               "max_hourly_kwh": "Zählersprünge darüber gelten als Störung. Etwa Ihr Anschluss: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
               "heat_pump_devices": "Jede Marke: ein oder mehrere Energiesensoren (Integration der Wärmepumpe, Zähler oder Steckdose, z. B. Verdichter und Heizstab). Fügt eine Wärmepumpen-Folie hinzu.",
@@ -167,6 +169,15 @@
         "hours_above": "Stunden über Schwelle",
         "days_above": "Tage über Schwelle",
         "runs_above": "Durchgänge (Leistung über Schwelle)"
+      }
+    },
+    "theme": {
+      "options": {
+        "auto": "Automatisch (hell/dunkel)",
+        "light": "Hell",
+        "dark": "Dunkel",
+        "night": "Nacht",
+        "mono": "Schwarz-weiß"
       }
     }
   },

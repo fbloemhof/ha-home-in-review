@@ -37,13 +37,15 @@
               "report_day": "Dag van de maand",
               "report_time": "Tijd",
               "year_start_month": "Jaaroverzicht begint in",
-              "admin_only": "Alleen beheerders mogen de rapporten zien"
+              "admin_only": "Alleen beheerders mogen de rapporten zien",
+              "default_theme": "Standaardthema"
             },
             "data_description": {
               "notify_services": "De melding opent het rapport.",
               "report_day": "Op deze dag wordt het rapport over de vorige maand gemaakt.",
               "year_start_month": "Januari voor een kalenderjaar; bijvoorbeeld juli voor een stookseizoen of de maand waarin je energiecontract begint.",
-              "admin_only": "Uit: elke Home Assistant-gebruiker in huis kan ze openen (ze tonen energieverbruik, kosten en wanneer ruimtes gebruikt worden)."
+              "admin_only": "Uit: elke Home Assistant-gebruiker in huis kan ze openen (ze tonen energieverbruik, kosten en wanneer ruimtes gebruikt worden).",
+              "default_theme": "Geldt tot iemand onderaan een rapport een ander thema kiest (dat wordt per browser onthouden)."
             }
           },
           "energy": {
@@ -57,7 +59,7 @@
               "gas_base_per_day": "Gas voor warm water en koken per dag"
             },
             "data_description": {
-              "fixed_costs_daily": "Optioneel, inclusief btw: vaste leveringskosten en netbeheer.",
+              "fixed_costs_daily": "Optioneel, inclusief btw: vaste leveringskosten en netbeheer min een vaste korting per dag (mag negatief zijn).",
               "fixed_costs_monthly": "Optioneel, inclusief btw. Gebruik een negatief bedrag voor een vaste belastingkorting.",
               "max_hourly_kwh": "Sprongen in de meterstand boven deze waarde per uur gelden als storing. Ongeveer je aansluiting: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
               "heat_pump_devices": "Elk merk: een of meer energiesensoren (de eigen integratie van de warmtepomp, een kWh-meter of slimme stekker, bijv. compressor en backupheater). Voegt een warmtepompdia toe met stroom per graaddag.",
@@ -167,6 +169,15 @@
         "hours_above": "Uren boven drempel",
         "days_above": "Dagen boven drempel",
         "runs_above": "Beurten (vermogen boven drempel)"
+      }
+    },
+    "theme": {
+      "options": {
+        "auto": "Automatisch (volgt licht/donker)",
+        "light": "Licht",
+        "dark": "Donker",
+        "night": "Nacht",
+        "mono": "Zwart-wit"
       }
     }
   },

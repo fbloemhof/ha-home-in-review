@@ -19,6 +19,8 @@ pkg = types.ModuleType("hir")
 pkg.__path__ = [str(ROOT / "custom_components" / "home_in_review")]
 sys.modules["hir"] = pkg
 render = importlib.import_module("hir.render")
+# Outside Home Assistant the fonts come straight from the integration folder.
+render.FONT_BASE = (ROOT / "custom_components" / "home_in_review" / "frontend" / "fonts").as_uri()
 gas = importlib.import_module("hir.gas")
 
 SRC = Path(__file__).resolve().parent / "out"

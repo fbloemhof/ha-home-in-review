@@ -26,6 +26,25 @@ HOME_WORDS = re.compile(r"^(home|thuis|thús|zuhause|maison|casa|hjem|hemma|koti
 
 
 # ============================================================================ heat pump
+def value(col, per_hour: dict[int, float]) -> float | None:
+    """What energy used per hour cost, at that hour's price (the average where an hour has none)."""
+    if col.avg_price is None:
+        return None
+    return sum(v * col.price.get(h, col.avg_price) for h, v in per_hour.items())
+
+
+def charging_figures(col, kwh: float | None, cost: float | None, km: float | None) -> dict:
+    """Price per kWh, cost per 100 km and the saving against charging at the month's average price."""
+    out: dict[str, float | None] = {"home_cost": cost}
+    if kwh and cost is not None:
+        out["avg_charge_price"] = cost / kwh
+        if getattr(col, "mean_price", None) is not None:
+            out["smart_saving"] = col.mean_price * kwh - cost
+    if km and km > 10 and cost is not None:
+        out["cost_per_100km"] = cost / km * 100
+    return out
+
+
 def as_list(v) -> list[str]:
     if not v:
         return []
@@ -46,7 +65,11 @@ async def heat_pump(col, doc: dict, start, end, hours, cap: float) -> None:
     if not elec_ids:
         return
     rows = await col._sums(set(elec_ids) | set(heat_ids), start, end, {"energy": "kWh"})
-    elec = sum(total(hourly_deltas(rows.get(d, []), hours, cap)[0], hours) for d in elec_ids)
+    per_hour: dict[int, float] = {}
+    for d in elec_ids:
+        for h, v in hourly_deltas(rows.get(d, []), hours, cap)[0].items():
+            per_hour[h] = per_hour.get(h, 0.0) + v
+    elec = total(per_hour, hours)
     heat = None
     if any(rows.get(h) for h in heat_ids):
         # Heat output can be several times the electrical input; allow a COP of up to 8 per hour.
@@ -57,6 +80,9 @@ async def heat_pump(col, doc: dict, start, end, hours, cap: float) -> None:
                           "degree_days": (doc.get("weather") or {}).get("degree_days")}
     if hp["degree_days"]:
         hp["kwh_per_degree_day"] = elec / hp["degree_days"]
+    hp["cost"] = value(col, per_hour)
+    if hp["cost"] is not None and hp["degree_days"]:
+        hp["cost_per_degree_day"] = hp["cost"] / hp["degree_days"]
     e = doc.get("energy") or {}
     if e.get("consumption"):
         hp["share"] = elec / e["consumption"]
@@ -102,15 +128,22 @@ async def car_generic(col, doc: dict, start, end, hours, cap: float) -> None:
             cars.append({"name": names.get(o, o), "km": km, "drives": None, "longest_km": None, "charged": None,
                          "charged_home": None, "wh_per_km": None, "odometer_end": max(inside)})
     home_kwh = None
+    home_cost = None
     if chargers:
         rows = await col._sums(set(chargers), start, end, {"energy": "kWh"})
         if any(rows.get(c) for c in chargers):
-            home_kwh = sum(total(hourly_deltas(rows.get(c, []), hours, cap)[0], hours) for c in chargers)
+            per_hour: dict[int, float] = {}
+            for c in chargers:
+                for h, v in hourly_deltas(rows.get(c, []), hours, cap)[0].items():
+                    per_hour[h] = per_hour.get(h, 0.0) + v
+            home_kwh = total(per_hour, hours)
+            home_cost = value(col, per_hour)
     if not cars and home_kwh is None:
         return
     km = sum(c["km"] for c in cars)
     doc["car"] = {"cars": cars, "km": km, "drives": None, "charged": home_kwh, "charged_home": home_kwh,
-                  "kwh_per_100km_home": (home_kwh / km * 100) if home_kwh and km > 10 else None, "source": "sensors"}
+                  "kwh_per_100km_home": (home_kwh / km * 100) if home_kwh and km > 10 else None, "source": "sensors",
+                  **charging_figures(col, home_kwh, home_cost, km)}
 
 
 # ============================================================================ TeslaMate
@@ -172,6 +205,11 @@ async def teslamate(col, doc: dict, start: dt.datetime, end: dt.datetime) -> Non
             sum((d.start_rated_range_km - d.end_rated_range_km) * c.efficiency) as kwh, sum(d.distance) as km
             from drives d join cars c on c.id = d.car_id
             where d.start_date >= '{lo}' and d.start_date < '{hi}' and d.distance > 1 group by 1""")
+        sessions = await tm.query(f"""select c.car_id, coalesce(g.name, '') as place,
+            extract(epoch from c.start_date) as t0, extract(epoch from coalesce(c.end_date, c.start_date)) as t1,
+            coalesce(c.charge_energy_used, c.charge_energy_added, 0) as used
+            from charging_processes c left join geofences g on g.id = c.geofence_id
+            where c.start_date >= '{lo}' and c.start_date < '{hi}'""")
     except SERVICE_ERRORS as err:  # unreachable Grafana or an unexpected answer must not break the report
         _LOGGER.warning("TeslaMate could not be read: %s", describe(err))
         doc["notes"].append("teslamate_unavailable")
@@ -194,8 +232,28 @@ async def teslamate(col, doc: dict, start: dt.datetime, end: dt.datetime) -> Non
         })
     out = [x for x in out if x["km"] > 0 or x["charged"] > 0]
     if out:
-        doc["car"] = {"cars": out, "km": sum(x["km"] for x in out), "drives": sum(x["drives"] for x in out),
-                      "charged": sum(x["charged"] for x in out), "source": "teslamate"}
+        # Home charging spread evenly over the hours of each session, valued at each hour's price.
+        per_hour: dict[int, float] = {}
+        for x in sessions:
+            place = (x.get("place") or "")
+            if not ((place.lower() == home) if home else HOME_WORDS.match(place)):
+                continue
+            t0, t1, used = float(x["t0"] or 0), float(x["t1"] or 0), float(x["used"] or 0)
+            t1 = max(t1, t0 + 60)
+            h = int(t0 // 3600 * 3600)
+            while h < t1:
+                part = (min(t1, h + 3600) - max(t0, h)) / (t1 - t0)
+                per_hour[h] = per_hour.get(h, 0.0) + used * part
+                h += 3600
+        km = sum(x["km"] for x in out)
+        home_kwh = sum(per_hour.values()) or None
+        doc["car"] = {"cars": out, "km": km, "drives": sum(x["drives"] for x in out),
+                      "charged": sum(x["charged"] for x in out), "charged_home": sum(x["charged_home"] for x in out),
+                      "home_used_kwh": home_kwh, "source": "teslamate",
+                      "wh_per_km": (sum(x["wh_per_km"] * x["km"] for x in out if x.get("wh_per_km")) /
+                                    sum(x["km"] for x in out if x.get("wh_per_km")))
+                      if any(x.get("wh_per_km") for x in out) else None,
+                      **charging_figures(col, home_kwh, value(col, per_hour) if per_hour else None, km)}
 
 
 # ============================================================================ evcc
@@ -256,7 +314,9 @@ async def evcc(col, doc: dict, start: dt.datetime, end: dt.datetime) -> None:
                   "charged_home": charged, "cost": sum(costs) if costs else None,
                   "avg_price": sum(costs) / charged if costs and charged else None,
                   "solar_share": sum(solar) / charged if solar and charged else None,
-                  "sessions": sum(c["sessions"] for c in out), "source": "evcc"}
+                  "sessions": sum(c["sessions"] for c in out), "source": "evcc",
+                  **{k: v for k, v in charging_figures(col, charged, sum(costs) if costs else None,
+                                                       sum(c["km"] for c in out)).items() if k != "home_cost"}}
 
 
 # ============================================================================ custom tiles

@@ -37,13 +37,15 @@
               "report_day": "Día del mes",
               "report_time": "Hora",
               "year_start_month": "El resumen anual empieza en",
-              "admin_only": "Solo los administradores pueden ver los informes"
+              "admin_only": "Solo los administradores pueden ver los informes",
+              "default_theme": "Tema predeterminado"
             },
             "data_description": {
               "notify_services": "La notificación abre el informe.",
               "report_day": "Este día se crea el informe del mes anterior.",
               "year_start_month": "Enero para un año natural; por ejemplo julio para una temporada de calefacción o el mes en que empieza tu contrato de energía.",
-              "admin_only": "Desactivado: cualquier usuario de Home Assistant del hogar puede abrirlos (muestran consumo, costes y uso de las estancias)."
+              "admin_only": "Desactivado: cualquier usuario de Home Assistant del hogar puede abrirlos (muestran consumo, costes y uso de las estancias).",
+              "default_theme": "Se usa hasta que alguien elige otro tema al final de un informe (se recuerda por navegador)."
             }
           },
           "energy": {
@@ -57,7 +59,7 @@
               "gas_base_per_day": "Gas para agua caliente y cocina por día"
             },
             "data_description": {
-              "fixed_costs_daily": "Opcional, con impuestos: término fijo y peajes de red.",
+              "fixed_costs_daily": "Opcional, con impuestos: término fijo y peajes menos una bonificación fija diaria (puede ser negativo).",
               "fixed_costs_monthly": "Opcional, con impuestos. Usa un importe negativo para una bonificación fija.",
               "max_hourly_kwh": "Los saltos del contador por encima de este valor por hora se consideran errores. Aproximadamente tu acometida: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
               "heat_pump_devices": "Cualquier marca: uno o varios sensores de energía (la integración de la propia bomba, un contador o un enchufe inteligente, p. ej. compresor y resistencia de apoyo). Añade una diapositiva de la bomba de calor con electricidad por grado-día.",
@@ -167,6 +169,15 @@
         "hours_above": "Horas por encima del umbral",
         "days_above": "Días por encima del umbral",
         "runs_above": "Ciclos (potencia por encima del umbral)"
+      }
+    },
+    "theme": {
+      "options": {
+        "auto": "Automático (sigue claro/oscuro)",
+        "light": "Claro",
+        "dark": "Oscuro",
+        "night": "Noche",
+        "mono": "Blanco y negro"
       }
     }
   },

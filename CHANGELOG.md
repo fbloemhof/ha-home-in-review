@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.0 (not released yet)
+
+**New**
+- Electricity: each day's use stacked by source (grid, solar used directly, battery), with what was returned to
+  the grid below; solar and battery also as figures.
+- Costs: water is on the bill ("energy + water"); a negative fixed amount (e.g. a daily tax credit) is shown as a
+  credit. Fixed costs per day may now be negative. The year review uses the same total.
+- Heat pump: cost (electricity per hour × that hour's price), cost per degree day, and with a heat sensor the COP
+  as the main figure with an efficiency headline compared with last year or the average.
+- Car (odometer + charger, evcc or TeslaMate): headline compares the distance, cost per 100 km as the main
+  figure, charging cost at home, average charging price, saving from smart charging (against the month's plain
+  average price), use per 100 km, all with comparisons.
+- Typography and colours: Fraunces and Inter ship with the integration (nothing loaded from elsewhere); the night
+  theme uses a navy and amber palette. New option **Default theme**.
+
+**Fixed**
+- The night and black-and-white themes were overridden by the dark theme on devices set to dark mode.
+
 ## 0.3.3
 
 **Changed**
