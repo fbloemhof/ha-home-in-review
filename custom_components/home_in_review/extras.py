@@ -33,6 +33,120 @@ def value(col, per_hour: dict[int, float]) -> float | None:
     return sum(v * col.price.get(h, col.avg_price) for h, v in per_hour.items())
 
 
+# ----------------------------------------------------------------------------- power, battery value and cycles
+SOC_FULL = 99.0   # % at which a battery counts as full for the day
+
+
+def _ts(r: dict) -> int:
+    t = r["start"]
+    t = t.timestamp() if isinstance(t, dt.datetime) else float(t)
+    return int(t / 1000) if t > 1e11 else int(t)
+
+
+def rate_peaks(rate: dict | None, rows: dict[str, list[dict]]) -> tuple[dict[int, float], dict[int, float]]:
+    """Per hour, the highest power in the positive direction (discharging, importing, producing) and in the negative
+    direction (charging, exporting), both as positive kW, from the hourly min/max statistics."""
+    pos: dict[int, float] = {}
+    neg: dict[int, float] = {}
+    if not rate:
+        return pos, neg
+    if "stat" in rate:
+        inv = rate.get("inverted")
+        for r in rows.get(rate["stat"]) or []:
+            hi, lo = r.get("max"), r.get("min")
+            if hi is None or lo is None:
+                continue
+            up, down = (-lo, -hi) if inv else (hi, lo)
+            pos[_ts(r)] = max(0.0, up)
+            neg[_ts(r)] = max(0.0, -down)
+    else:
+        for key, target in (("from", pos), ("to", neg)):
+            for r in rows.get(rate.get(key) or "") or []:
+                if r.get("max") is not None:
+                    target[_ts(r)] = max(0.0, r["max"])
+    return pos, neg
+
+
+def _peak(series: dict[int, float], tz) -> dict | None:
+    if not series:
+        return None
+    h = max(series, key=series.get)
+    if series[h] <= 0:
+        return None
+    return {"kw": series[h], "at": dt.datetime.fromtimestamp(h, tz).isoformat(timespec="minutes")}
+
+
+def _summed(parts: list[dict[int, float]]) -> dict[int, float]:
+    out: dict[int, float] = {}
+    for p in parts:
+        for h, v in p.items():
+            out[h] = out.get(h, 0.0) + v
+    return out
+
+
+async def power(col, doc: dict, prefs: dict, start, end, hours, tz) -> None:
+    """Power and battery figures from what the energy dashboard knows besides energy: the power sensors (peak
+    import, solar peak, highest charge/discharge power) and the batteries' state of charge (equivalent full cycles,
+    days full). Also what the batteries were worth: per hour, discharged kWh at that hour's price minus charged kWh
+    at that hour's price (charging from surplus solar costs the missed export compensation)."""
+    rates = [r for r in prefs.get("grid_rate", [])] + [x.get("rate") for k in ("solar", "battery") for x in prefs[k]]
+    ids = {v for r in rates if r for k, v in r.items() if k in ("stat", "from", "to") and v}
+    soc_ids = {x["soc"] for x in prefs["battery"] if x.get("soc")}
+    rows: dict[str, list[dict]] = {}
+    if ids or soc_ids:
+        rows = await col.src.statistics(ids | soc_ids, start, end, "hour", {"power": "kW"}, {"mean", "min", "max"})
+    in_month = set(hours)
+
+    def keep(series: dict[int, float]) -> dict[int, float]:
+        return {h: v for h, v in series.items() if h in in_month}
+
+    e = doc.get("energy")
+    if e is not None:
+        grid = [rate_peaks(r, rows) for r in prefs.get("grid_rate", [])]
+        if grid:
+            e["grid_peak"] = _peak(keep(_summed([p for p, _ in grid])), tz)
+            e["grid_peak_export"] = _peak(keep(_summed([n for _, n in grid])), tz)
+        solar = [rate_peaks(x.get("rate"), rows)[0] for x in prefs["solar"] if x.get("rate")]
+        if solar and (pk := _peak(keep(_summed(solar)), tz)):
+            # With several inverters the hourly maxima are added up: they need not have happened at the same moment.
+            e["solar_peak"] = pk | {"sources": len(solar)}
+
+    b = doc.get("batteries")
+    if not b:
+        return
+    dis_all, chg_all, cycles = [], [], []
+    priced = col.avg_price is not None
+    for x, unit, series in zip(prefs["battery"], b["units"], col.battery_hours, strict=False):
+        up, down = rate_peaks(x.get("rate"), rows)
+        up, down = keep(up), keep(down)
+        if up or down:
+            dis_all.append(up)
+            chg_all.append(down)
+            unit["max_discharge_kw"] = max(up.values(), default=None)
+            unit["max_charge_kw"] = max(down.values(), default=None)
+        soc = [r for r in rows.get(x.get("soc") or "") or [] if r.get("mean") is not None and _ts(r) in in_month]
+        if len(soc) > 24:
+            means = [r["mean"] for r in soc]
+            unit["cycles"] = sum(max(0.0, a - c) for a, c in zip(means, means[1:], strict=False)) / 100
+            full = {dt.datetime.fromtimestamp(_ts(r), tz).date() for r in soc if (r.get("max") or 0) >= SOC_FULL}
+            unit["full_days"] = len(full)
+            cycles.append(unit["cycles"])
+        if priced:
+            c, d = series
+            unit["charge_cost"], unit["discharge_value"] = value(col, c), value(col, d)
+            unit["value"] = unit["discharge_value"] - unit["charge_cost"]
+    if dis_all:
+        b["max_discharge_kw"] = max(_summed(dis_all).values(), default=None)
+        b["max_charge_kw"] = max(_summed(chg_all).values(), default=None)
+    if cycles:
+        b["cycles"] = sum(cycles) / len(cycles)  # average per battery
+        b["full_days"] = max(u.get("full_days", 0) for u in b["units"])
+    if priced and b["units"]:
+        b["charge_cost"] = sum(u.get("charge_cost") or 0 for u in b["units"])
+        b["discharge_value"] = sum(u.get("discharge_value") or 0 for u in b["units"])
+        b["value"] = b["discharge_value"] - b["charge_cost"]
+
+
 def charging_figures(col, kwh: float | None, cost: float | None, km: float | None) -> dict:
     """Price per kWh, cost per 100 km and the saving against charging at the month's average price."""
     out: dict[str, float | None] = {"home_cost": cost}

@@ -605,6 +605,16 @@ def split_unit(value: str) -> str:
     return esc(value)
 
 
+def peak_stat(L: Lang, label: str, p: dict | None) -> str:
+    """A power peak with the hour it happened in."""
+    if not p:
+        return ""
+    t = dt.datetime.fromisoformat(p["at"])
+    return (f'<div class="stat"><div class="l">{esc(label)}</div><div class="v">{L.num(p["kw"], 1)}<small>kW</small></div>'
+            f'<div class="c">{t.day} {esc(L.month_short(t.month))} {t:%H}:00'
+            + (f' · {esc(L("peak_summed", n=p["sources"]))}' if p.get("sources", 1) > 1 else "") + '</div></div>')
+
+
 class Page:
     def __init__(self, L: Lang, ym: str, docs: dict[str, dict]):
         self.L = L
@@ -844,6 +854,8 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
             if g(wx, "normal", "sun_h"):
                 c = f'<div class="c">{esc(L("vs_normal"))} {L.num(wx["normal"]["sun_h"])} {esc(L("unit_hours"))}</div>'
             stats.append(f'<div class="stat"><div class="l">{esc(L("sun_hours"))}</div><div class="v">{L.num(wx["sun_h"])}<small>{esc(L("unit_hours"))}</small></div>{c}</div>')
+        if e.get("solar_peak"):
+            stats.append(peak_stat(L, L("solar_peak"), e["solar_peak"]))
         tr = trend(L, P.series13(_get(lambda x: x["energy"]["solar"])), L("trend_solar"), lambda v: kwh(v))
         P.add("solar", L("s_solar"), "sun", f'''{P.kicker(L("s_solar"), "sun")}
 <div class="split"><div><h2>{head}</h2><div class="hero" style="margin-top:22px">{L.num(sol)}<small>kWh</small></div></div>
@@ -853,17 +865,49 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
     b = d.get("batteries")
     if b and b.get("charge", 0) > 1:
         one = len(b["units"]) == 1
-        head = L("h_battery_one" if one else "h_battery", v=kwh(b["charge"]), back=kwh(b["discharge"]))
-        rows = "".join(
-            f'<tr><td>{esc(x["name"])}</td><td>{L.num(x["charge"], 1)}</td><td>{L.num(x["discharge"], 1)}</td><td>{L.pct(x["efficiency"])}</td></tr>'
-            for x in b["units"])
-        if len(b["units"]) > 1:
-            rows += f'<tr><td><b>{esc(L("total"))}</b></td><td><b>{L.num(b["charge"], 1)}</b></td><td><b>{L.num(b["discharge"], 1)}</b></td><td><b>{L.pct(b["efficiency"])}</b></td></tr>'
+        if b.get("value") is not None:
+            v = b["value"]
+            head = (L("h_battery_value_one" if one else "h_battery_value", v=money(v)) if v >= 0
+                    else L("h_battery_cost_one" if one else "h_battery_cost", v=money(-v)))
+        else:
+            head = L("h_battery_one" if one else "h_battery", v=kwh(b["charge"]), back=kwh(b["discharge"]))
+        BG = lambda k: _get(lambda x, k=k: x["batteries"][k])  # noqa: E731
+        stats = []
+        if b.get("value") is not None:
+            stats += [P.stat(L("bat_value"), money(b["value"]), b["value"], BG("value"), lambda v: money(v)),
+                      P.stat(L("bat_charge_cost"), money(b["charge_cost"])),
+                      P.stat(L("bat_discharge_value"), money(b["discharge_value"]))]
+        stats += [P.stat(L("charged"), kwh(b["charge"]), b["charge"], BG("charge"), lambda v: kwh(v)),
+                  P.stat(L("discharged"), kwh(b["discharge"]), b["discharge"], BG("discharge"), lambda v: kwh(v))]
+        if b.get("efficiency"):
+            stats.append(P.stat(L("efficiency"), L.pct(b["efficiency"])))
+        if b.get("cycles") is not None:
+            stats.append(P.stat(L("cycles"), L.num(b["cycles"], 1), b["cycles"], BG("cycles"), lambda v: L.num(v, 1)))
+        if b.get("full_days") is not None:
+            stats.append(P.stat(L("full_days"), str(b["full_days"])))
+        if b.get("max_discharge_kw"):
+            stats.append(P.stat(L("max_discharge"), f'{L.num(b["max_discharge_kw"], 1)} kW'))
+        if b.get("max_charge_kw"):
+            stats.append(P.stat(L("max_charge"), f'{L.num(b["max_charge_kw"], 1)} kW'))
+        table = ""
+        if not one:
+            cols = [("charged", lambda x: L.num(x["charge"], 1)), ("discharged", lambda x: L.num(x["discharge"], 1)),
+                    ("efficiency", lambda x: L.pct(x["efficiency"]) if x.get("efficiency") else "–")]
+            if any(x.get("value") is not None for x in b["units"]):
+                cols.append(("bat_value", lambda x: money(x["value"]) if x.get("value") is not None else "–"))
+            if any(x.get("cycles") is not None for x in b["units"]):
+                cols.append(("cycles", lambda x: L.num(x["cycles"], 1) if x.get("cycles") is not None else "–"))
+            if any(x.get("max_discharge_kw") for x in b["units"]):
+                cols.append(("max_discharge", lambda x: f'{L.num(x["max_discharge_kw"], 1)} kW' if x.get("max_discharge_kw") else "–"))
+            head_row = "".join(f"<th>{esc(L(k))}{' (kWh)' if k in ('charged', 'discharged') else ''}</th>" for k, _ in cols)
+            rows = "".join(f'<tr><td>{esc(x["name"])}</td>' + "".join(f"<td>{f(x)}</td>" for _, f in cols) + "</tr>"
+                           for x in b["units"])
+            table = f'<div class="tbl"><table><thead><tr><th></th>{head_row}</tr></thead><tbody>{rows}</tbody></table></div>'
+        note = f'<p class="note">{esc(L("battery_note"))}</p>' if b.get("value") is not None or b.get("cycles") is not None else ""
         bt = L("s_battery_one" if one else "s_battery")
         P.add("battery", bt, "battery", f'''{P.kicker(bt, "battery")}
 <h2>{head}</h2>
-<div class="tbl"><table><thead><tr><th></th><th>{esc(L("charged"))} (kWh)</th><th>{esc(L("discharged"))} (kWh)</th><th>{esc(L("efficiency"))}</th></tr></thead>
-<tbody>{rows}</tbody></table></div>''')
+<div class="stats">{"".join(stats)}</div>{table}{note}''')
 
     # ---------------------------------------------------------------- devices
     dv = d.get("devices")
@@ -1014,6 +1058,8 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
             t = dt.datetime.fromisoformat(e["peak"]["at"])
             stats.append(f'<div class="stat"><div class="l">{esc(L("peak"))}</div><div class="v">{L.num(e["peak"]["kw"], 1)}<small>kW</small></div>'
                          f'<div class="c">{t.day} {esc(L.month_short(t.month))} {t:%H}:00</div></div>')
+        stats.append(peak_stat(L, L("grid_peak"), e.get("grid_peak")))
+        stats.append(peak_stat(L, L("grid_peak_export"), e.get("grid_peak_export")))
         P.add("rhythm", L("s_rhythm"), "clock", f'''{P.kicker(L("s_rhythm"), "clock")}
 <h2>{L("h_rhythm", hour=f"{peak:02d}:00")}</h2>
 <div><div class="wide">{hour_profile(L, w)}</div><div class="narrow">{hour_profile(L, w, 420, 240)}</div></div>

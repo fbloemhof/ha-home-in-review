@@ -222,7 +222,8 @@ def test_custom_tiles_and_story_facts():
 def test_any_brand_heat_pump_car_and_single_battery():
     src = FakeSource()
     src.prefs["energy_sources"].append({"type": "battery", "stat_energy_from": "sensor.b_out",
-                                        "stat_energy_to": "sensor.b_in", "name": "Home battery"})
+                                        "stat_energy_to": "sensor.b_in", "name": "Home battery",
+                                        "power_config": {"stat_rate": "sensor.b_power"}, "stat_soc": "sensor.b_soc"})
     orig = src.statistics
 
     async def more(ids, start, end, period, units, types):
@@ -234,6 +235,11 @@ def test_any_brand_heat_pump_car_and_single_battery():
         for i in ids:
             if i in per:
                 out[i] = [{"start": first + k * 3600, "sum": per[i] * k} for k in range(n)]
+        if "sensor.b_power" in ids:  # charging at up to 2 kW, discharging at up to 1.5 kW
+            out["sensor.b_power"] = [{"start": first + k * 3600, "min": -2.0, "max": 1.5, "mean": 0.0} for k in range(n)]
+        if "sensor.b_soc" in ids:  # full, then half, every other hour: 0.5 cycle per two hours
+            out["sensor.b_soc"] = [{"start": first + k * 3600, "mean": 100.0 if k % 2 == 0 else 50.0,
+                                    "max": 100.0, "min": 50.0} for k in range(n)]
         if "sensor.odometer" in ids:  # 10 km a day
             out["sensor.odometer"] = [{"start": first + k * 3600, "max": 20000 + k * 10 / 24, "mean": None} for k in range(n)]
         return out
@@ -248,7 +254,12 @@ def test_any_brand_heat_pump_car_and_single_battery():
     assert car["source"] == "sensors" and 270 < car["km"] < 290  # 28 days x 10 km, measured from the month start
     assert round(car["charged_home"]) == 28 * 24 * 0.25
     html = R.render_month("2026-02", {"2026-02": doc}, "nl", None, 1)
-    assert "De batterij sloeg" in html and "De auto reed" in html and "COP" in html
+    b = doc["batteries"]
+    assert b["max_charge_kw"] == 2.0 and b["max_discharge_kw"] == 1.5
+    assert b["cycles"] == 28 * 24 / 2 * 0.5 and b["full_days"] == 28
+    # charges 0.20 kWh and discharges 0.18 kWh every hour at the same price: it costs more than it saves
+    assert b["value"] < 0 and abs(b["value"] - (b["discharge_value"] - b["charge_cost"])) < 1e-9
+    assert "De batterij kostte" in html and "Cycli" in html and "De auto reed" in html and "COP" in html
 
 
 def test_days_above_rain_gauge_and_evcc():
@@ -379,3 +390,12 @@ def test_split_unit():
 def test_hours_unit_translated():
     assert Lang("nl")("unit_hours") == "u"
     assert Lang("en")("unit_hours") == "h"
+
+
+def test_rate_peaks_variants():
+    from hir import extras as X
+    rows = {"p": [{"start": 3600, "min": -2.0, "max": 1.5}], "a": [{"start": 3600, "max": 3.0}], "b": [{"start": 3600, "max": 0.7}]}
+    assert X.rate_peaks({"stat": "p", "inverted": False}, rows) == ({3600: 1.5}, {3600: 2.0})
+    assert X.rate_peaks({"stat": "p", "inverted": True}, rows) == ({3600: 2.0}, {3600: 1.5})
+    assert X.rate_peaks({"from": "a", "to": "b"}, rows) == ({3600: 3.0}, {3600: 0.7})
+    assert X.rate_peaks(None, rows) == ({}, {})

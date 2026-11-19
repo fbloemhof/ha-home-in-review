@@ -73,14 +73,27 @@ def prefer_room_sensors(sensors: list[dict]) -> list[dict]:
 
 
 # ----------------------------------------------------------------------------- energy preferences
+def power_rate(src: dict) -> dict | None:
+    """The power sensor(s) of an energy source (energy dashboard, 2025.12+): one signed sensor (``stat_rate``,
+    positive = discharging / importing / producing, optionally inverted) or one sensor per direction."""
+    pc = src.get("power_config") or {}
+    if pc.get("stat_rate_from") or pc.get("stat_rate_to"):
+        return {"from": pc.get("stat_rate_from"), "to": pc.get("stat_rate_to")}
+    stat = pc.get("stat_rate") or src.get("stat_rate")
+    return {"stat": stat, "inverted": bool(pc.get("stat_rate_inverted"))} if stat else None
+
+
 def parse_energy_prefs(prefs: dict | None) -> dict[str, list[dict]]:
     """Flatten the energy dashboard preferences (old and new grid formats) into simple lists."""
-    out: dict[str, list[dict]] = {k: [] for k in ("imp", "exp", "solar", "battery", "gas", "water", "devices")}
+    out: dict[str, list[dict]] = {k: [] for k in ("imp", "exp", "solar", "battery", "gas", "water", "devices",
+                                                  "grid_rate")}
     if not prefs:
         return out
     for src in prefs.get("energy_sources", []):
         typ = src.get("type")
         if typ == "grid":
+            if rate := power_rate(src):
+                out["grid_rate"].append(rate)
             # Old format: flow_from / flow_to lists. New format (2026+): one grid source per tariff.
             flows_from = src.get("flow_from") or ([src] if src.get("stat_energy_from") else [])
             flows_to = src.get("flow_to") or ([src] if src.get("stat_energy_to") else [])
@@ -95,10 +108,11 @@ def parse_energy_prefs(prefs: dict | None) -> dict[str, list[dict]]:
                     priced = f.get("entity_energy_price_export") or f.get("number_energy_price_export") is not None
                     out["exp"].append({"stat": stat, "cost": f.get("stat_compensation") or (f"{stat}_compensation" if priced else None)})
         elif typ == "solar" and src.get("stat_energy_from"):
-            out["solar"].append({"stat": src["stat_energy_from"], "name": src.get("name")})
+            out["solar"].append({"stat": src["stat_energy_from"], "name": src.get("name"), "rate": power_rate(src)})
         elif typ == "battery" and src.get("stat_energy_from"):
             out["battery"].append({"name": src.get("name"), "discharge": src["stat_energy_from"],
-                                   "charge": src.get("stat_energy_to")})
+                                   "charge": src.get("stat_energy_to"), "rate": power_rate(src),
+                                   "soc": src.get("stat_soc")})
         elif typ in ("gas", "water") and src.get("stat_energy_from"):
             stat = src["stat_energy_from"]
             priced = src.get("entity_energy_price") or src.get("number_energy_price") is not None
@@ -177,6 +191,7 @@ class Collector:
         self.price: dict[int, float] = {}
         self.avg_price: float | None = None
         self.mean_price: float | None = None
+        self.battery_hours: list[tuple[dict[int, float], dict[int, float]]] = []
         self.src = source
         self.opt = options or {}
         self.cache = cache if cache is not None else {}
@@ -209,6 +224,7 @@ class Collector:
         self.avg_price = (doc.get("energy") or {}).get("avg_import_price")
         # Plain average of the hourly prices: the reference for "smart" use (charging when it is cheap).
         self.mean_price = (sum(price.values()) / len(price)) if price else None
+        await extras.power(self, doc, prefs, start, end, hours, tz)
         await self._devices(doc, prefs, start, end, hours, price)
         await self._volume(doc, prefs, "water", start, end, hours, units["water"], cap=2000 if metric else 500)
         await self._volume(doc, prefs, "gas", start, end, hours, units["gas"], cap=25 if metric else 900)
@@ -301,11 +317,13 @@ class Collector:
         for x in prefs["solar"]:
             add_into(solar, series(x["stat"])[0])
         batteries = []
+        self.battery_hours = []  # per battery: (charge per hour, discharge per hour), for valuing in extras.power
         for x in prefs["battery"]:
             c = series(x["charge"])[0] if x.get("charge") else {}
             d = series(x["discharge"])[0]
             add_into(chg, c)
             add_into(dis, d)
+            self.battery_hours.append((c, d))
             kc, kd = total(c, hours), total(d, hours)
             batteries.append({"name": x.get("name") or x["discharge"], "charge": kc, "discharge": kd,
                               "efficiency": kd / kc if kc > 0.5 else None})

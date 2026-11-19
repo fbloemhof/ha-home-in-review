@@ -34,6 +34,7 @@ def facts(doc: dict) -> dict:
         "heat_pump_cop": r(hp.get("cop"), 1), "car_km": r((doc.get("car") or {}).get("km")),
         "water_litres" if water.get("unit") == "L" else f"water_{water.get('unit', '')}": r(water.get("amount")),
         f"gas_{gas.get('unit', '')}": r(gas.get("amount"), 1),
+        f"home_battery_value_{cur}": r((doc.get("batteries") or {}).get("value"), 2),
     }
     items = [x for x in (doc.get("devices") or {}).get("items", []) if not x.get("no_data") and not x.get("parent")]
     out["biggest_devices_kwh"] = {x["name"]: r(x["kwh"]) for x in items[:4]} or None
@@ -84,6 +85,10 @@ def observations(ym: str, docs: dict[str, dict]) -> list[str]:
         out.append(line + ".")
     compare("Solar production", "solar_production_kwh", "kWh")
     compare("Sunshine", "sunshine_hours", "hours")
+    bv = f"home_battery_value_{cur.lower()}"
+    if bv in f:
+        compare("Value of the home batteries (discharged energy at that hour's price minus what charging cost)",
+                bv, cur, 2)
     if "self_sufficiency_percent" in f:
         out.append(f"Self-sufficiency: {f['self_sufficiency_percent']:.0f}% of the electricity came from own solar/battery.")
     t = next((k for k in f if k.startswith("outside_temperature_")), None)

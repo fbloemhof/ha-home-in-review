@@ -34,12 +34,12 @@ help are marked with a `Co-Authored-By: Claude` line. If something looks wrong, 
 | In short: a written summary | your own AI Task entity | you choose one in the options |
 | Electricity: use per day, grid in/out, self-sufficiency, base load | energy dashboard | a grid source is set up |
 | Costs: bought, sold, gas, fixed costs, average price | the energy dashboard's cost statistics | prices are set in the energy dashboard |
-| Solar: production, share used at home, sunshine vs. normal | energy dashboard, Open-Meteo | solar is set up |
-| Batteries: charged, discharged, efficiency | energy dashboard | batteries are set up |
+| Solar: production, share used at home, sunshine vs. normal, peak power | energy dashboard (peak: its power sensors), Open-Meteo | solar is set up |
+| Batteries: what they were worth, charged, discharged, efficiency, cycles, days full, highest power | energy dashboard (cycles and power: its state-of-charge and power sensors) | batteries are set up |
 | Where it went: devices ranked, untracked rest, value | energy dashboard "individual devices" | devices are set up |
 | Heat pump (any brand): electricity, heat, COP, kWh per degree day | energy sensors you choose | set in the options |
 | Car (any brand): km, charging at home, kWh per 100 km; with evcc also sessions, cost and solar share; with TeslaMate also trips and Wh/km | odometer and charger sensors, evcc or TeslaMate | set in the options |
-| Daily rhythm: average power per hour of day, busiest hour | energy dashboard | a grid source is set up |
+| Daily rhythm: average power per hour of day, busiest hour, highest grid import and export | energy dashboard | a grid source is set up |
 | Weather: temperature, rain, sunshine, degree days vs. 1991–2020 | Open-Meteo and/or your own outdoor sensor and rain gauge | your home has a location |
 | Indoors: temperature, humidity and CO₂ per area | your sensors | climate sensors are assigned to areas |
 | Water and gas; for gas also use per degree day and the split between heating and hot water/cooking | energy dashboard, weather | set up |

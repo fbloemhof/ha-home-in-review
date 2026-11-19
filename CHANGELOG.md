@@ -1,8 +1,15 @@
 # Changelog
 
-## Unreleased
+## Unreleased (0.5.0)
 
 **New**
+- Batteries: what they were worth in money (each hour, discharged energy at that hour's price minus what charging
+  cost), cycles from the state of charge, days full, and the highest charge and discharge power. Per battery in a
+  table when there are several. No new settings: the power and state-of-charge sensors from the energy dashboard
+  are used (#4).
+- Peak power: the solar peak (solar slide) and the highest grid import and export (rhythm slide), from the power
+  sensors in the energy dashboard.
+- Reports are re-made once after the update to add these figures.
 - Theme "Home Assistant": the report looks like part of Home Assistant. It takes the colours, font and card style
   (corners, border, shadow) of your active theme, and the colours of the energy dashboard for grid, solar, battery
   and return. It is laid out like Home Assistant's own dashboards (such as Energy): Home Assistant's Roboto font, a
