@@ -369,7 +369,7 @@ def test_weather_note_says_where():
 
 
 def test_split_unit():
-    from custom_components.home_in_review.render import split_unit
+    split_unit = R.split_unit
     assert split_unit("17,3 kWh/100 km") == "17,3<small>kWh/100 km</small>"
     assert split_unit("12 m³") == "12<small>m³</small>"
     assert split_unit("1 234") == "1 234"  # a thousands separator is not a unit
