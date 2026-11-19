@@ -223,3 +223,17 @@ async def test_boiler_on_time_sensors(recorder_mock, hass: HomeAssistant, freeze
     await hass.async_block_till_done()
     assert reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_heating_time") is None
     assert hass.states.get(dhw) is not None
+
+
+def test_unreachable_service_keeps_previous_car() -> None:
+    """A temporarily unreachable TeslaMate must not wipe the car from an existing report; the month is retried."""
+    from custom_components.home_in_review import keep_previous
+
+    previous = {"car": {"source": "teslamate", "km": 1643}, "sections": ["energy", "car"]}
+    doc = {"energy": {"x": 1}, "notes": ["teslamate_unavailable"], "meta": {"fingerprint": "abc"}, "sections": ["energy"]}
+    keep_previous(doc, previous)
+    assert doc["car"]["km"] == 1643 and doc["sections"] == ["energy", "car"]
+    assert doc["meta"]["fingerprint"] is None and doc["notes"] == []
+    fresh = {"energy": {"x": 1}, "notes": [], "meta": {"fingerprint": "abc"}, "sections": ["energy"]}
+    keep_previous(fresh, previous)  # no failure: nothing is carried over
+    assert "car" not in fresh and fresh["meta"]["fingerprint"] == "abc"

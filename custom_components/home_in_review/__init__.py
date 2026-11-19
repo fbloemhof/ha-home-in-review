@@ -28,7 +28,7 @@ from homeassistant.helpers.start import async_at_started
 from homeassistant.util import dt as dt_util
 
 from . import render, story
-from .collector import Collector, first_month
+from .collector import UNAVAILABLE, Collector, first_month, sections
 from .const import (
     CONF_ADMIN_ONLY,
     CONF_AI_INSTRUCTIONS,
@@ -62,6 +62,22 @@ PRESENTATION_OPTIONS = {"notify_services", "report_day", "report_time", "default
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 FRONTEND = Path(__file__).parent / "frontend"
+
+
+def keep_previous(doc: dict, previous: dict | None) -> None:
+    """When an outside service (TeslaMate, evcc) was unreachable, keep what the earlier version of this report had
+    from it instead of losing it, and leave the report without a fingerprint so it is tried again on the next start."""
+    failed = [n for n in doc.get("notes", []) if n in UNAVAILABLE]
+    if not failed:
+        return
+    doc["meta"]["fingerprint"] = None
+    doc["meta"]["retry"] = failed
+    for note in failed:
+        key = UNAVAILABLE[note]
+        if previous and previous.get(key) and not doc.get(key):
+            doc[key] = previous[key]
+            doc["notes"].remove(note)
+    doc["sections"] = sections(doc)
 
 
 def prev_month(today: dt.date) -> tuple[int, int]:
@@ -113,6 +129,7 @@ class HomeInReview:
             doc = await Collector(self.source, {**self.options, "_boiler": self.boiler_stats()},
                                   self.store.cache).collect(year, month)
             doc["meta"] = {"fingerprint": self.fingerprint(), "collector": COLLECTOR_VERSION}
+            keep_previous(doc, previous)
             await self._story(ym, doc, previous)
             await self.store.async_save(ym, doc)
             return doc

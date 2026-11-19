@@ -73,6 +73,15 @@ def prefer_room_sensors(sensors: list[dict]) -> list[dict]:
 
 
 # ----------------------------------------------------------------------------- energy preferences
+SECTIONS = ("energy", "devices", "batteries", "heat_pump", "car", "water", "gas", "weather", "indoor", "custom")
+# Notes of outside services that were unreachable: the report is incomplete for a reason that may pass.
+UNAVAILABLE = {"teslamate_unavailable": "car", "evcc_unavailable": "car"}
+
+
+def sections(doc: dict) -> list[str]:
+    return [k for k in SECTIONS if doc.get(k)]
+
+
 def power_rate(src: dict) -> dict | None:
     """The power sensor(s) of an energy source (energy dashboard, 2025.12+): one signed sensor (``stat_rate``,
     positive = discharging / importing / producing, optionally inverted) or one sensor per direction."""
@@ -252,8 +261,7 @@ class Collector:
         if "car" not in doc:
             await extras.car_generic(self, doc, start, end, hours, cap)
         await extras.custom_tiles(self, doc, start, end, hours)
-        doc["sections"] = [k for k in ("energy", "devices", "batteries", "heat_pump", "car", "water", "gas", "weather",
-                                       "indoor", "custom") if doc.get(k)]
+        doc["sections"] = sections(doc)
         return doc
 
     # ------------------------------------------------------------------ fetch helpers
