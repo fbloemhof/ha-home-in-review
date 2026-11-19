@@ -1,0 +1,141 @@
+"""Setup, report access (authentication, signed paths, administrators only), options and unload."""
+from __future__ import annotations
+
+from homeassistant.components import frontend
+from homeassistant.config_entries import SOURCE_USER
+from homeassistant.core import HomeAssistant
+from homeassistant.data_entry_flow import FlowResultType
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+from custom_components.home_in_review.const import DOMAIN, PANEL_URL
+
+DOC = {
+    "schema": 1,
+    "period": {"year": 2026, "month": 10, "start": "2026-10-01T00:00:00+02:00", "end": "2026-11-01T00:00:00+01:00",
+               "hours": 745, "time_zone": "Europe/Amsterdam"},
+    "generated": "2026-11-01T07:00+01:00",
+    "units": {"energy": "kWh", "currency": "EUR", "temperature": "°C", "water": "L", "gas": "m³"},
+    "notes": [],
+    "devices": {"items": [{"name": "<script>alert(1)</script>", "stat": "sensor.x", "parent": None, "kwh": 5.0,
+                           "value": 1.0, "share": 0.5, "partial": False, "glitch_hours": 0, "no_data": False}],
+                "tracked": 5.0, "untracked": 5.0, "untracked_share": 0.5},
+    "energy": {"import": 10.0, "export": 0.0, "solar": 0.0, "battery_charge": 0.0, "battery_discharge": 0.0,
+               "consumption": 10.0, "daily": [{"d": "2026-10-01", "import": 10.0, "export": 0.0, "solar": 0.0,
+                                               "load": 10.0, "cost": 3.0}],
+               "by_hour_w": [400.0] * 24, "glitch_hours": {}},
+    "sections": ["energy", "devices"],
+}
+
+
+async def setup_entry(hass: HomeAssistant, options: dict | None = None) -> MockConfigEntry:
+    entry = MockConfigEntry(domain=DOMAIN, data={"backfill_months": 0}, options=options or {})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    entry.runtime_data.store.docs["2026-10"] = DOC
+    return entry
+
+
+async def test_config_flow(recorder_mock, hass: HomeAssistant) -> None:
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
+    assert result["type"] is FlowResultType.FORM
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"backfill_months": 0})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["data"] == {"backfill_months": 0}
+    # single instance
+    again = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
+    assert again["type"] is FlowResultType.ABORT
+
+
+async def test_report_requires_login(recorder_mock, hass: HomeAssistant, hass_client, hass_client_no_auth) -> None:
+    await setup_entry(hass)
+    anon = await hass_client_no_auth()
+    assert (await anon.get("/api/home_in_review/report/2026-10")).status == 401
+    client = await hass_client()
+    resp = await client.get("/api/home_in_review/report/2026-10")
+    assert resp.status == 200
+    assert "default-src 'none'" in resp.headers["Content-Security-Policy"]
+    html = await resp.text()
+    assert "<script>alert(1)</script>" not in html and "&lt;script&gt;alert(1)&lt;/script&gt;" in html
+    assert (await client.get("/api/home_in_review/report/index")).status == 200
+    assert (await client.get("/api/home_in_review/report/2025-01")).status == 404
+    assert (await client.get("/api/home_in_review/report/..%2F..%2Fsecrets")).status in (400, 404)
+
+
+async def test_signed_path(recorder_mock, hass: HomeAssistant, hass_ws_client, hass_client_no_auth) -> None:
+    await setup_entry(hass)
+    ws = await hass_ws_client(hass)
+    await ws.send_json({"id": 1, "type": "auth/sign_path", "path": "/api/home_in_review/report/2026-10", "expires": 30})
+    msg = await ws.receive_json()
+    assert msg["success"], msg
+    anon = await hass_client_no_auth()
+    assert (await anon.get(msg["result"]["path"])).status == 200
+    # a signature for one report doesn't open another
+    other = msg["result"]["path"].replace("2026-10", "index")
+    assert (await anon.get(other)).status == 401
+
+
+async def test_admin_only(recorder_mock, hass: HomeAssistant, hass_client, hass_read_only_access_token) -> None:
+    await setup_entry(hass, {"admin_only": True})
+    admin = await hass_client()
+    assert (await admin.get("/api/home_in_review/report/2026-10")).status == 200
+    user = await hass_client(hass_read_only_access_token)
+    assert (await user.get("/api/home_in_review/report/2026-10")).status == 403
+    assert hass.data[frontend.DATA_PANELS][PANEL_URL].require_admin is True
+
+
+async def test_everyone_by_default(recorder_mock, hass: HomeAssistant, hass_client, hass_read_only_access_token) -> None:
+    await setup_entry(hass)
+    user = await hass_client(hass_read_only_access_token)
+    assert (await user.get("/api/home_in_review/report/2026-10")).status == 200
+
+
+SETTINGS = {
+    "general": {"report_day": 1, "report_time": "07:00:00", "year_start_month": "1", "admin_only": False},
+    "energy": {"max_hourly_kwh": 25},
+    "climate": {"use_open_meteo": True},
+    "car": {},
+    "ai": {},
+}
+
+
+async def test_options_url_validation(recorder_mock, hass: HomeAssistant) -> None:
+    entry = await setup_entry(hass)
+
+    async def submit(car: dict):
+        flow = await hass.config_entries.options.async_init(entry.entry_id)
+        assert flow["type"] is FlowResultType.MENU
+        form = await hass.config_entries.options.async_configure(flow["flow_id"], {"next_step_id": "settings"})
+        assert form["type"] is FlowResultType.FORM
+        return await hass.config_entries.options.async_configure(form["flow_id"], {**SETTINGS, "car": car})
+
+    bad = await submit({"teslamate_grafana_url": "http://grafana.example.com", "teslamate_grafana_token": "x"})
+    assert bad["type"] is FlowResultType.FORM and bad["errors"] == {"car": "https_required"}
+    bad = await submit({"teslamate_grafana_url": "https://user:pw@grafana.example.com", "teslamate_grafana_token": "x"})
+    assert bad["errors"] == {"car": "url_credentials"}
+    bad = await submit({"evcc_url": "file:///etc/passwd"})
+    assert bad["errors"] == {"car": "invalid_url"}
+    bad = await submit({"teslamate_grafana_url": "https://grafana.example.com"})
+    assert bad["errors"] == {"car": "teslamate_incomplete"}
+    ok = await submit({"teslamate_grafana_url": "http://192.168.1.20:3000", "teslamate_grafana_token": "x",
+                       "evcc_url": "http://evcc.local:7070"})
+    assert ok["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
+    assert entry.options["evcc_url"] == "http://evcc.local:7070"
+
+
+async def test_tile_add_requires_statistic(recorder_mock, hass: HomeAssistant) -> None:
+    entry = await setup_entry(hass)
+    flow = await hass.config_entries.options.async_init(entry.entry_id)
+    form = await hass.config_entries.options.async_configure(flow["flow_id"], {"next_step_id": "tile_add"})
+    res = await hass.config_entries.options.async_configure(form["flow_id"], {"name": "Test", "type": "sum", "decimals": 0})
+    assert res["type"] is FlowResultType.FORM and res["errors"] == {"statistic": "statistic_required"}
+
+
+async def test_unload_removes_panel(recorder_mock, hass: HomeAssistant) -> None:
+    entry = await setup_entry(hass)
+    assert PANEL_URL in hass.data[frontend.DATA_PANELS]
+    assert hass.services.has_service(DOMAIN, "generate")
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
+    assert PANEL_URL not in hass.data[frontend.DATA_PANELS]

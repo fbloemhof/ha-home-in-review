@@ -115,8 +115,10 @@ class WsSource:
                 for a in await self.call({"type": "config/area_registry/list"})]
 
     async def request_json(self, method, url, headers=None, json=None):
-        async with self.session.request(method, url, headers=headers, json=json,
+        async with self.session.request(method, url, headers=headers, json=json, allow_redirects=False,
                                         timeout=aiohttp.ClientTimeout(total=60)) as r:
+            if 300 <= r.status < 400:
+                raise RuntimeError("redirect not followed")
             r.raise_for_status()
             return await r.json()
 
@@ -127,7 +129,9 @@ class WsSource:
                                "return_response": True})
         return ((res or {}).get("response") or {}).get("data")
 
-    async def fetch_json(self, url):
-        async with self.session.get(url, timeout=aiohttp.ClientTimeout(total=120)) as r:
+    async def fetch_json(self, url, allow_redirects=True):
+        async with self.session.get(url, allow_redirects=allow_redirects, timeout=aiohttp.ClientTimeout(total=120)) as r:
+            if 300 <= r.status < 400:
+                raise RuntimeError("redirect not followed")
             r.raise_for_status()
             return await r.json()

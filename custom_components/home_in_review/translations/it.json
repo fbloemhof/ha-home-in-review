@@ -36,12 +36,14 @@
               "notify_services": "Notifica quando un resoconto è pronto",
               "report_day": "Giorno del mese",
               "report_time": "Ora",
-              "year_start_month": "Il riepilogo annuale inizia a"
+              "year_start_month": "Il riepilogo annuale inizia a",
+              "admin_only": "Solo gli amministratori possono vedere i resoconti"
             },
             "data_description": {
               "notify_services": "La notifica apre il resoconto.",
               "report_day": "In questo giorno viene creato il resoconto del mese precedente.",
-              "year_start_month": "Gennaio per l'anno solare; ad esempio luglio per una stagione di riscaldamento o il mese in cui inizia il contratto energetico."
+              "year_start_month": "Gennaio per l'anno solare; ad esempio luglio per una stagione di riscaldamento o il mese in cui inizia il contratto energetico.",
+              "admin_only": "Disattivato: ogni utente di Home Assistant in casa può aprirli (mostrano consumi, costi e uso degli ambienti)."
             }
           },
           "energy": {
@@ -129,7 +131,12 @@
       }
     },
     "error": {
-      "statistic_required": "Scegli una statistica."
+      "statistic_required": "Scegli una statistica.",
+      "invalid_url": "Inserisci un indirizzo http:// o https:// valido, senza ? né #.",
+      "url_credentials": "Non inserire nome utente o password nell'indirizzo; usa il campo del token.",
+      "https_required": "Il token verrebbe inviato in chiaro a un indirizzo fuori dalla tua rete; usa https://.",
+      "teslamate_incomplete": "Compila sia l'indirizzo di Grafana sia il token, oppure nessuno dei due.",
+      "too_long": "Al massimo 1000 caratteri."
     }
   },
   "selector": {

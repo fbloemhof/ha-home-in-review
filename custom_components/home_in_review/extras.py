@@ -6,7 +6,21 @@ import logging
 import re
 from typing import Any
 
+import aiohttp
+
+from .net import base_url, check_url
+
 _LOGGER = logging.getLogger(__name__)
+
+# Failures of an outside service that must not break the report. Anything else is a bug and is logged as such.
+SERVICE_ERRORS = (aiohttp.ClientError, TimeoutError, ValueError, KeyError, TypeError, IndexError, RuntimeError)
+
+
+def describe(err: BaseException) -> str:
+    """A short, safe description of a service error: no URLs, headers or response bodies in the log."""
+    status = getattr(err, "status", None)
+    return f"{type(err).__name__}" + (f" (HTTP {status})" if status else "")
+
 
 HOME_WORDS = re.compile(r"^(home|thuis|thús|zuhause|maison|casa|hjem|hemma|koti)$", re.I)
 
@@ -105,7 +119,7 @@ class TeslaMate:
 
     def __init__(self, src, url: str, token: str) -> None:
         self.src = src
-        self.url = url.rstrip("/")
+        self.url = base_url(url)
         self.headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
         self.uid: str | None = None
 
@@ -137,6 +151,9 @@ async def teslamate(col, doc: dict, start: dt.datetime, end: dt.datetime) -> Non
     url, token = col.opt.get("teslamate_grafana_url"), col.opt.get("teslamate_grafana_token")
     if not url or not token:
         return
+    if check_url(url, carries_token=True):
+        doc["notes"].append("teslamate_invalid_url")
+        return
     tm = TeslaMate(col.src, url, token)
     lo = start.astimezone(dt.UTC).strftime("%Y-%m-%d %H:%M:%S")
     hi = end.astimezone(dt.UTC).strftime("%Y-%m-%d %H:%M:%S")
@@ -155,8 +172,8 @@ async def teslamate(col, doc: dict, start: dt.datetime, end: dt.datetime) -> Non
             sum((d.start_rated_range_km - d.end_rated_range_km) * c.efficiency) as kwh, sum(d.distance) as km
             from drives d join cars c on c.id = d.car_id
             where d.start_date >= '{lo}' and d.start_date < '{hi}' and d.distance > 1 group by 1""")
-    except Exception as err:  # unreachable Grafana must not break the report
-        _LOGGER.warning("TeslaMate query failed: %s", err)
+    except SERVICE_ERRORS as err:  # unreachable Grafana or an unexpected answer must not break the report
+        _LOGGER.warning("TeslaMate could not be read: %s", describe(err))
         doc["notes"].append("teslamate_unavailable")
         return
     out = []
@@ -184,13 +201,17 @@ async def teslamate(col, doc: dict, start: dt.datetime, end: dt.datetime) -> Non
 # ============================================================================ evcc
 async def evcc(col, doc: dict, start: dt.datetime, end: dt.datetime) -> None:
     """Charging sessions from evcc (any charger and car evcc supports): energy, cost, solar share, per vehicle."""
-    url = (col.opt.get("evcc_url") or "").rstrip("/")
+    url = col.opt.get("evcc_url") or ""
     if not url:
         return
+    if check_url(url, carries_token=False):
+        doc["notes"].append("evcc_invalid_url")
+        return
     try:
-        res = await col.src.fetch_json(f"{url}/api/sessions?month={start.month}&year={start.year}")
-    except Exception as err:  # unreachable evcc must not break the report
-        _LOGGER.warning("evcc request failed: %s", err)
+        res = await col.src.fetch_json(f"{base_url(url)}/api/sessions?month={start.month}&year={start.year}",
+                                       allow_redirects=False)
+    except SERVICE_ERRORS as err:  # unreachable evcc must not break the report
+        _LOGGER.warning("evcc could not be read: %s", describe(err))
         doc["notes"].append("evcc_unavailable")
         return
     sessions = res.get("result", []) if isinstance(res, dict) else (res or [])

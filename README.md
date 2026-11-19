@@ -92,7 +92,8 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
 
 - **Settings**, one form with collapsible sections:
   - **Schedule and notifications**: notify services (the notification opens the report), the day and time last
-    month's report is made (default the 1st at 07:00), and the month the year review starts.
+    month's report is made (default the 1st at 07:00), the month the year review starts, and whether only
+    administrators can view the reports.
   - **Energy, costs and heat pump**: fixed costs per day and/or month (including tax); the largest plausible
     grid use per hour (meter jumps above it are skipped as glitches; default 25 kWh, roughly a 3 × 35 A
     connection; 3 × 25 A is about 17 kWh). For a heat pump of any brand: one or more energy sensors for its
@@ -144,18 +145,23 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
 - Reports are stored as JSON in `config/home_in_review/` and rendered when you open them, so improvements to
   the layout also apply to older months.
 
-## Privacy
+## Privacy and security
 
 - Reports are only served to logged-in Home Assistant users (`/api/home_in_review/...` requires authentication;
-  the panel uses short-lived signed links).
+  the panel uses short-lived signed links). By default everyone with a login in your household can open them;
+  with **Only administrators can view the reports** other users get no panel and no access.
+- Report pages load nothing from elsewhere and can't send anything (strict Content-Security-Policy).
 - Outside services, all optional except Open-Meteo, which you can switch off:
   - **Open-Meteo** receives your location **rounded to 0.1° (about 10 km)** and the dates.
   - **evcc**: only your own evcc, read-only.
-  - **TeslaMate**: only your own Grafana, read-only.
-  - **AI summary**: your own AI Task entity receives the report's figures (no entity names, no raw data).
+  - **TeslaMate**: only your own Grafana, read-only. Addresses are checked: only http(s), no credentials in the
+    address, https required when the token would leave your network, and redirects are never followed.
+  - **AI summary**: your own AI Task entity receives the report's figures as plain sentences, including the
+    names of your energy-dashboard devices (no entity IDs, no raw sensor data, no room names).
 - The TeslaMate token is stored in Home Assistant's config entry, like other integrations' credentials. Use a
   Grafana service account with only the Viewer role.
-- The report pages load no external fonts, scripts or images.
+- Reports are stored as JSON in `config/home_in_review/`, next to Home Assistant's own data (and included in its
+  backups).
 
 ## Requirements
 

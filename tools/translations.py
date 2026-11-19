@@ -484,6 +484,36 @@ _tile.setdefault("data_description", {})["run_hours"] = t(
     "Pour les cycles uniquement, facultatif : un bloc plus long compte comme plusieurs cycles (p. ex. 3 h pour un lave-vaisselle). Les cycles sont comptés à partir de la puissance moyenne horaire ; les pauses jusqu'à 2 heures font partie du même cycle.")
 
 
+STEPS["settings"]["sections"]["general"]["data"]["admin_only"] = t(
+    "Only administrators can view the reports", "Alleen beheerders mogen de rapporten zien",
+    "Nur Administratoren dürfen die Berichte sehen", "Seuls les administrateurs peuvent voir les rapports")
+STEPS["settings"]["sections"]["general"]["data_description"]["admin_only"] = t(
+    "Off: every Home Assistant user in the household can open them (they show energy use, costs and when rooms are used).",
+    "Uit: elke Home Assistant-gebruiker in huis kan ze openen (ze tonen energieverbruik, kosten en wanneer ruimtes gebruikt worden).",
+    "Aus: jeder Home-Assistant-Benutzer im Haushalt kann sie öffnen (sie zeigen Energieverbrauch, Kosten und Raumnutzung).",
+    "Désactivé : tout utilisateur de Home Assistant du foyer peut les ouvrir (ils montrent consommation, coûts et usage des pièces).")
+ERRORS = {
+    "statistic_required": t("Choose a statistic.", "Kies een statistiek.", "Wählen Sie eine Statistik.", "Choisissez une statistique."),
+    "invalid_url": t("Enter a valid http:// or https:// address without query or fragment.",
+                     "Vul een geldig http://- of https://-adres in, zonder ? of #.",
+                     "Geben Sie eine gültige http://- oder https://-Adresse ohne ? oder # ein.",
+                     "Saisissez une adresse http:// ou https:// valide, sans ? ni #."),
+    "url_credentials": t("Don't put a user name or password in the address; use the token field.",
+                         "Zet geen gebruikersnaam of wachtwoord in het adres; gebruik het tokenveld.",
+                         "Keine Benutzernamen oder Passwörter in die Adresse; nutzen Sie das Token-Feld.",
+                         "Pas de nom d'utilisateur ni de mot de passe dans l'adresse ; utilisez le champ du jeton."),
+    "https_required": t("The token would be sent unencrypted to an address outside your network; use https://.",
+                        "De token zou onversleuteld naar een adres buiten je netwerk gaan; gebruik https://.",
+                        "Das Token würde unverschlüsselt an eine Adresse außerhalb Ihres Netzes gehen; nutzen Sie https://.",
+                        "Le jeton serait envoyé en clair vers une adresse hors de votre réseau ; utilisez https://."),
+    "teslamate_incomplete": t("Fill in both the Grafana address and the token, or neither.",
+                              "Vul zowel het Grafana-adres als de token in, of geen van beide.",
+                              "Füllen Sie Grafana-Adresse und Token beide aus oder keines von beiden.",
+                              "Renseignez l'adresse Grafana et le jeton, ou aucun des deux."),
+    "too_long": t("At most 1000 characters.", "Hooguit 1000 tekens.", "Höchstens 1000 Zeichen.", "1000 caractères au maximum."),
+}
+
+
 def _strings(node):
     if isinstance(node, dict):
         for v in node.values():
@@ -515,8 +545,7 @@ for lang in LANGS:
     steps = {k: pick(v, lang) for k, v in STEPS.items()}
     doc = {
         "config": {"abort": pick(CONFIG["abort"], lang), "step": {"user": pick(CONFIG["user"], lang)}},
-        "options": {"step": steps, "error": {"statistic_required": t(
-            "Choose a statistic.", "Kies een statistiek.", "Wählen Sie eine Statistik.", "Choisissez une statistique.")[lang]}},
+        "options": {"step": steps, "error": {k: v[lang] for k, v in ERRORS.items()}},
         "selector": {
             "month": {"options": {str(i + 1): m for i, m in enumerate(MONTHS[lang])}},
             "tile_type": {"options": {k: v[lang] for k, v in TILE.items()}},

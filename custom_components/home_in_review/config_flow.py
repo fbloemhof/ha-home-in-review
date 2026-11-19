@@ -21,6 +21,7 @@ from homeassistant.helpers import selector
 
 from .collector import is_outdoor_name
 from .const import (
+    CONF_ADMIN_ONLY,
     CONF_AI_INSTRUCTIONS,
     CONF_AI_TASK,
     CONF_BACKFILL_MONTHS,
@@ -52,6 +53,8 @@ from .const import (
     NAME,
 )
 from .extras import TILE_TYPES
+from .net import check_url
+from .options import MAX_AI_INSTRUCTIONS
 
 BOX = selector.NumberSelectorMode.BOX
 
@@ -87,7 +90,7 @@ def _suggest(value: Any) -> dict:
 
 # Settings form: one form with collapsible sections; key -> fields in that section.
 SECTIONS = {
-    "general": [CONF_NOTIFY, CONF_REPORT_DAY, CONF_REPORT_TIME, CONF_YEAR_START],
+    "general": [CONF_NOTIFY, CONF_REPORT_DAY, CONF_REPORT_TIME, CONF_YEAR_START, CONF_ADMIN_ONLY],
     "energy": [CONF_FIXED_DAILY, CONF_FIXED_MONTHLY, CONF_MAX_HOURLY_KWH, CONF_HP_DEVICES, CONF_HP_HEAT],
     "climate": [CONF_EXCLUDED_AREAS, CONF_OUTDOOR_SENSOR, CONF_RAIN_SENSOR, CONF_USE_OPEN_METEO],
     "car": [CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS, CONF_EVCC_URL, CONF_TM_URL, CONF_TM_TOKEN, CONF_TM_HOME],
@@ -110,6 +113,7 @@ class HomeInReviewOptionsFlow(OptionsFlow):
     # ------------------------------------------------------------------ settings
     async def async_step_settings(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         o = dict(self.config_entry.options)
+        errors: dict[str, str] = {}
         if user_input is not None:
             flat: dict[str, Any] = {}
             for part in user_input.values():
@@ -126,7 +130,20 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             o[CONF_EXCLUDED_AREAS] = flat.get(CONF_EXCLUDED_AREAS) or []
             o[CONF_USE_OPEN_METEO] = bool(flat.get(CONF_USE_OPEN_METEO, True))
             o[CONF_YEAR_START] = int(flat.get(CONF_YEAR_START, 1))
-            return self.async_create_entry(data=o)
+            o[CONF_ADMIN_ONLY] = bool(flat.get(CONF_ADMIN_ONLY, False))
+            # Validate the outside addresses here as well (the backend repeats this, see options.py). Errors are
+            # shown on the section; the form keeps what the user typed.
+            if o.get(CONF_EVCC_URL) and (err := check_url(o[CONF_EVCC_URL], carries_token=False)):
+                errors["car"] = err
+            if o.get(CONF_TM_URL) or o.get(CONF_TM_TOKEN):
+                if not (o.get(CONF_TM_URL) and o.get(CONF_TM_TOKEN)):
+                    errors["car"] = "teslamate_incomplete"
+                elif err := check_url(o[CONF_TM_URL], carries_token=True):
+                    errors["car"] = err
+            if len(o.get(CONF_AI_INSTRUCTIONS) or "") > MAX_AI_INSTRUCTIONS:
+                errors["ai"] = "too_long"
+            if not errors:
+                return self.async_create_entry(data=o)
 
         notify = sorted(f"notify.{name}" for name in self.hass.services.async_services_for_domain("notify")
                         if name not in ("send_message", "persistent_notification"))
@@ -142,6 +159,7 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             vol.Required(CONF_YEAR_START, default=str(o.get(CONF_YEAR_START, 1))): selector.SelectSelector(
                 selector.SelectSelectorConfig(options=[str(i) for i in range(1, 13)], translation_key="month",
                                               mode=selector.SelectSelectorMode.DROPDOWN)),
+            vol.Required(CONF_ADMIN_ONLY, default=bool(o.get(CONF_ADMIN_ONLY, False))): selector.BooleanSelector(),
         })
         energy = vol.Schema({
             vol.Optional(CONF_FIXED_DAILY, description=_suggest(o.get(CONF_FIXED_DAILY))): selector.NumberSelector(
@@ -187,9 +205,9 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             vol.Required("general"): section(general, {"collapsed": False}),
             vol.Required("energy"): section(energy, {"collapsed": True}),
             vol.Required("climate"): section(climate, {"collapsed": True}),
-            vol.Required("car"): section(car, {"collapsed": True}),
-            vol.Required("ai"): section(ai, {"collapsed": True}),
-        }))
+            vol.Required("car"): section(car, {"collapsed": "car" not in errors}),
+            vol.Required("ai"): section(ai, {"collapsed": "ai" not in errors}),
+        }), errors=errors)
 
     def _suggested_excluded_areas(self) -> list[str]:
         floors = fr.async_get(self.hass)

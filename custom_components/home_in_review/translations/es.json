@@ -36,12 +36,14 @@
               "notify_services": "Notificar cuando un informe esté listo",
               "report_day": "Día del mes",
               "report_time": "Hora",
-              "year_start_month": "El resumen anual empieza en"
+              "year_start_month": "El resumen anual empieza en",
+              "admin_only": "Solo los administradores pueden ver los informes"
             },
             "data_description": {
               "notify_services": "La notificación abre el informe.",
               "report_day": "Este día se crea el informe del mes anterior.",
-              "year_start_month": "Enero para un año natural; por ejemplo julio para una temporada de calefacción o el mes en que empieza tu contrato de energía."
+              "year_start_month": "Enero para un año natural; por ejemplo julio para una temporada de calefacción o el mes en que empieza tu contrato de energía.",
+              "admin_only": "Desactivado: cualquier usuario de Home Assistant del hogar puede abrirlos (muestran consumo, costes y uso de las estancias)."
             }
           },
           "energy": {
@@ -129,7 +131,12 @@
       }
     },
     "error": {
-      "statistic_required": "Elige una estadística."
+      "statistic_required": "Elige una estadística.",
+      "invalid_url": "Introduce una dirección http:// o https:// válida, sin ? ni #.",
+      "url_credentials": "No pongas usuario ni contraseña en la dirección; usa el campo del token.",
+      "https_required": "El token se enviaría sin cifrar a una dirección fuera de tu red; usa https://.",
+      "teslamate_incomplete": "Rellena la dirección de Grafana y el token, o ninguno de los dos.",
+      "too_long": "Como máximo 1000 caracteres."
     }
   },
   "selector": {

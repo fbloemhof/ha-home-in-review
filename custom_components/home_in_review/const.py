@@ -6,6 +6,7 @@ SCHEMA_VERSION = 1
 
 # Options
 CONF_NOTIFY = "notify_services"
+CONF_ADMIN_ONLY = "admin_only"
 CONF_REPORT_DAY = "report_day"
 CONF_REPORT_TIME = "report_time"
 CONF_EXCLUDED_AREAS = "excluded_areas"

@@ -11,14 +11,11 @@ import asyncio
 import datetime as dt
 import json
 import logging
-import re
 from pathlib import Path
-from typing import Any
 
 import voluptuous as vol
-from aiohttp import web
 from homeassistant.components import frontend, panel_custom
-from homeassistant.components.http import HomeAssistantView, StaticPathConfig
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse, callback
 from homeassistant.exceptions import HomeAssistantError
@@ -30,6 +27,7 @@ from homeassistant.util import dt as dt_util
 from . import render, story
 from .collector import Collector, first_month
 from .const import (
+    CONF_ADMIN_ONLY,
     CONF_AI_INSTRUCTIONS,
     CONF_AI_TASK,
     CONF_BACKFILL_MONTHS,
@@ -43,60 +41,21 @@ from .const import (
     DOMAIN,
     PANEL_URL,
     STATIC_URL,
-    STORAGE_DIR,
-    URL_BASE,
 )
 from .hass_source import HassSource
 from .i18n import Lang
+from .options import sanitize
+from .store import ReportStore
+from .views import YM, ReportView
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
-YM = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 FRONTEND = Path(__file__).parent / "frontend"
 
 
 def prev_month(today: dt.date) -> tuple[int, int]:
     first = today.replace(day=1) - dt.timedelta(days=1)
     return first.year, first.month
-
-
-class ReportStore:
-    """Month documents on disk, with an in-memory copy for rendering."""
-
-    def __init__(self, hass: HomeAssistant) -> None:
-        self.hass = hass
-        self.dir = Path(hass.config.path(STORAGE_DIR))
-        self.docs: dict[str, dict] = {}
-        self.cache: dict[str, Any] = {}
-
-    def _load(self) -> None:
-        self.dir.mkdir(exist_ok=True)
-        for p in self.dir.glob("????-??.json"):
-            try:
-                self.docs[p.stem] = json.loads(p.read_text(encoding="utf-8"))
-            except (OSError, ValueError) as err:
-                _LOGGER.warning("Skipping unreadable report %s: %s", p, err)
-        cache = self.dir / "cache.json"
-        if cache.exists():
-            try:
-                self.cache = json.loads(cache.read_text(encoding="utf-8"))
-            except ValueError:
-                self.cache = {}
-
-    async def async_load(self) -> None:
-        await self.hass.async_add_executor_job(self._load)
-
-    async def async_save(self, ym: str, doc: dict) -> None:
-        self.docs[ym] = doc
-        text = json.dumps(doc, ensure_ascii=False, indent=1)
-        cache = json.dumps(self.cache)
-
-        def write() -> None:
-            self.dir.mkdir(exist_ok=True)
-            (self.dir / f"{ym}.json").write_text(text, encoding="utf-8")
-            (self.dir / "cache.json").write_text(cache, encoding="utf-8")
-
-        await self.hass.async_add_executor_job(write)
 
 
 class HomeInReview:
@@ -111,7 +70,8 @@ class HomeInReview:
 
     @property
     def options(self) -> dict:
-        return {**self.entry.data, **self.entry.options}
+        """Entry data and options, validated (see options.py)."""
+        return sanitize({**self.entry.data, **self.entry.options})
 
     async def generate(self, year: int, month: int) -> dict:
         ym = f"{year:04d}-{month:02d}"
@@ -130,8 +90,11 @@ class HomeInReview:
         prompt = story.instructions(ym, docs, self.hass.config.language, self.options.get(CONF_AI_INSTRUCTIONS))
         try:
             text = await self.source.ai_generate(entity, prompt)
-        except Exception as err:  # the report must not depend on an AI service
-            _LOGGER.warning("AI summary failed: %s", err)
+        except HomeAssistantError as err:  # the AI service refused or is unavailable
+            _LOGGER.warning("AI summary for %s skipped: %s", ym, err)
+            return
+        except Exception:  # anything else is a bug; log it, but the report must not depend on an AI service
+            _LOGGER.exception("AI summary for %s failed", ym)
             return
         if isinstance(text, str) and text.strip():
             doc["story"] = {"text": text.strip(), "entity": entity}
@@ -281,11 +244,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.async_on_unload(async_track_time_change(hass, rt.scheduled, hour=t.hour, minute=t.minute, second=t.second))
     entry.async_on_unload(entry.add_update_listener(_reload))
 
-    if PANEL_URL not in hass.data.get(frontend.DATA_PANELS, {}):
-        await panel_custom.async_register_panel(
-            hass, frontend_url_path=PANEL_URL, webcomponent_name="home-in-review-panel",
-            sidebar_title="Home in Review", sidebar_icon="mdi:home-analytics",
-            module_url=f"{STATIC_URL}/panel.js?v={await hass.async_add_executor_job(_version)}", require_admin=False, config={})
+    # The panel is registered per entry so a change of the "administrators only" option takes effect on reload.
+    if PANEL_URL in hass.data.get(frontend.DATA_PANELS, {}):
+        frontend.async_remove_panel(hass, PANEL_URL)
+    await panel_custom.async_register_panel(
+        hass, frontend_url_path=PANEL_URL, webcomponent_name="home-in-review-panel",
+        sidebar_title="Home in Review", sidebar_icon="mdi:home-analytics",
+        module_url=f"{STATIC_URL}/panel.js?v={await hass.async_add_executor_job(_version)}",
+        require_admin=bool(rt.options.get(CONF_ADMIN_ONLY)), config={})
 
     @callback
     def started(_hass: HomeAssistant | None = None) -> None:
@@ -313,11 +279,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     rt: HomeInReview = entry.runtime_data
     if rt.backfill_task and not rt.backfill_task.done():
         rt.backfill_task.cancel()
+    if PANEL_URL in hass.data.get(frontend.DATA_PANELS, {}):
+        frontend.async_remove_panel(hass, PANEL_URL)
     return True
-
-
-async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    frontend.async_remove_panel(hass, PANEL_URL)
 
 
 def _version() -> str:
@@ -325,36 +289,3 @@ def _version() -> str:
         return json.loads((Path(__file__).parent / "manifest.json").read_text())["version"]
     except (OSError, ValueError, KeyError):
         return "0"
-
-
-# ============================================================================ HTTP
-class ReportView(HomeAssistantView):
-    """GET /api/home_in_review/report/<YYYY-MM|index> -> HTML. Requires a logged-in user (or a signed path)."""
-
-    url = URL_BASE + "/report/{name}"
-    name = "api:home_in_review:report"
-    requires_auth = True
-
-    async def get(self, request: web.Request, name: str) -> web.Response:
-        hass: HomeAssistant = request.app["hass"]
-        entries = hass.config_entries.async_loaded_entries(DOMAIN)
-        if not entries:
-            return web.Response(status=404)
-        rt: HomeInReview = entries[0].runtime_data
-        docs = rt.store.docs
-        lang = request.query.get("lang") or hass.config.language
-        home = hass.config.location_name
-        start = int(rt.options.get(CONF_YEAR_START, 1))
-        if name == "index":
-            html = render.render_index(docs, lang, home, hass.config.currency, start)
-        elif name.startswith("year-") and YM.match(name[5:]):
-            try:
-                html = await hass.async_add_executor_job(render.render_year, name[5:], docs, lang, home, start)
-            except KeyError:
-                return web.Response(status=404)
-        elif YM.match(name) and name in docs:
-            html = await hass.async_add_executor_job(render.render_month, name, docs, lang, home, start)
-        else:
-            return web.Response(status=404)
-        return web.Response(text=html, content_type="text/html", charset="utf-8",
-                            headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})

@@ -106,9 +106,12 @@ class HassSource:
         return out
 
     async def request_json(self, method: str, url: str, headers: dict | None = None, json: Any = None) -> Any:
+        """Request with credentials: redirects are never followed, so a token only reaches the configured host."""
         session = async_get_clientsession(self.hass)
-        async with session.request(method, url, headers=headers, json=json,
+        async with session.request(method, url, headers=headers, json=json, allow_redirects=False,
                                    timeout=aiohttp.ClientTimeout(total=60)) as resp:
+            if 300 <= resp.status < 400:
+                raise RuntimeError("redirect not followed")
             resp.raise_for_status()
             return await resp.json()
 
@@ -119,8 +122,10 @@ class HassSource:
             blocking=True, return_response=True)
         return (res or {}).get("data")
 
-    async def fetch_json(self, url: str) -> Any:
+    async def fetch_json(self, url: str, allow_redirects: bool = True) -> Any:
         session = async_get_clientsession(self.hass)
-        async with session.get(url, timeout=aiohttp.ClientTimeout(total=120)) as resp:
+        async with session.get(url, allow_redirects=allow_redirects, timeout=aiohttp.ClientTimeout(total=120)) as resp:
+            if 300 <= resp.status < 400:
+                raise RuntimeError("redirect not followed")
             resp.raise_for_status()
             return await resp.json()

@@ -204,11 +204,11 @@ const h=/theme=([a-z]+)/.exec(location.hash);if(h)t=h[1];if(!t){try{t=localStora
 if(t&&t!=='auto')r.dataset.theme=t;})()</script>"""
 
 JS = r"""
-window.hirGo=f=>{if(window.parent!==window)parent.postMessage({homeInReview:f},'*');else location.href='./'+f+'.html'};
+window.hirGo=f=>{if(window.parent!==window)parent.postMessage({homeInReview:f},location.origin);else location.href='./'+f+'.html'};
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[data-go]');if(!a)return;e.preventDefault();hirGo(a.dataset.go)});
 (()=>{const b=document.querySelector('.hmenu');if(!b||window.parent===window)return;const set=v=>{b.hidden=!v};
- set(/(^|[#&])menu\b/.test(location.hash));addEventListener('message',e=>{if(e.source===parent&&e.data&&'hirNarrow' in e.data)set(!!e.data.hirNarrow)});
- b.onclick=()=>parent.postMessage({homeInReview:'menu'},'*')})();
+ set(/(^|[#&])menu\b/.test(location.hash));addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&'hirNarrow' in e.data)set(!!e.data.hirNarrow)});
+ b.onclick=()=>parent.postMessage({homeInReview:'menu'},location.origin)})();
 window.hirTheme=t=>{const r=document.documentElement;delete r.dataset.theme;if(t!=='auto')r.dataset.theme=t;
  try{localStorage.setItem('hir-theme',t)}catch(e){};document.querySelectorAll('.themes button').forEach(b=>b.classList.toggle('on',b.dataset.t===t))};
 (()=>{const t=document.documentElement.dataset.theme||'auto';document.querySelectorAll('.themes button').forEach(b=>b.classList.toggle('on',b.dataset.t===t))})();

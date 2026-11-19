@@ -157,4 +157,23 @@ IT.update({
     "For runs only, optional: a longer block counts as several runs (e.g. 3 h for a dishwasher). Runs are counted from the hourly average power; pauses of up to 2 hours belong to the same run.": "Solo per i cicli, facoltativo: un blocco più lungo conta come più cicli (ad es. 3 h per una lavastoviglie). I cicli sono contati dalla potenza media oraria; le pause fino a 2 ore fanno parte dello stesso ciclo.",
 })
 
+ES.update({
+    "Only administrators can view the reports": "Solo los administradores pueden ver los informes",
+    "Off: every Home Assistant user in the household can open them (they show energy use, costs and when rooms are used).": "Desactivado: cualquier usuario de Home Assistant del hogar puede abrirlos (muestran consumo, costes y uso de las estancias).",
+    "Enter a valid http:// or https:// address without query or fragment.": "Introduce una dirección http:// o https:// válida, sin ? ni #.",
+    "Don't put a user name or password in the address; use the token field.": "No pongas usuario ni contraseña en la dirección; usa el campo del token.",
+    "The token would be sent unencrypted to an address outside your network; use https://.": "El token se enviaría sin cifrar a una dirección fuera de tu red; usa https://.",
+    "Fill in both the Grafana address and the token, or neither.": "Rellena la dirección de Grafana y el token, o ninguno de los dos.",
+    "At most 1000 characters.": "Como máximo 1000 caracteres.",
+})
+IT.update({
+    "Only administrators can view the reports": "Solo gli amministratori possono vedere i resoconti",
+    "Off: every Home Assistant user in the household can open them (they show energy use, costs and when rooms are used).": "Disattivato: ogni utente di Home Assistant in casa può aprirli (mostrano consumi, costi e uso degli ambienti).",
+    "Enter a valid http:// or https:// address without query or fragment.": "Inserisci un indirizzo http:// o https:// valido, senza ? né #.",
+    "Don't put a user name or password in the address; use the token field.": "Non inserire nome utente o password nell'indirizzo; usa il campo del token.",
+    "The token would be sent unencrypted to an address outside your network; use https://.": "Il token verrebbe inviato in chiaro a un indirizzo fuori dalla tua rete; usa https://.",
+    "Fill in both the Grafana address and the token, or neither.": "Compila sia l'indirizzo di Grafana sia il token, oppure nessuno dei due.",
+    "At most 1000 characters.": "Al massimo 1000 caratteri.",
+})
+
 EXTRA = {"es": ES, "it": IT}

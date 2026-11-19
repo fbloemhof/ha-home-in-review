@@ -128,7 +128,7 @@ class FakeSource:
         return [{"area_id": "garden", "name": "Achtertuin", "floor_name": None},
                 {"area_id": "sun", "name": "Tuinkamer", "floor_name": None}]
 
-    async def fetch_json(self, url):
+    async def fetch_json(self, url, allow_redirects=True):
         raise OSError("offline")
 
 
@@ -272,7 +272,8 @@ def test_days_above_rain_gauge_and_evcc():
         {"created": "2026-03-01T12:00:00+01:00", "vehicle": "Car A", "chargedEnergy": 99},  # next month, ignored
     ]
 
-    async def fetch(url):
+    async def fetch(url, allow_redirects=True):
+        assert allow_redirects is False  # evcc requests never follow redirects
         if "/api/sessions" in url:
             return {"result": sessions}  # older evcc wraps the list
         raise OSError("offline")

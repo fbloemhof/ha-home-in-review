@@ -36,12 +36,14 @@
               "notify_services": "Notifier quand un rapport est prêt",
               "report_day": "Jour du mois",
               "report_time": "Heure",
-              "year_start_month": "Le bilan annuel commence en"
+              "year_start_month": "Le bilan annuel commence en",
+              "admin_only": "Seuls les administrateurs peuvent voir les rapports"
             },
             "data_description": {
               "notify_services": "La notification ouvre le rapport.",
               "report_day": "Le rapport du mois précédent est créé ce jour-là.",
-              "year_start_month": "Janvier pour une année civile ; par exemple juillet pour une saison de chauffe ou le début de votre contrat."
+              "year_start_month": "Janvier pour une année civile ; par exemple juillet pour une saison de chauffe ou le début de votre contrat.",
+              "admin_only": "Désactivé : tout utilisateur de Home Assistant du foyer peut les ouvrir (ils montrent consommation, coûts et usage des pièces)."
             }
           },
           "energy": {
@@ -129,7 +131,12 @@
       }
     },
     "error": {
-      "statistic_required": "Choisissez une statistique."
+      "statistic_required": "Choisissez une statistique.",
+      "invalid_url": "Saisissez une adresse http:// ou https:// valide, sans ? ni #.",
+      "url_credentials": "Pas de nom d'utilisateur ni de mot de passe dans l'adresse ; utilisez le champ du jeton.",
+      "https_required": "Le jeton serait envoyé en clair vers une adresse hors de votre réseau ; utilisez https://.",
+      "teslamate_incomplete": "Renseignez l'adresse Grafana et le jeton, ou aucun des deux.",
+      "too_long": "1000 caractères au maximum."
     }
   },
   "selector": {

@@ -8,7 +8,7 @@ class HomeInReviewPanel extends HTMLElement {
   set route(r) { this._route = r; if (this._frame) this._fromRoute(); }
   set narrow(n) {
     this._narrow = !!n;
-    if (this._frame && this._frame.contentWindow) this._frame.contentWindow.postMessage({ hirNarrow: this._narrow }, "*");
+    if (this._frame && this._frame.contentWindow) this._frame.contentWindow.postMessage({ hirNarrow: this._narrow }, location.origin);
   }
   set panel(p) { this._panel = p; }
 
@@ -17,7 +17,8 @@ class HomeInReviewPanel extends HTMLElement {
     this.innerHTML = `<iframe title="Home in Review" style="border:0;width:100%;height:100vh;display:block"></iframe>`;
     this._frame = this.querySelector("iframe");
     window.addEventListener("message", (e) => {
-      if (!this._frame || e.source !== this._frame.contentWindow) return;
+      // Only messages from our own report frame, served by this Home Assistant (same origin).
+      if (!this._frame || e.source !== this._frame.contentWindow || e.origin !== location.origin) return;
       const target = e.data && e.data.homeInReview;
       if (target === "menu") {
         this.dispatchEvent(new Event("hass-toggle-menu", { bubbles: true, composed: true }));

@@ -36,12 +36,14 @@
               "notify_services": "Melding sturen als een rapport klaar is",
               "report_day": "Dag van de maand",
               "report_time": "Tijd",
-              "year_start_month": "Jaaroverzicht begint in"
+              "year_start_month": "Jaaroverzicht begint in",
+              "admin_only": "Alleen beheerders mogen de rapporten zien"
             },
             "data_description": {
               "notify_services": "De melding opent het rapport.",
               "report_day": "Op deze dag wordt het rapport over de vorige maand gemaakt.",
-              "year_start_month": "Januari voor een kalenderjaar; bijvoorbeeld juli voor een stookseizoen of de maand waarin je energiecontract begint."
+              "year_start_month": "Januari voor een kalenderjaar; bijvoorbeeld juli voor een stookseizoen of de maand waarin je energiecontract begint.",
+              "admin_only": "Uit: elke Home Assistant-gebruiker in huis kan ze openen (ze tonen energieverbruik, kosten en wanneer ruimtes gebruikt worden)."
             }
           },
           "energy": {
@@ -129,7 +131,12 @@
       }
     },
     "error": {
-      "statistic_required": "Kies een statistiek."
+      "statistic_required": "Kies een statistiek.",
+      "invalid_url": "Vul een geldig http://- of https://-adres in, zonder ? of #.",
+      "url_credentials": "Zet geen gebruikersnaam of wachtwoord in het adres; gebruik het tokenveld.",
+      "https_required": "De token zou onversleuteld naar een adres buiten je netwerk gaan; gebruik https://.",
+      "teslamate_incomplete": "Vul zowel het Grafana-adres als de token in, of geen van beide.",
+      "too_long": "Hooguit 1000 tekens."
     }
   },
   "selector": {

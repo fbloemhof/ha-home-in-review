@@ -36,12 +36,14 @@
               "notify_services": "Benachrichtigen, wenn ein Bericht fertig ist",
               "report_day": "Tag des Monats",
               "report_time": "Uhrzeit",
-              "year_start_month": "Jahresrückblick beginnt im"
+              "year_start_month": "Jahresrückblick beginnt im",
+              "admin_only": "Nur Administratoren dürfen die Berichte sehen"
             },
             "data_description": {
               "notify_services": "Die Benachrichtigung öffnet den Bericht.",
               "report_day": "An diesem Tag wird der Bericht des Vormonats erstellt.",
-              "year_start_month": "Januar für ein Kalenderjahr; zum Beispiel Juli für eine Heizperiode oder den Beginn Ihres Energievertrags."
+              "year_start_month": "Januar für ein Kalenderjahr; zum Beispiel Juli für eine Heizperiode oder den Beginn Ihres Energievertrags.",
+              "admin_only": "Aus: jeder Home-Assistant-Benutzer im Haushalt kann sie öffnen (sie zeigen Energieverbrauch, Kosten und Raumnutzung)."
             }
           },
           "energy": {
@@ -129,7 +131,12 @@
       }
     },
     "error": {
-      "statistic_required": "Wählen Sie eine Statistik."
+      "statistic_required": "Wählen Sie eine Statistik.",
+      "invalid_url": "Geben Sie eine gültige http://- oder https://-Adresse ohne ? oder # ein.",
+      "url_credentials": "Keine Benutzernamen oder Passwörter in die Adresse; nutzen Sie das Token-Feld.",
+      "https_required": "Das Token würde unverschlüsselt an eine Adresse außerhalb Ihres Netzes gehen; nutzen Sie https://.",
+      "teslamate_incomplete": "Füllen Sie Grafana-Adresse und Token beide aus oder keines von beiden.",
+      "too_long": "Höchstens 1000 Zeichen."
     }
   },
   "selector": {

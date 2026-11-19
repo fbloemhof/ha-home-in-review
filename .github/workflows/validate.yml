@@ -6,28 +6,46 @@ on:
   schedule:
     - cron: "0 6 * * 1"
 
+# Actions are pinned to full commit SHAs (Dependabot keeps them current); the jobs only need to read the code.
+permissions:
+  contents: read
+
 jobs:
   hassfest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: home-assistant/actions/hassfest@master
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: home-assistant/actions/hassfest@86d4564712fa02543c808e3a693dd04f9d3f8361 # master 2026-10-26
 
   hacs:
     runs-on: ubuntu-latest
     steps:
-      - uses: hacs/action@main
+      - uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa # main 2026-06-08
         with:
           category: integration
           ignore: brands
 
   tests:
+    name: lint and unit tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.13"
-      - run: pip install pytest ruff
-      - run: ruff check --select E,F,W,B,UP,I --ignore E501,UP007,UP045 custom_components tests dev
-      - run: pytest -q tests
+      - run: pip install pytest aiohttp ruff
+      - run: ruff check custom_components tests tests_ha dev tools
+      - run: pytest -q -p no:homeassistant tests
+
+  ha-tests:
+    name: tests inside Home Assistant
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements_test.txt
+      - name: Home Assistant's frontend package (the integration depends on frontend and panel_custom)
+        run: pip install "$(python -c "import homeassistant, pathlib; print(next(l for l in (pathlib.Path(homeassistant.__file__).parent / 'package_constraints.txt').read_text().splitlines() if l.startswith('home-assistant-frontend')))")"
+      - run: pytest -q tests_ha

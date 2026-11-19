@@ -36,12 +36,14 @@
               "notify_services": "Notify when a report is ready",
               "report_day": "Day of the month",
               "report_time": "Time",
-              "year_start_month": "Year review starts in"
+              "year_start_month": "Year review starts in",
+              "admin_only": "Only administrators can view the reports"
             },
             "data_description": {
               "notify_services": "The notification opens the report.",
               "report_day": "Last month's report is made on this day.",
-              "year_start_month": "January for a calendar year; for example July for a heating season or the month your energy contract starts."
+              "year_start_month": "January for a calendar year; for example July for a heating season or the month your energy contract starts.",
+              "admin_only": "Off: every Home Assistant user in the household can open them (they show energy use, costs and when rooms are used)."
             }
           },
           "energy": {
@@ -129,7 +131,12 @@
       }
     },
     "error": {
-      "statistic_required": "Choose a statistic."
+      "statistic_required": "Choose a statistic.",
+      "invalid_url": "Enter a valid http:// or https:// address without query or fragment.",
+      "url_credentials": "Don't put a user name or password in the address; use the token field.",
+      "https_required": "The token would be sent unencrypted to an address outside your network; use https://.",
+      "teslamate_incomplete": "Fill in both the Grafana address and the token, or neither.",
+      "too_long": "At most 1000 characters."
     }
   },
   "selector": {
