@@ -168,6 +168,9 @@ td .sm{color:var(--mut);font-size:12.5px;margin-left:6px}
 .themes button.on{border-color:var(--hi);color:var(--hi)}
 .pg{position:absolute;right:clamp(20px,6vw,96px);bottom:22px;font-size:12px;color:var(--mut);letter-spacing:.1em}
 .notes{display:grid;gap:8px}
+.story{max-width:40em}
+.story p{font-family:var(--serif);font-size:clamp(17px,1.45vw,20px);line-height:1.5;margin:0 0 .8em;color:var(--ink2)}
+.story p:first-child{font-size:clamp(21px,2vw,27px);line-height:1.38;color:var(--ink)}
 ul.src{margin:0;padding-left:1.1em;color:var(--ink2);font-size:14.5px}
 #tip{position:fixed;pointer-events:none;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:8px;
   padding:6px 10px;font-size:13px;box-shadow:0 6px 24px rgba(0,0,0,.12);opacity:0;transition:opacity .1s;z-index:9;max-width:280px}
@@ -221,6 +224,8 @@ ICONS = {
     "drop": '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/><path d="M9 14.5a3 3 0 0 0 3 3"/>',
     "flame": '<path d="M12 3c.5 3 5 5.2 5 10a5 5 0 0 1-10 0c0-2.6 1.6-4 2.2-5.8.9 1 1.6 2 1.6 3.2 1.2-1.6 1.6-4.6 1.2-7.4z"/>',
     "thermo": '<path d="M10 4.5a2 2 0 0 1 4 0v9.8a4 4 0 1 1-4 0z"/><path d="M12 9v8.5"/>',
+    "quote": '<path d="M6 7h4v4c0 3-1.3 5-4 6M14 7h4v4c0 3-1.3 5-4 6"/>',
+    "car": '<path d="M3.5 16.5v-3.5l2-5a2 2 0 0 1 1.9-1.3h9.2a2 2 0 0 1 1.9 1.3l2 5v3.5"/><path d="M3.5 13h17"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/>',
     "cloud": '<path d="M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.2 4.5 4.5 0 0 0 7 18z"/>',
 }
 
@@ -461,7 +466,8 @@ def _get(fn):
 
 
 # ============================================================================ month report
-def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: str | None = None) -> str:
+def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: str | None = None,
+                 start_month: int = 1) -> str:
     d = docs[ym]
     u = d["units"]
     L = Lang(lang, u.get("currency", "EUR"))
@@ -492,6 +498,12 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
 <div class="top"><span>{esc(L("title"))}</span><span>{top_right}</span></div>
 <h1>{esc(mname[:1].upper() + mname[1:])}<span>{esc(L("cover_sub"))} · {y}</span></h1>
 <div class="figs">{"".join(figs)}</div>''', "cover")
+
+    # ---------------------------------------------------------------- AI summary (optional)
+    if d.get("story"):
+        paras = "".join(f"<p>{esc(p.strip())}</p>" for p in d["story"]["text"].split("\n") if p.strip())
+        P.add("story", L("s_story"), "quote", f'''{P.kicker(L("s_story"), "quote")}
+<div class="story">{paras}</div><p class="note">{esc(L("story_note", model=d["story"].get("entity", "AI")))}</p>''')
 
     # ---------------------------------------------------------------- electricity
     if e:
@@ -622,6 +634,44 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         P.add("devices", L("s_devices"), "plug", f'''{P.kicker(L("s_devices"), "plug")}
 <h2>{head}</h2><div class="rank">{"".join(lines)}</div><p class="note">{esc(note)}</p>''')
 
+    # ---------------------------------------------------------------- heat pump (optional)
+    hp = d.get("heat_pump")
+    if hp and hp.get("electricity"):
+        if hp.get("cop"):
+            head = L("h_hp_cop", v=kwh(hp["electricity"]), cop=L.num(hp["cop"], 1))
+        else:
+            head = L("h_hp", v=kwh(hp["electricity"]))
+        stats = [P.stat(L("hp_elec"), kwh(hp["electricity"]), hp["electricity"], _get(lambda x: x["heat_pump"]["electricity"]))]
+        if hp.get("heat"):
+            stats.append(P.stat(L("hp_heat"), kwh(hp["heat"]), hp["heat"], _get(lambda x: x["heat_pump"]["heat"])))
+        if hp.get("cop"):
+            stats.append(P.stat("COP", L.num(hp["cop"], 1), hp["cop"], _get(lambda x: x["heat_pump"]["cop"]), lambda v: L.num(v, 1)))
+        if hp.get("kwh_per_degree_day"):
+            stats.append(P.stat(L("hp_per_dd"), f'{L.num(hp["kwh_per_degree_day"], 2)} kWh', hp["kwh_per_degree_day"],
+                                _get(lambda x: x["heat_pump"]["kwh_per_degree_day"]), lambda v: L.num(v, 2)))
+        if hp.get("share"):
+            stats.append(P.stat(L("share"), L.pct(hp["share"])))
+        tr = trend(L, P.series13(_get(lambda x: x["heat_pump"]["electricity"])), L("trend_hp"), lambda v: kwh(v))
+        P.add("heatpump", L("s_heat_pump"), "flame", f'''{P.kicker(L("s_heat_pump"), "flame")}
+<div class="split"><div><h2>{head}</h2><div class="hero" style="margin-top:22px">{L.num(hp["electricity"])}<small>kWh</small></div></div>
+<div><div class="stats">{"".join(stats)}</div><div style="margin-top:28px">{tr}</div></div></div>
+<p class="note">{esc(L("hp_note", devices=", ".join(hp.get("devices", []))))}</p>''')
+
+    # ---------------------------------------------------------------- car (optional, TeslaMate)
+    car = d.get("car")
+    if car:
+        head = L("h_car", km=f'{L.num(car["km"])} km', n=car["drives"])
+        rows = "".join(
+            f'<tr><td>{esc(c["name"])}</td><td>{L.num(c["km"])}</td><td>{c["drives"]}</td><td>{L.num(c["longest_km"])}</td>'
+            f'<td>{L.num(c["charged"])}</td><td>{L.pct(c["charged_home"] / c["charged"]) if c["charged"] else "–"}</td>'
+            f'<td>{L.num(c["wh_per_km"]) if c.get("wh_per_km") else "–"}</td></tr>' for c in car["cars"])
+        tr = trend(L, P.series13(_get(lambda x: x["car"]["km"])), L("trend_car"), lambda v: f"{L.num(v)} km")
+        P.add("car", L("s_car"), "car", f'''{P.kicker(L("s_car"), "car")}
+<div class="head2"><h2>{head}</h2>{tr}</div>
+<div class="tbl"><table><thead><tr><th></th><th>km</th><th>{esc(L("car_drives"))}</th><th>{esc(L("car_longest"))} (km)</th>
+<th>{esc(L("car_charged"))} (kWh)</th><th>{esc(L("car_home"))}</th><th>Wh/km</th></tr></thead><tbody>{rows}</tbody></table></div>
+<p class="note">{esc(L("car_note"))}</p>''')
+
     # ---------------------------------------------------------------- daily rhythm
     if e.get("by_hour_w") and any(e["by_hour_w"]):
         w = e["by_hour_w"]
@@ -654,15 +704,17 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         stats = [f'<div class="stat"><div class="l">{esc(L("avg_temp"))}</div><div class="v">{L.num(wx["temp"], 1)}<small>{tu}</small></div>'
                  + (f'<div class="c">{esc(L("vs_normal"))} {L.num(n, 1)}{tu}</div>' if n is not None else "") + '</div>',
                  f'<div class="stat"><div class="l">{esc(L("coldest"))} / {esc(L("warmest"))}</div><div class="v">{L.num(wx["min"], 1)} / {L.num(wx["max"], 1)}<small>{tu}</small></div></div>',
-                 f'<div class="stat"><div class="l">{esc(L("rain"))}</div><div class="v">{L.num(wx["precip"], 0 if pu == "mm" else 1)}<small>{pu}</small></div>'
-                 + (f'<div class="c">{esc(L("vs_normal"))} {L.num(wx["normal"]["precip"], 0 if pu == "mm" else 1)} {pu}</div>' if g(wx, "normal", "precip") is not None else "") + '</div>',
+                 (f'<div class="stat"><div class="l">{esc(L("rain"))}</div><div class="v">{L.num(wx["precip"], 0 if pu == "mm" else 1)}<small>{pu}</small></div>'
+                  + (f'<div class="c">{esc(L("vs_normal"))} {L.num(wx["normal"]["precip"], 0 if pu == "mm" else 1)} {pu}</div>' if g(wx, "normal", "precip") is not None else "") + '</div>')
+                 if wx.get("precip") is not None else "",
                  f'<div class="stat"><div class="l">{esc(L("frost_days"))}</div><div class="v">{wx["frost_days"]}</div></div>'
                  if wx["frost_days"] or m in (11, 12, 1, 2, 3) else
                  f'<div class="stat"><div class="l">{esc(L("summer_days"))}</div><div class="v">{wx["summer_days"]}</div></div>',
                  P.stat(L("degree_days"), L.num(wx["degree_days"]), wx["degree_days"], _get(lambda x: x["weather"]["degree_days"]))]
         legend = (f'<span><i style="background:var(--s1);opacity:.35"></i>{esc(L("band"))}</span><span><i style="background:var(--s1)"></i>{esc(L("mean_line"))}</span>'
                   + (f'<span><i style="background:var(--hi)"></i>{esc(L("normal_line"))}</span>' if n is not None else ""))
-        note = L("weather_note_sensor") if wx.get("source") == "sensor" else L("weather_note")
+        src_w = wx.get("source", "open-meteo")
+        note = L({"sensor": "weather_note_sensor", "sensor-only": "weather_note_sensor_only"}.get(src_w, "weather_note"))
         P.add("weather", L("s_weather"), "cloud", f'''{P.kicker(L("s_weather"), "cloud")}
 <h2>{head}</h2>
 <div><div class="wide">{temp_chart(L, wx["daily"], n, tu)}</div><div class="narrow">{temp_chart(L, wx["daily"], n, tu, 420, 240, 14)}</div>
@@ -716,6 +768,20 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
 <div class="split"><div><h2>{head}</h2><div class="hero" style="margin-top:22px">{L.num(big, 1)}<small>{bigu}</small></div></div>
 <div><div class="stats">{"".join(stats)}</div><div style="margin-top:28px">{tr}</div></div></div>''')
 
+    # ---------------------------------------------------------------- custom tiles (optional)
+    if d.get("custom"):
+        stats = []
+        for i, t in enumerate(d["custom"]):
+            if t["value"] is None:
+                continue
+            unit = f' {t["unit"]}' if t["unit"] else ""
+            stats.append(P.stat(t["name"], f'{L.num(t["value"], t["decimals"])}{unit}', t["value"],
+                                _get(lambda x, i=i, sid=t["statistic"], typ=t["type"]: next(
+                                    c["value"] for c in x["custom"] if c["statistic"] == sid and c["type"] == typ)),
+                                lambda v, n=t["decimals"]: L.num(v, n)))
+        P.add("custom", L("s_custom"), "info", f'''{P.kicker(L("s_custom"), "info")}
+<h2>{esc(L("h_custom"))}</h2><div class="stats">{"".join(stats)}</div>''')
+
     # ---------------------------------------------------------------- about
     src = []
     if e:
@@ -768,6 +834,7 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
 <div class="notes">{"".join(f'<p class="note">{esc(n)}</p>' for n in notes)}</div>
 <p class="note">{esc(L("generated", d=f"{gen.day} {L.month(gen.month)} {gen.year}"))} · {esc(L("made_with"))}</p>
 <div class="themes">{esc(L("theme"))}: {themes}</div>
+<p style="font-size:15px"><a href="#" data-go="year-{year_key(ym, start_month)}">{esc(L("year_title"))} {esc(year_label(year_key(ym, start_month)))} →</a></p>
 {foot}''')
 
     # ---------------------------------------------------------------- page
@@ -785,9 +852,18 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
 
 
 # ============================================================================ index
-def render_index(docs: dict[str, dict], lang: str = "en", home_name: str | None = None, currency: str = "EUR") -> str:
+def render_index(docs: dict[str, dict], lang: str = "en", home_name: str | None = None, currency: str = "EUR",
+                 start_month: int = 1) -> str:
     L = Lang(lang, currency)
     rows, year = [], None
+    keys = year_keys(docs, start_month)
+    if keys:
+        rows.append(f'<div class="y">{esc(L("year_title"))}</div>')
+        for k in reversed(keys):
+            ms = [m for m in year_months(k) if m in docs]
+            use = sum((docs[m].get("energy") or {}).get("consumption") or 0 for m in ms)
+            note = "" if len(ms) == 12 else L("year_partial", n=len(ms))
+            rows.append(f'<a href="#" data-go="year-{k}"><b>{esc(year_label(k))}</b><span>{esc(note)}</span><span>{L.num(use)} kWh</span></a>')
     for ym in sorted(docs, reverse=True):
         d = docs[ym]
         if ym[:4] != year:
@@ -807,3 +883,265 @@ def render_index(docs: dict[str, dict], lang: str = "en", home_name: str | None 
 
 def months_json(docs: dict[str, dict]) -> str:
     return json.dumps(sorted(docs))
+
+
+# ============================================================================ year review
+def year_key(ym: str, start_month: int) -> str:
+    """The first month (YYYY-MM) of the report year that contains ``ym``."""
+    y, m = int(ym[:4]), int(ym[5:])
+    return f"{y if m >= start_month else y - 1:04d}-{start_month:02d}"
+
+
+def year_months(key: str) -> list[str]:
+    y, m = int(key[:4]), int(key[5:])
+    out = []
+    for _ in range(12):
+        out.append(f"{y:04d}-{m:02d}")
+        m += 1
+        if m > 12:
+            y, m = y + 1, 1
+    return out
+
+
+def year_label(key: str) -> str:
+    y, m = int(key[:4]), int(key[5:])
+    return str(y) if m == 1 else f"{y}/{(y + 1) % 100:02d}"
+
+
+def year_keys(docs: dict[str, dict], start_month: int) -> list[str]:
+    return sorted({year_key(ym, start_month) for ym in docs})
+
+
+def month_bars(L: Lang, months: list[str], cur: list[float | None], prev: list[float | None], fmt, W=1000, H=260) -> str:
+    """12 bars for this year (accent) with last year's values as outlines behind them."""
+    vals = [v for v in cur + prev if v is not None]
+    if not vals:
+        return ""
+    lo, hi = min(vals + [0]), max(vals + [0])
+    step = nice_step(hi - lo or 1, 3)
+    hi = step * math.ceil(hi / step) if hi > 0 else 0
+    lo = step * math.floor(lo / step) if lo < 0 else 0
+    pl, top, bot = 64, 14, 26
+    sc = (H - top - bot) / ((hi - lo) or 1)
+    y0 = top + hi * sc
+    bw = (W - pl) / 12
+    out = [f'<svg viewBox="0 0 {W} {H}" role="img">']
+    t = lo
+    while t <= hi + 1e-9:
+        y = y0 - t * sc
+        out.append(f'<line x1="{pl}" x2="{W}" y1="{y:.1f}" y2="{y:.1f}" class="grid"/><text x="{pl - 8}" y="{y + 4:.1f}" class="ax" text-anchor="end">{esc(fmt(t))}</text>')
+        t += step
+    for i, ym in enumerate(months):
+        x = pl + i * bw
+        p, c = prev[i], cur[i]
+        if p is not None:
+            h = abs(p) * sc
+            out.append(f'<rect x="{x + bw * .14:.1f}" y="{(y0 - h if p >= 0 else y0):.1f}" width="{bw * .72:.1f}" height="{max(h, 1):.1f}" rx="4" fill="none" stroke="var(--mut)" stroke-width="1.2" opacity=".7"/>')
+        if c is not None:
+            h = abs(c) * sc
+            out.append(f'<rect x="{x + bw * .26:.1f}" y="{(y0 - h if c >= 0 else y0):.1f}" width="{bw * .48:.1f}" height="{max(h, 1):.1f}" rx="3" fill="var(--hi)"/>')
+        tip = f'{L.month(int(ym[5:]))} {ym[:4]}: {fmt(c) if c is not None else L("no_data")}'
+        if p is not None:
+            tip += f' · {L("last_year")} {fmt(p)}'
+        out.append(f'<rect class="hit" x="{x:.1f}" y="0" width="{bw:.1f}" height="{H}" data-tip="{esc(tip)}"/>')
+        out.append(f'<text x="{x + bw / 2:.1f}" y="{H - 6}" class="ax" text-anchor="middle">{esc(L.month_short(int(ym[5:])))}</text>')
+    out.append(f'<line x1="{pl}" x2="{W}" y1="{y0:.1f}" y2="{y0:.1f}" stroke="var(--ink2)" stroke-width="1"/></svg>')
+    return "".join(out)
+
+
+def render_year(key: str, docs: dict[str, dict], lang: str = "en", home_name: str | None = None,
+                start_month: int = 1) -> str:
+    months = year_months(key)
+    prev_key = prev_ym(key, 12)
+    prev_months = year_months(prev_key)
+    have = [m for m in months if m in docs]
+    if not have:
+        raise KeyError(key)
+    u = docs[have[-1]]["units"]
+    L = Lang(lang, u.get("currency", "EUR"))
+    P = Page(L, have[-1], docs)
+    tu = u.get("temperature", "°C")
+    label = year_label(key)
+    complete = len(have) == 12
+
+    def series(ms, fn):
+        out = []
+        for m in ms:
+            try:
+                out.append(fn(docs[m]) if m in docs else None)
+            except (KeyError, TypeError, IndexError):
+                out.append(None)
+        return out
+
+    def tot(ms, fn):
+        v = [x for x in series(ms, fn) if x is not None]
+        return sum(v) if v else None
+
+    def prev_tot(fn):
+        """Last year's total over the same months that this year has (fair comparison for a running year)."""
+        idx = [i for i, m in enumerate(months) if m in docs]
+        ps = series(prev_months, fn)
+        if any(ps[i] is None for i in idx):
+            return None
+        return sum(ps[i] for i in idx)
+
+    def cmp(cur, prv, fmt):
+        if cur is None or not prv:
+            return ""
+        p = (cur - prv) / abs(prv)
+        if abs(p) < .03:
+            return f'<div class="cmp">{esc(L("last_year"))} {esc(fmt(prv))} · {esc(L("same"))}</div>'
+        return f'<div class="cmp">{esc(L("last_year"))} {esc(fmt(prv))} · <b>{"▲" if p > 0 else "▼"} {L.num(abs(p) * 100)}%</b></div>'
+
+    kwh = lambda v: f"{L.num(v)} kWh"  # noqa: E731
+    E = lambda k: _get(lambda x: x["energy"][k])  # noqa: E731
+
+    # ---------------------------------------------------------------- cover
+    use, cost, sol = tot(months, E("consumption")), tot(months, E("total_cost")), tot(months, E("solar"))
+    temps = [x for x in series(months, _get(lambda x: x["weather"]["temp"])) if x is not None]
+    figs = []
+    if use is not None:
+        figs.append(f'<div>{icon("house")}<b>{kwh(use)}</b><span>{esc(L("used"))}</span></div>')
+    if cost is not None:
+        figs.append(f'<div>{icon("euro")}<b>{L.money(cost)}</b><span>{esc(L("net_cost"))}</span></div>')
+    if sol:
+        figs.append(f'<div>{icon("sun")}<b>{kwh(sol)}</b><span>{esc(L("from_sun"))}</span></div>')
+    if temps:
+        figs.append(f'<div>{icon("thermo")}<b>{L.num(sum(temps) / len(temps), 1)}{tu}</b><span>{esc(L("outside"))}</span></div>')
+    sub = L("year_sub") if complete else L("year_partial", n=len(have))
+    P.add("cover", L("year_title"), "house", f'''
+<div class="top"><span>{esc(L("title"))} · {esc(L("year_title"))}</span><span>{esc(home_name or "")}</span></div>
+<h1>{esc(label)}<span>{esc(sub)}</span></h1>
+<div class="figs">{"".join(figs)}</div>''', "cover")
+
+    def topic(sid, title, ic, fn, fmt, head_key, extra=""):
+        cur, prv = series(months, fn), series(prev_months, fn)
+        total_v = tot(months, fn)
+        if total_v is None:
+            return
+        best = max(((m, v) for m, v in zip(months, cur, strict=False) if v is not None), key=lambda x: x[1])
+        low = min(((m, v) for m, v in zip(months, cur, strict=False) if v is not None), key=lambda x: x[1])
+        hl = L("year_highlow", hi=L.month(int(best[0][5:])), hv=fmt(best[1]), lo=L.month(int(low[0][5:])), lv=fmt(low[1]))
+        if head_key == "y_cost" and total_v < 0:
+            head_key = "y_cost_earned"
+        P.add(sid, title, ic, f'''{P.kicker(title, ic)}
+<div class="split"><div><h2>{L(head_key, v=esc(fmt(abs(total_v) if head_key == "y_cost_earned" else total_v)))}</h2>
+<div class="hero" style="margin-top:22px;font-size:clamp(44px,7vw,96px)">{split_unit(fmt(total_v))}</div>{cmp(total_v, prev_tot(fn), fmt)}
+<p class="note" style="margin-top:14px">{esc(hl)}</p></div>
+<div><div class="wide">{month_bars(L, months, cur, prv, fmt, 640, 300)}</div><div class="narrow">{month_bars(L, months, cur, prv, fmt, 420, 260)}</div><div class="legend"><span><i style="background:var(--hi)"></i>{esc(label)}</span>
+<span><i style="border:1.2px solid var(--mut);background:none"></i>{esc(L("last_year"))}</span></div>{extra}</div></div>''')
+
+    topic("energy", L("s_energy"), "bolt", E("consumption"), kwh, "y_energy")
+    if cost is not None:
+        topic("cost", L("s_cost"), "receipt", E("total_cost"), lambda v: L.money(v), "y_cost")
+    if sol:
+        topic("solar", L("s_solar"), "sun", E("solar"), kwh, "y_solar")
+    if any(m in docs and g(docs[m], "heat_pump", "electricity") for m in months):
+        topic("heatpump", L("s_heat_pump"), "flame", _get(lambda x: x["heat_pump"]["electricity"]), kwh, "y_hp")
+    if any(m in docs and docs[m].get("car") for m in months):
+        topic("car", L("s_car"), "car", _get(lambda x: x["car"]["km"]), lambda v: f"{L.num(v)} km", "y_car")
+
+    # ---------------------------------------------------------------- devices over the year
+    agg: dict[str, dict] = {}
+    for m in have:
+        for x in (docs[m].get("devices") or {}).get("items", []):
+            if x.get("parent"):
+                continue
+            a = agg.setdefault(x["stat"], {"name": x["name"], "kwh": 0.0, "value": 0.0})
+            a["kwh"] += x["kwh"]
+            a["value"] += x.get("value") or 0
+    rows = sorted((a for a in agg.values() if a["kwh"] >= 0.5), key=lambda a: -a["kwh"])[:10]
+    if rows and use:
+        mx = rows[0]["kwh"]
+        lines = [f'<div class="r h"><div>{esc(L("device"))}</div><div class="t" style="background:none"></div><div class="v">kWh</div><div class="p">{esc(L("share"))}</div><div class="e">{esc(L("value"))}</div></div>']
+        for a in rows:
+            lines.append(f'<div class="r"><div class="lb">{esc(a["name"])}</div><div class="t"><div class="f" style="width:{a["kwh"] / mx * 100:.1f}%"></div></div>'
+                         f'<div class="v">{L.num(a["kwh"])}</div><div class="p">{L.pct(a["kwh"] / use)}</div><div class="e">{L.money(a["value"]) if a["value"] else ""}</div></div>')
+        P.add("devices", L("s_devices"), "plug", f'''{P.kicker(L("s_devices"), "plug")}
+<h2>{L("h_devices", name=esc(rows[0]["name"]), share=L.pct(rows[0]["kwh"] / use))}</h2><div class="rank">{"".join(lines)}</div>''')
+
+    # ---------------------------------------------------------------- weather over the year
+    wt = series(months, _get(lambda x: x["weather"]["temp"]))
+    if any(v is not None for v in wt):
+        normals = series(months, _get(lambda x: x["weather"]["normal"]["temp"]))
+        avg_t = sum(v for v in wt if v is not None) / len([v for v in wt if v is not None])
+        nt = [n for n, v in zip(normals, wt, strict=False) if n is not None and v is not None]
+        delta = (sum(v for n, v in zip(normals, wt, strict=False) if n is not None and v is not None) / len(nt) - sum(nt) / len(nt)) if nt else None
+        if delta is None:
+            head = L("h_weather_plain", v=f"{L.num(avg_t, 1)}{tu}")
+        else:
+            thr = 0.3 if tu == "°C" else 0.5
+            wkey = "y_weather_normal" if abs(delta) < thr else ("y_weather_warm" if delta > 0 else "y_weather_cold")
+            head = L(wkey, delta=f"{L.num(abs(delta), 1)}{tu}")
+        stats = [P.stat(L("avg_temp"), f"{L.num(avg_t, 1)} {tu}")]
+        pr = tot(months, _get(lambda x: x["weather"]["precip"]))
+        prn = tot([m for m in months if m in docs], _get(lambda x: x["weather"]["normal"]["precip"]))
+        if pr is not None:
+            stats.append(f'<div class="stat"><div class="l">{esc(L("rain"))}</div><div class="v">{L.num(pr)}<small>mm</small></div>'
+                         + (f'<div class="c">{esc(L("vs_normal"))} {L.num(prn)} mm</div>' if prn else "") + "</div>")
+        sun = tot(months, _get(lambda x: x["weather"]["sun_h"]))
+        if sun:
+            stats.append(P.stat(L("sun_hours"), f"{L.num(sun)} h"))
+        frost = tot(months, _get(lambda x: x["weather"]["frost_days"]))
+        if frost is not None:
+            stats.append(P.stat(L("frost_days"), L.num(frost)))
+        dd = tot(months, _get(lambda x: x["weather"]["degree_days"]))
+        if dd is not None:
+            stats.append(P.stat(L("degree_days"), L.num(dd)))
+        P.add("weather", L("s_weather"), "cloud", f'''{P.kicker(L("s_weather"), "cloud")}
+<h2>{head}</h2><div>{month_bars(L, months, wt, normals, lambda v: f"{L.num(v, 1)}°")}
+<div class="legend"><span><i style="background:var(--hi)"></i>{esc(label)}</span><span><i style="border:1.2px solid var(--mut);background:none"></i>{esc(L("normal_line"))}</span></div></div>
+<div class="stats">{"".join(stats)}</div>''')
+
+    # ---------------------------------------------------------------- indoor by season
+    seasons = {"winter": (12, 1, 2), "summer": (6, 7, 8)}
+    areas: dict[str, dict] = {}
+    for m in have:
+        mm = int(m[5:])
+        for a in (docs[m].get("indoor") or {}).get("areas", []):
+            x = areas.setdefault(a["name"], {"floor": a.get("floor"), "winter": [], "summer": [], "all": [], "hum": []})
+            if "temp" in a:
+                x["all"].append(a["temp"])
+                for sname, sm in seasons.items():
+                    if mm in sm:
+                        x[sname].append(a["temp"])
+            if "humidity" in a:
+                x["hum"].append(a["humidity"])
+    if areas:
+        avg = lambda v: sum(v) / len(v) if v else None  # noqa: E731
+        trs = "".join(
+            f'<tr><td>{esc(n)}</td><td>{L.num(avg(x["all"]), 1) if x["all"] else "–"}</td><td>{L.num(avg(x["winter"]), 1) if x["winter"] else "–"}</td>'
+            f'<td>{L.num(avg(x["summer"]), 1) if x["summer"] else "–"}</td><td>{(L.num(avg(x["hum"])) + "%") if x["hum"] else "–"}</td></tr>'
+            for n, x in sorted(areas.items(), key=lambda kv: (kv[1]["floor"] or "", kv[0])) if x["all"] or x["hum"])
+        P.add("indoor", L("s_indoor"), "thermo", f'''{P.kicker(L("s_indoor"), "thermo")}
+<h2>{esc(L("y_indoor"))}</h2><div class="tbl"><table><thead><tr><th>{esc(L("room"))}</th><th>{esc(L("year_avg"))} ({tu})</th>
+<th>{esc(L("winter"))}</th><th>{esc(L("summer"))}</th><th>{esc(L("humidity"))}</th></tr></thead><tbody>{trs}</tbody></table></div>''')
+
+    # ---------------------------------------------------------------- water & gas
+    for kind, ic in (("water", "drop"), ("gas", "flame")):
+        unit = next((docs[m][kind]["unit"] for m in have if docs[m].get(kind)), None)
+        if not unit:
+            continue
+        div = 1000 if unit == "L" else 1
+        shown = "m³" if unit == "L" else unit
+        topic(kind, L(f"s_{kind}"), ic, _get(lambda x, k=kind, dv=div: x[k]["amount"] / dv),
+              lambda v, su=shown: f"{L.num(v, 1)} {su}", f"y_{kind}")
+
+    # ---------------------------------------------------------------- about + page
+    links = []
+    ks = year_keys(docs, start_month)
+    i = ks.index(key)
+    if i > 0:
+        links.append(f'<a href="#" data-go="year-{ks[i - 1]}"><span>{esc(L("prev"))}</span><b>{esc(year_label(ks[i - 1]))}</b></a>')
+    if i < len(ks) - 1:
+        links.append(f'<a href="#" class="nx" data-go="year-{ks[i + 1]}"><span>{esc(L("next"))}</span><b>{esc(year_label(ks[i + 1]))}</b></a>')
+    mlinks = " · ".join(f'<a href="#" data-go="{m}">{esc(L.month_short(int(m[5:])))}</a>' for m in have)
+    P.add("about", L("s_about"), "info", f'''{P.kicker(L("s_about"), "info")}
+<p class="note">{esc(L("year_about", n=len(have)))}</p><p style="font-size:15px">{mlinks}</p>
+<p class="note">{esc(L("made_with"))}</p><div class="mfoot">{"".join(links)}</div>''')
+    nav = "".join(f'<a href="#{sid}" data-l="{esc(lab)}"></a>' for sid, lab, _ in P.slides)
+    top = f'<div class="topbar"><a href="#" data-go="index">{esc(L("title"))}</a><div class="mnav"><a href="#" data-go="{have[-1]}">{esc(L.month(int(have[-1][5:])))} {have[-1][:4]}</a></div></div>'
+    return (f'<!doctype html><html lang="{L.code}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+            f'<title>{esc(L("title"))} · {esc(label)}</title>{THEME_HEAD}<style>{CSS}</style></head><body>'
+            f'<div class="bar"></div>{top}<nav class="nav">{nav}</nav>{"".join(s for _, _, s in P.slides)}<div id="tip"></div>'
+            f'<script>{JS}</script></body></html>')

@@ -1,0 +1,178 @@
+{
+  "config": {
+    "abort": {
+      "single_instance_allowed": "Home in Review ist bereits eingerichtet."
+    },
+    "step": {
+      "user": {
+        "title": "Home in Review",
+        "description": "Ein Monatsbericht Ihres Zuhauses aus Energie-Dashboard, lokalem Wetter und Innensensoren. Berichte erscheinen in der Seitenleiste.",
+        "data": {
+          "backfill_months": "Monate aus dem Verlauf erstellen"
+        },
+        "data_description": {
+          "backfill_months": "Frühere Monate werden im Hintergrund aus Langzeitstatistiken erstellt. 0 zum Überspringen."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Home in Review Optionen",
+        "menu": {
+          "general": "Zeitplan und Benachrichtigungen",
+          "energy": "Energie, Kosten und Wärmepumpe",
+          "climate": "Raumklima und Wetter",
+          "car": "Auto (TeslaMate)",
+          "ai": "KI-Zusammenfassung",
+          "tile_add": "Eigene Kennzahl hinzufügen",
+          "tile_remove": "Eigene Kennzahlen entfernen",
+          "save": "Speichern und schließen"
+        }
+      },
+      "general": {
+        "title": "Zeitplan und Benachrichtigungen",
+        "data": {
+          "notify_services": "Benachrichtigen, wenn ein Bericht fertig ist",
+          "report_day": "Tag des Monats",
+          "report_time": "Uhrzeit",
+          "year_start_month": "Jahresrückblick beginnt im"
+        },
+        "data_description": {
+          "notify_services": "Die Benachrichtigung öffnet den Bericht.",
+          "report_day": "An diesem Tag wird der Bericht des Vormonats erstellt.",
+          "year_start_month": "Januar für ein Kalenderjahr; zum Beispiel Juli für eine Heizperiode oder den Beginn Ihres Energievertrags."
+        }
+      },
+      "energy": {
+        "title": "Energie, Kosten und Wärmepumpe",
+        "data": {
+          "fixed_costs_daily": "Fixe Energiekosten pro Tag",
+          "fixed_costs_monthly": "Fixe Energiekosten pro Monat",
+          "max_hourly_kwh": "Größter plausibler Netzbezug pro Stunde",
+          "heat_pump_devices": "Wärmepumpe (Geräte aus dem Energie-Dashboard)",
+          "heat_pump_heat_sensor": "Von der Wärmepumpe gelieferte Wärme"
+        },
+        "data_description": {
+          "fixed_costs_daily": "Optional, inkl. Steuern: Grundgebühr und Netzentgelte.",
+          "fixed_costs_monthly": "Optional, inkl. Steuern. Negativ für eine feste Steuergutschrift.",
+          "max_hourly_kwh": "Zählersprünge darüber gelten als Störung. Etwa Ihr Anschluss: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
+          "heat_pump_devices": "Fügt eine Wärmepumpen-Folie mit Strom pro Gradtag hinzu.",
+          "heat_pump_heat_sensor": "Optionaler Energiesensor (Summe) für die Wärmeabgabe; ergänzt den COP."
+        }
+      },
+      "climate": {
+        "title": "Raumklima und Wetter",
+        "data": {
+          "excluded_areas": "Bereiche, die nicht drinnen sind",
+          "outdoor_sensor": "Außentemperatursensor",
+          "use_open_meteo": "Open-Meteo für das Wetter nutzen"
+        },
+        "data_description": {
+          "excluded_areas": "Sensoren in diesen Bereichen zählen nicht zum Raumklima. Leer = alles zählen.",
+          "outdoor_sensor": "Optional. Jeder Temperatursensor mit Verlauf; ersetzt die Modelltemperatur.",
+          "use_open_meteo": "Kostenloses Wetterarchiv für Ihre Gegend (Standort auf ~10 km gerundet). Aus: nur Ihr eigener Sensor."
+        }
+      },
+      "car": {
+        "title": "Auto (TeslaMate)",
+        "description": "Liest TeslaMate über dessen Grafana. Legen Sie in Grafana ein Dienstkonto mit der Rolle Viewer an und fügen Sie das Token ein.",
+        "data": {
+          "teslamate_grafana_url": "Grafana-URL",
+          "teslamate_grafana_token": "Dienstkonto-Token",
+          "teslamate_home_geofence": "Name Ihres Zuhause-Geofence"
+        },
+        "data_description": {
+          "teslamate_home_geofence": "Um das Laden zu Hause zu zählen. Leer: ein Geofence namens Home oder Zuhause."
+        }
+      },
+      "ai": {
+        "title": "KI-Zusammenfassung",
+        "description": "Optional: eine kurze Zusammenfassung am Anfang jedes Berichts durch Ihre eigene KI-Aufgaben-Entität. Nur die Zahlen des Berichts werden gesendet.",
+        "data": {
+          "ai_task_entity": "KI-Aufgaben-Entität",
+          "ai_instructions": "Zusätzliche Anweisungen"
+        },
+        "data_description": {
+          "ai_instructions": "Optional, z. B. Tonfall oder wer im Haus wohnt."
+        }
+      },
+      "tile_add": {
+        "title": "Eigene Kennzahl hinzufügen",
+        "description": "Erscheint auf einer Folie 'Eigene Kennzahlen', verglichen mit früheren Monaten.",
+        "data": {
+          "name": "Name",
+          "statistic": "Statistik",
+          "type": "Berechnung",
+          "threshold": "Schwelle (für Stunden über)",
+          "unit": "Einheit",
+          "decimals": "Nachkommastellen"
+        }
+      },
+      "tile_remove": {
+        "title": "Eigene Kennzahlen entfernen",
+        "data": {
+          "tiles": "Zu entfernende Kennzahlen"
+        }
+      }
+    }
+  },
+  "selector": {
+    "month": {
+      "options": {
+        "1": "Januar",
+        "2": "Februar",
+        "3": "März",
+        "4": "April",
+        "5": "Mai",
+        "6": "Juni",
+        "7": "Juli",
+        "8": "August",
+        "9": "September",
+        "10": "Oktober",
+        "11": "November",
+        "12": "Dezember"
+      }
+    },
+    "tile_type": {
+      "options": {
+        "sum": "Summe (Zunahme)",
+        "mean": "Durchschnitt",
+        "max": "Höchstwert",
+        "min": "Tiefstwert",
+        "hours_above": "Stunden über Schwelle"
+      }
+    }
+  },
+  "services": {
+    "generate": {
+      "name": "Bericht erstellen",
+      "description": "Erstellt den Bericht für einen Monat (neu).",
+      "fields": {
+        "month": {
+          "name": "Monat",
+          "description": "Als JJJJ-MM. Standard: Vormonat."
+        },
+        "notify": {
+          "name": "Benachrichtigen",
+          "description": "Die eingerichteten Benachrichtigungen senden."
+        }
+      }
+    },
+    "backfill": {
+      "name": "Frühere Berichte erstellen",
+      "description": "Erstellt Berichte für frühere Monate im Hintergrund.",
+      "fields": {
+        "months": {
+          "name": "Monate",
+          "description": "Wie viele Monate zurück."
+        },
+        "overwrite": {
+          "name": "Überschreiben",
+          "description": "Auch vorhandene Monate neu erstellen (nach einem Update oder geänderten Optionen)."
+        }
+      }
+    }
+  }
+}

@@ -20,7 +20,7 @@ import statistics as pystats
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from . import weather
+from . import extras, weather
 from .const import DEFAULT_MAX_HOURLY_KWH, OUTDOOR_AREA_HINTS, SCHEMA_VERSION
 
 _LOGGER = logging.getLogger(__name__)
@@ -207,7 +207,12 @@ class Collector:
         await self._weather(doc, cfg, start, end, hours, tz, metric)
         await self._indoor(doc, start, end, hours, metric)
         self._totals(doc)
-        doc["sections"] = [k for k in ("energy", "devices", "batteries", "water", "gas", "weather", "indoor") if doc.get(k)]
+        cap = float(self.opt.get("max_hourly_kwh") or DEFAULT_MAX_HOURLY_KWH)
+        await extras.heat_pump(self, doc, start, end, hours, cap)
+        await extras.teslamate(self, doc, start, end)
+        await extras.custom_tiles(self, doc, start, end, hours)
+        doc["sections"] = [k for k in ("energy", "devices", "batteries", "heat_pump", "car", "water", "gas", "weather",
+                                       "indoor", "custom") if doc.get(k)]
         return doc
 
     # ------------------------------------------------------------------ fetch helpers
@@ -427,17 +432,20 @@ class Collector:
 
     # ------------------------------------------------------------------ weather
     async def _weather(self, doc, cfg, start, end, hours, tz, metric) -> None:
+        """Daily weather: Open-Meteo (default) and/or the user's own outdoor temperature sensor."""
+        use_om = self.opt.get("use_open_meteo", True)
         lat, lon = cfg.get("latitude"), cfg.get("longitude")
-        if lat is None or lon is None:
-            return
-        try:
-            daily = await weather.daily(self.src, lat, lon, start.date(), (end - dt.timedelta(days=1)).date(), cfg["time_zone"])
-            normals = await weather.normals(self.src, lat, lon, self.cache)
-        except Exception as err:  # network problems must not break the report
-            _LOGGER.warning("Open-Meteo request failed: %s", err)
-            doc["notes"].append("weather_unavailable")
-            return
-        # Optional local outdoor sensor overrides the modelled temperature.
+        days = [(start + dt.timedelta(days=i)).date() for i in range((end.date() - start.date()).days)]
+        daily = [{"d": d.isoformat(), "mean": None, "min": None, "max": None, "precip": None, "sun_h": None} for d in days]
+        normals = None
+        if use_om and lat is not None and lon is not None:
+            try:
+                daily = await weather.daily(self.src, lat, lon, days[0], days[-1], cfg["time_zone"])
+                normals = await weather.normals(self.src, lat, lon, self.cache)
+            except Exception as err:  # network problems must not break the report
+                _LOGGER.warning("Open-Meteo request failed: %s", err)
+                doc["notes"].append("weather_unavailable")
+        # Optional local outdoor sensor overrides the temperature.
         sensor = self.opt.get("outdoor_sensor")
         if sensor:
             st = await self.src.statistics({sensor}, start, end, "hour", {"temperature": "°C"}, {"mean", "min", "max"})
@@ -453,10 +461,12 @@ class Collector:
                 for day in daily:
                     x = per.get(day["d"])
                     if x and x["m"]:
-                        day["mean"], day["min"], day["max"] = sum(x["m"]) / len(x["m"]), min(x["lo"]), max(x["hi"])
+                        day["mean"], day["min"], day["max"] = sum(x["m"]) / len(x["m"]), min(x["lo"] or x["m"]), max(x["hi"] or x["m"])
                 doc["notes"].append("outdoor_sensor")
-        doc["weather"] = weather.summarize(daily, normals, start.month, metric)
-        doc["weather"]["source"] = "sensor" if "outdoor_sensor" in doc["notes"] else "open-meteo"
+        summary = weather.summarize(daily, normals, start.month, metric)
+        if summary:
+            summary["source"] = ("sensor" if "outdoor_sensor" in doc["notes"] else "open-meteo") + ("" if use_om else "-only")
+            doc["weather"] = summary
 
     # ------------------------------------------------------------------ indoor climate
     async def _indoor(self, doc, start, end, hours, metric) -> None:

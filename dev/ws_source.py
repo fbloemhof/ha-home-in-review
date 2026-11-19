@@ -99,6 +99,19 @@ class WsSource:
         return [{"area_id": a["area_id"], "name": a["name"], "floor_name": floors.get(a.get("floor_id"))}
                 for a in await self.call({"type": "config/area_registry/list"})]
 
+    async def request_json(self, method, url, headers=None, json=None):
+        async with self.session.request(method, url, headers=headers, json=json,
+                                        timeout=aiohttp.ClientTimeout(total=60)) as r:
+            r.raise_for_status()
+            return await r.json()
+
+    async def ai_generate(self, entity_id, instructions):
+        res = await self.call({"type": "call_service", "domain": "ai_task", "service": "generate_data",
+                               "service_data": {"task_name": "Home in Review", "entity_id": entity_id,
+                                                "instructions": instructions},
+                               "return_response": True})
+        return ((res or {}).get("response") or {}).get("data")
+
     async def fetch_json(self, url):
         async with self.session.get(url, timeout=aiohttp.ClientTimeout(total=120)) as r:
             r.raise_for_status()

@@ -23,7 +23,7 @@ class HomeInReviewPanel extends HTMLElement {
     window.addEventListener("message", (e) => {
       if (!this._frame || e.source !== this._frame.contentWindow) return;
       const target = e.data && e.data.homeInReview;
-      if (typeof target === "string" && /^(index|\d{4}-\d{2})$/.test(target)) {
+      if (typeof target === "string" && /^(index|(year-)?\d{4}-\d{2})$/.test(target)) {
         history.pushState(null, "", `/${this._base()}/${target === "index" ? "" : target}`);
         this._show(target);
       }
@@ -35,7 +35,7 @@ class HomeInReviewPanel extends HTMLElement {
 
   _fromRoute() {
     const p = ((this._route && this._route.path) || "").replace(/^\//, "").replace(/\/$/, "");
-    this._show(/^\d{4}-\d{2}$/.test(p) ? p : "index");
+    this._show(/^(year-)?\d{4}-\d{2}$/.test(p) ? p : "index");
   }
 
   async _show(target) {

@@ -86,6 +86,20 @@ class HassSource:
             out.append({"area_id": area.id, "name": area.name, "floor_name": floor.name if floor else None})
         return out
 
+    async def request_json(self, method: str, url: str, headers: dict | None = None, json: Any = None) -> Any:
+        session = async_get_clientsession(self.hass)
+        async with session.request(method, url, headers=headers, json=json,
+                                   timeout=aiohttp.ClientTimeout(total=60)) as resp:
+            resp.raise_for_status()
+            return await resp.json()
+
+    async def ai_generate(self, entity_id: str, instructions: str) -> str | None:
+        res = await self.hass.services.async_call(
+            "ai_task", "generate_data", {"task_name": "Home in Review", "entity_id": entity_id,
+                                         "instructions": instructions},
+            blocking=True, return_response=True)
+        return (res or {}).get("data")
+
     async def fetch_json(self, url: str) -> Any:
         session = async_get_clientsession(self.hass)
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=120)) as resp:

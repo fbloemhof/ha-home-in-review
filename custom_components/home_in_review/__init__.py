@@ -27,13 +27,16 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_time_change
 from homeassistant.util import dt as dt_util
 
-from . import render
+from . import render, story
 from .collector import Collector, first_month
 from .const import (
+    CONF_AI_INSTRUCTIONS,
+    CONF_AI_TASK,
     CONF_BACKFILL_MONTHS,
     CONF_NOTIFY,
     CONF_REPORT_DAY,
     CONF_REPORT_TIME,
+    CONF_YEAR_START,
     DEFAULT_BACKFILL_MONTHS,
     DEFAULT_REPORT_DAY,
     DEFAULT_REPORT_TIME,
@@ -111,10 +114,27 @@ class HomeInReview:
         return {**self.entry.data, **self.entry.options}
 
     async def generate(self, year: int, month: int) -> dict:
+        ym = f"{year:04d}-{month:02d}"
         async with self.lock:
             doc = await Collector(self.source, self.options, self.store.cache).collect(year, month)
-            await self.store.async_save(f"{year:04d}-{month:02d}", doc)
+            await self._story(ym, doc)
+            await self.store.async_save(ym, doc)
             return doc
+
+    async def _story(self, ym: str, doc: dict) -> None:
+        """Optional AI-written summary through the user's own AI Task entity."""
+        entity = self.options.get(CONF_AI_TASK)
+        if not entity:
+            return
+        docs = {**self.store.docs, ym: doc}
+        prompt = story.instructions(ym, docs, self.hass.config.language, self.options.get(CONF_AI_INSTRUCTIONS))
+        try:
+            text = await self.source.ai_generate(entity, prompt)
+        except Exception as err:  # the report must not depend on an AI service
+            _LOGGER.warning("AI summary failed: %s", err)
+            return
+        if isinstance(text, str) and text.strip():
+            doc["story"] = {"text": text.strip(), "entity": entity}
 
     async def backfill(self, months: int, overwrite: bool = False) -> None:
         first = await first_month(self.source)
@@ -160,6 +180,9 @@ class HomeInReview:
             _LOGGER.exception("Monthly report for %04d-%02d failed", y, m)
             return
         await self.notify(doc)
+        start = int(self.options.get(CONF_YEAR_START, 1))
+        if m % 12 + 1 == start:  # the last month of the report year: the year review is complete
+            await self.notify(doc, year_key=render.year_key(f"{y:04d}-{m:02d}", start))
 
     async def catch_up(self) -> None:
         """After a restart past the report moment, make last month's report if it is missing."""
@@ -171,7 +194,7 @@ class HomeInReview:
             doc = await self.generate(y, m)
             await self.notify(doc)
 
-    async def notify(self, doc: dict) -> None:
+    async def notify(self, doc: dict, year_key: str | None = None) -> None:
         services = self.options.get(CONF_NOTIFY) or []
         if not services:
             return
@@ -181,11 +204,20 @@ class HomeInReview:
         title = f'{L("title")}: {L.month(p["month"])} {p["year"]}'
         e = doc.get("energy") or {}
         parts = []
+        if year_key:
+            ms = [m for m in render.year_months(year_key) if m in self.store.docs]
+            ds = [self.store.docs[m].get("energy") or {} for m in ms]
+            title = f'{L("title")}: {L("year_title")} {render.year_label(year_key)}'
+            parts.append(f'{L.num(sum(x.get("consumption") or 0 for x in ds))} kWh {L("used")}')
+            if all(x.get("total_cost") is not None for x in ds):
+                parts.append(f'{L.money(sum(x["total_cost"] for x in ds))} {L("net_cost")}')
+            ym = f"year-{year_key}"
+            e = {}
         if e.get("consumption") is not None:
             parts.append(f'{L.num(e["consumption"])} kWh {L("used")}')
         if e.get("total_cost") is not None:
             parts.append(f'{L.money(e["total_cost"])} {L("net_cost")}')
-        if (doc.get("weather") or {}).get("temp") is not None:
+        if not year_key and (doc.get("weather") or {}).get("temp") is not None:
             parts.append(f'{L.num(doc["weather"]["temp"], 1)}{doc["units"]["temperature"]} {L("outside")}')
         url = f"/{PANEL_URL}/{ym}"
         for svc in services:
@@ -314,10 +346,16 @@ class ReportView(HomeAssistantView):
         docs = rt.store.docs
         lang = request.query.get("lang") or hass.config.language
         home = hass.config.location_name
+        start = int(rt.options.get(CONF_YEAR_START, 1))
         if name == "index":
-            html = render.render_index(docs, lang, home, hass.config.currency)
+            html = render.render_index(docs, lang, home, hass.config.currency, start)
+        elif name.startswith("year-") and YM.match(name[5:]):
+            try:
+                html = await hass.async_add_executor_job(render.render_year, name[5:], docs, lang, home, start)
+            except KeyError:
+                return web.Response(status=404)
         elif YM.match(name) and name in docs:
-            html = await hass.async_add_executor_job(render.render_month, name, docs, lang, home)
+            html = await hass.async_add_executor_job(render.render_month, name, docs, lang, home, start)
         else:
             return web.Response(status=404)
         return web.Response(text=html, content_type="text/html", charset="utf-8",

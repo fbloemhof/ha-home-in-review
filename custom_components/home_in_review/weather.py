@@ -88,8 +88,8 @@ def summarize(days: list[dict], normals: list[dict] | None, month: int, metric: 
         "frost_days": sum(1 for x in lows if x < 0),
         "summer_days": sum(1 for x in highs if x >= 25),
         "degree_days": sum(max(0.0, base - x) for x in means),
-        "precip": sum(d["precip"] or 0 for d in days),
-        "sun_h": sum(d["sun_h"] or 0 for d in days),
+        "precip": sum(d["precip"] or 0 for d in days) if any(d.get("precip") is not None for d in days) else None,
+        "sun_h": sum(d["sun_h"] or 0 for d in days) if any(d.get("sun_h") is not None for d in days) else None,
         "days_complete": len(means),
     }
     if normals and normals[month - 1].get("temp") is not None:
@@ -107,7 +107,8 @@ def summarize(days: list[dict], normals: list[dict] | None, month: int, metric: 
             for k in ("mean", "min", "max"):
                 d[k] = f(d[k])
         out["precip_unit"] = "in"
-        out["precip"] /= 25.4
+        if out["precip"] is not None:
+            out["precip"] /= 25.4
         if "normal" in out:
             out["normal"]["precip"] /= 25.4
     else:

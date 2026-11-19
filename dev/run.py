@@ -38,6 +38,14 @@ async def main(months: list[str]) -> None:
         for ym in months:
             y, m = map(int, ym.split("-"))
             doc = await c.collect(y, m)
+            if options.get("ai_task_entity") and "--ai" in sys.argv:
+                story = importlib.import_module("hir.story")
+                prompt = story.instructions(ym, {**{p.stem: json.loads(p.read_text()) for p in OUT.glob("????-??.json")}, ym: doc},
+                                            "nl" if "--lang" not in sys.argv else sys.argv[sys.argv.index("--lang") + 1],
+                                            options.get("ai_instructions"))
+                text = await src.ai_generate(options["ai_task_entity"], prompt)
+                if text:
+                    doc["story"] = {"text": text.strip(), "entity": options["ai_task_entity"]}
             (OUT / f"{ym}.json").write_text(json.dumps(doc, indent=1, ensure_ascii=False))
             print("written", OUT / f"{ym}.json")
         cfg = await src.config()
@@ -45,9 +53,14 @@ async def main(months: list[str]) -> None:
     docs = {p.stem: json.loads(p.read_text()) for p in OUT.glob("????-??.json")}
     for ym in months:
         lang = sys.argv[sys.argv.index("--lang") + 1] if "--lang" in sys.argv else cfg["language"]
-        html = render.render_month(ym, docs, lang=lang, home_name=cfg.get("location_name"))
+        html = render.render_month(ym, docs, lang=lang, home_name=cfg.get("location_name"),
+                                   start_month=int(options.get("year_start_month", 1)))
         (OUT / f"{ym}.html").write_text(html)
         print("written", OUT / f"{ym}.html")
+    start = int(options.get("year_start_month", 1))
+    for key in render.year_keys(docs, start):
+        (OUT / f"year-{key}.html").write_text(render.render_year(key, docs, lang, cfg.get("location_name"), start))
+    (OUT / "index.html").write_text(render.render_index(docs, lang, cfg.get("location_name"), cfg["currency"], start))
 
 
 if __name__ == "__main__":

@@ -162,3 +162,50 @@ def test_device_valued_at_export_price_in_export_hours():
     doc = asyncio.run(C.Collector(src).collect(2026, 2))
     dev = doc["devices"]["items"][0]
     assert round(dev["value"], 4) == round(28 * 24 * 0.1 * 0.05, 4)
+
+
+def _year_docs():
+    docs = {}
+    for m in range(1, 13):
+        docs[f"2026-{m:02d}"] = asyncio.run(C.Collector(FakeSource()).collect(2026, m))
+    return docs
+
+
+def test_year_review_and_languages():
+    docs = _year_docs()
+    assert R.year_keys(docs, 1) == ["2026-01"]
+    assert R.year_keys(docs, 7) == ["2025-07", "2026-07"]
+    assert R.year_label("2025-07") == "2025/26"
+    for lang in ("en", "nl", "de", "fr"):
+        html = R.render_year("2026-01", docs, lang, "Test", 1)
+        assert "<svg" in html
+        assert "{" not in html.split("</head>")[1].split("<script>")[0]  # no unformatted placeholders
+        month = R.render_month("2026-05", docs, lang, "Test", 1)
+        assert "{" not in month.split("</head>")[1].split("<script>")[0]
+    idx = R.render_index(docs, "nl", None, "EUR", 1)
+    assert 'data-go="year-2026-01"' in idx
+
+
+def test_custom_tiles_and_story_facts():
+    from hir import story
+
+    src = FakeSource()
+    orig = src.statistics
+
+    async def with_power(ids, start, end, period, units, types):
+        out = await orig(ids, start, end, period, units, types)
+        if "sensor.desk_power" in ids:
+            first = int(start.timestamp())
+            out["sensor.desk_power"] = [{"start": first + k * 3600, "mean": 50.0 if k % 2 else 2.0} for k in range(48)]
+        return out
+
+    src.statistics = with_power
+    opts = {"custom_tiles": [{"name": "Desk", "statistic": "sensor.desk_power", "type": "hours_above", "threshold": 12},
+                             {"name": "Desk avg", "statistic": "sensor.desk_power", "type": "mean", "decimals": 1}]}
+    doc = asyncio.run(C.Collector(src, opts).collect(2026, 2))
+    assert doc["custom"][0]["value"] == 24.0
+    assert doc["custom"][1]["value"] == 26.0
+    f = story.facts(doc)
+    assert f["electricity_used_kwh"] == round(28 * 24 * 1.3)
+    text = story.instructions("2026-02", {"2026-02": doc}, "nl")
+    assert "Dutch" in text and "never invent" in text

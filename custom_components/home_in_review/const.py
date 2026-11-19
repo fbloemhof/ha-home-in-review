@@ -14,10 +14,20 @@ CONF_FIXED_DAILY = "fixed_costs_daily"
 CONF_FIXED_MONTHLY = "fixed_costs_monthly"
 CONF_MAX_HOURLY_KWH = "max_hourly_kwh"
 CONF_BACKFILL_MONTHS = "backfill_months"
+CONF_USE_OPEN_METEO = "use_open_meteo"
+CONF_YEAR_START = "year_start_month"
+CONF_HP_DEVICES = "heat_pump_devices"
+CONF_HP_HEAT = "heat_pump_heat_sensor"
+CONF_TM_URL = "teslamate_grafana_url"
+CONF_TM_TOKEN = "teslamate_grafana_token"
+CONF_TM_HOME = "teslamate_home_geofence"
+CONF_AI_TASK = "ai_task_entity"
+CONF_AI_INSTRUCTIONS = "ai_instructions"
+CONF_TILES = "custom_tiles"
 
 DEFAULT_REPORT_DAY = 1
 DEFAULT_REPORT_TIME = "07:00:00"
-DEFAULT_MAX_HOURLY_KWH = 50.0
+DEFAULT_MAX_HOURLY_KWH = 25.0  # about a 3 x 35 A connection; 3 x 25 A is ~17 kWh
 DEFAULT_BACKFILL_MONTHS = 12
 
 # Storage: one JSON document per month in <config>/home_in_review/

@@ -1,0 +1,178 @@
+{
+  "config": {
+    "abort": {
+      "single_instance_allowed": "Home in Review est déjà configuré."
+    },
+    "step": {
+      "user": {
+        "title": "Home in Review",
+        "description": "Un rapport mensuel de votre maison à partir du tableau énergie, de la météo locale et des capteurs intérieurs. Les rapports apparaissent dans la barre latérale.",
+        "data": {
+          "backfill_months": "Mois à générer depuis l'historique"
+        },
+        "data_description": {
+          "backfill_months": "Les mois précédents sont générés en arrière-plan. 0 pour ignorer."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options Home in Review",
+        "menu": {
+          "general": "Planification et notifications",
+          "energy": "Énergie, coûts et pompe à chaleur",
+          "climate": "Climat intérieur et météo",
+          "car": "Voiture (TeslaMate)",
+          "ai": "Résumé IA",
+          "tile_add": "Ajouter un chiffre",
+          "tile_remove": "Supprimer des chiffres",
+          "save": "Enregistrer et fermer"
+        }
+      },
+      "general": {
+        "title": "Planification et notifications",
+        "data": {
+          "notify_services": "Notifier quand un rapport est prêt",
+          "report_day": "Jour du mois",
+          "report_time": "Heure",
+          "year_start_month": "Le bilan annuel commence en"
+        },
+        "data_description": {
+          "notify_services": "La notification ouvre le rapport.",
+          "report_day": "Le rapport du mois précédent est créé ce jour-là.",
+          "year_start_month": "Janvier pour une année civile ; par exemple juillet pour une saison de chauffe ou le début de votre contrat."
+        }
+      },
+      "energy": {
+        "title": "Énergie, coûts et pompe à chaleur",
+        "data": {
+          "fixed_costs_daily": "Coûts fixes par jour",
+          "fixed_costs_monthly": "Coûts fixes par mois",
+          "max_hourly_kwh": "Consommation horaire maximale plausible",
+          "heat_pump_devices": "Pompe à chaleur (appareils du tableau énergie)",
+          "heat_pump_heat_sensor": "Chaleur fournie par la pompe à chaleur"
+        },
+        "data_description": {
+          "fixed_costs_daily": "Facultatif, TTC : abonnement et frais de réseau.",
+          "fixed_costs_monthly": "Facultatif, TTC. Montant négatif pour un crédit d'impôt fixe.",
+          "max_hourly_kwh": "Les sauts au-delà sont considérés comme des erreurs. Environ votre raccordement : 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
+          "heat_pump_devices": "Ajoute une diapositive pompe à chaleur avec l'électricité par degré-jour.",
+          "heat_pump_heat_sensor": "Capteur d'énergie (total) facultatif pour la chaleur produite ; ajoute le COP."
+        }
+      },
+      "climate": {
+        "title": "Climat intérieur et météo",
+        "data": {
+          "excluded_areas": "Pièces qui ne sont pas à l'intérieur",
+          "outdoor_sensor": "Capteur de température extérieure",
+          "use_open_meteo": "Utiliser Open-Meteo pour la météo"
+        },
+        "data_description": {
+          "excluded_areas": "Les capteurs de ces pièces sont exclus. Vide = tout compter.",
+          "outdoor_sensor": "Facultatif. Tout capteur avec historique ; remplace la température modélisée.",
+          "use_open_meteo": "Archive météo gratuite pour votre région (position arrondie à ~10 km). Désactivé : seulement votre capteur."
+        }
+      },
+      "car": {
+        "title": "Voiture (TeslaMate)",
+        "description": "Lit TeslaMate via son Grafana. Créez un compte de service avec le rôle Viewer et collez le jeton.",
+        "data": {
+          "teslamate_grafana_url": "URL de Grafana",
+          "teslamate_grafana_token": "Jeton du compte de service",
+          "teslamate_home_geofence": "Nom de votre geofence domicile"
+        },
+        "data_description": {
+          "teslamate_home_geofence": "Pour compter la recharge à domicile. Vide : un geofence nommé Home ou Maison."
+        }
+      },
+      "ai": {
+        "title": "Résumé IA",
+        "description": "Facultatif : un court résumé au début de chaque rapport, par votre propre entité AI Task. Seuls les chiffres du rapport sont envoyés.",
+        "data": {
+          "ai_task_entity": "Entité AI Task",
+          "ai_instructions": "Instructions supplémentaires"
+        },
+        "data_description": {
+          "ai_instructions": "Facultatif, par ex. le ton ou qui habite la maison."
+        }
+      },
+      "tile_add": {
+        "title": "Ajouter un chiffre",
+        "description": "Affiché sur une diapositive « Vos chiffres », comparé aux mois précédents.",
+        "data": {
+          "name": "Nom",
+          "statistic": "Statistique",
+          "type": "Calcul",
+          "threshold": "Seuil (pour heures au-dessus)",
+          "unit": "Unité",
+          "decimals": "Décimales"
+        }
+      },
+      "tile_remove": {
+        "title": "Supprimer des chiffres",
+        "data": {
+          "tiles": "Chiffres à supprimer"
+        }
+      }
+    }
+  },
+  "selector": {
+    "month": {
+      "options": {
+        "1": "janvier",
+        "2": "février",
+        "3": "mars",
+        "4": "avril",
+        "5": "mai",
+        "6": "juin",
+        "7": "juillet",
+        "8": "août",
+        "9": "septembre",
+        "10": "octobre",
+        "11": "novembre",
+        "12": "décembre"
+      }
+    },
+    "tile_type": {
+      "options": {
+        "sum": "Total (augmentation)",
+        "mean": "Moyenne",
+        "max": "Maximum",
+        "min": "Minimum",
+        "hours_above": "Heures au-dessus du seuil"
+      }
+    }
+  },
+  "services": {
+    "generate": {
+      "name": "Générer un rapport",
+      "description": "Génère (à nouveau) le rapport d'un mois.",
+      "fields": {
+        "month": {
+          "name": "Mois",
+          "description": "Au format AAAA-MM. Par défaut le mois dernier."
+        },
+        "notify": {
+          "name": "Notifier",
+          "description": "Envoyer les notifications configurées."
+        }
+      }
+    },
+    "backfill": {
+      "name": "Générer les rapports passés",
+      "description": "Génère les rapports des mois précédents en arrière-plan.",
+      "fields": {
+        "months": {
+          "name": "Mois",
+          "description": "Combien de mois en arrière."
+        },
+        "overwrite": {
+          "name": "Écraser",
+          "description": "Régénérer aussi les mois existants (après une mise à jour ou un changement d'options)."
+        }
+      }
+    }
+  }
+}

@@ -5,7 +5,7 @@ A monthly report of your home, made from data Home Assistant already has. Once a
 warm, humid and fresh it was inside**. The result is a calm, scrollable presentation in the sidebar, one topic
 per screen.
 
-> **Status: early test version (0.1).** It works on the author's own installation and is now shared with a few
+> **Status: early test version (0.2).** It works on the author's own installation and is now shared with a few
 > testers. Expect rough edges. Please [open an issue](https://github.com/fbloemhof/ha-home-in-review/issues) with
 > what you see.
 
@@ -18,24 +18,42 @@ help are marked with a `Co-Authored-By: Claude` line. If something looks wrong, 
 
 ## What you get
 
+![Cover of a monthly report](docs/screenshots/cover.png)
+
 | Slide | Source | Shown when |
 |---|---|---|
 | Cover with key figures | everything below | always |
+| In short: a written summary | your own AI Task entity | you choose one in the options |
 | Electricity: use per day, grid in/out, self-sufficiency, base load | energy dashboard | a grid source is set up |
-| Costs: bought, sold, fixed costs, average price | the energy dashboard's cost statistics | prices are set in the energy dashboard |
+| Costs: bought, sold, gas, fixed costs, average price | the energy dashboard's cost statistics | prices are set in the energy dashboard |
 | Solar: production, share used at home, sunshine vs. normal | energy dashboard, Open-Meteo | solar is set up |
 | Batteries: charged, discharged, efficiency | energy dashboard | batteries are set up |
-| Where it went: devices ranked, untracked rest, value at grid price | energy dashboard "individual devices" | devices are set up |
+| Where it went: devices ranked, untracked rest, value | energy dashboard "individual devices" | devices are set up |
+| Heat pump: electricity, heat, COP, kWh per degree day | devices you mark as heat pump | set in the options |
+| Car: km, trips, charging at home, Wh/km | TeslaMate (through its Grafana) | set in the options |
 | Daily rhythm: average power per hour of day, busiest hour | energy dashboard | a grid source is set up |
-| Weather: temperature, rain, sunshine, degree days vs. 1991–2020 | Open-Meteo (or your own outdoor sensor) | your home has a location |
+| Weather: temperature, rain, sunshine, degree days vs. 1991–2020 | Open-Meteo and/or your own outdoor sensor | your home has a location |
 | Indoors: temperature, humidity and CO₂ per area | your sensors | climate sensors are assigned to areas |
 | Water and gas | energy dashboard | set up |
+| Your figures: any statistic as a total, average, extreme or hours above a threshold | your choice | added in the options |
 
 Every figure is compared with the same month last year (when available) or the average of the last twelve
-months, with a small 13-month trend chart.
+months, with a small 13-month trend chart. A **year review** (January–December, or any other start month, for
+example a heating season) brings the months together with a bar per month next to last year.
 
 There is **nothing to configure** to get started: the integration reads your energy dashboard and finds your
-indoor sensors through their areas.
+indoor sensors through their areas. The report follows Home Assistant's language (English, Dutch, German and
+French so far) and your unit system and currency.
+
+| | |
+|---|---|
+| ![Electricity](docs/screenshots/electricity.png) | ![Devices (light theme)](docs/screenshots/devices-light.png) |
+| ![Weather](docs/screenshots/weather.png) | ![Indoors](docs/screenshots/indoor.png) |
+| ![Heat pump](docs/screenshots/heat-pump.png) | ![Year review](docs/screenshots/year-electricity.png) |
+
+<img src="docs/screenshots/mobile.png" width="240" alt="On a phone">
+
+*Screenshots use anonymised demo data.*
 
 ## Installation
 
@@ -53,14 +71,22 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
 
 ## Options
 
-**Settings → Devices & services → Home in Review → Configure**
+**Settings → Devices & services → Home in Review → Configure** opens a menu:
 
-- **Notify when a report is ready**: one or more notify services (e.g. your phone). The notification opens the report.
-- **Day and time**: when last month's report is made (default: the 1st at 07:00).
-- **Areas that are not indoors**: excluded from the indoor climate. Areas or floors with names like garden, garage, balcony or shed are suggested.
-- **Outdoor temperature sensor**: use your own sensor instead of Open-Meteo for the temperature.
-- **Fixed energy costs** per day and/or per month, including tax: added to the costs.
-- **Largest plausible use per hour**: meter jumps above this are treated as glitches (default 50 kWh).
+- **Schedule and notifications**: notify services (the notification opens the report), the day and time
+  last month's report is made (default the 1st at 07:00), and the month the year review starts.
+- **Energy, costs and heat pump**: fixed costs per day and/or month (including tax); the largest plausible
+  grid use per hour (meter jumps above it are skipped as glitches; default 25 kWh, roughly a 3 × 35 A
+  connection; 3 × 25 A is about 17 kWh); which energy-dashboard devices are your heat pump, and optionally a
+  sensor for the heat it delivers (adds the COP).
+- **Indoor climate and weather**: areas that are not indoors, an outdoor temperature sensor, and whether to
+  use Open-Meteo at all.
+- **Car (TeslaMate)**: the URL of TeslaMate's Grafana and a token of a Grafana service account with the
+  *Viewer* role. The data source is found automatically. Optionally the name of your home geofence.
+- **AI summary**: an AI Task entity (for example OpenAI, Anthropic, Google or a local model set up in Home
+  Assistant) and optional extra instructions. Only the figures in the report are sent to it; the text is
+  labelled as written by AI.
+- **Your own figures**: add or remove tiles made from any statistic.
 
 ## Actions
 
@@ -85,8 +111,13 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
   every report lists what was left out and why.
 - **Costs** in the totals are electricity bought minus sold, plus gas and the fixed costs you entered. Water is
   shown on its own slide.
-- **Weather** comes from [Open-Meteo](https://open-meteo.com) (ERA5 reanalysis, free, no account). Normals are the
-  1991–2020 averages for your area, computed once and cached.
+- **Weather** comes from [Open-Meteo](https://open-meteo.com) (ERA5 reanalysis, free for non-commercial use, no
+  account or setup). It uses your home's location from Home Assistant. Normals are the 1991–2020 averages for
+  your area, computed once and cached. A Home Assistant weather entity can't be used for this: weather
+  entities keep no history. You can use your own outdoor temperature sensor instead, and switch Open-Meteo off.
+- **Heat pump**: degree days use a base of 18 °C (65 °F), unweighted.
+- **Year review** is put together from the monthly reports; a running year is shown as "so far" and compared
+  with the same months a year earlier.
 - Reports are stored as JSON in `config/home_in_review/` and rendered when you open them, so improvements to
   the layout also apply to older months.
 
@@ -94,8 +125,12 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
 
 - Reports are only served to logged-in Home Assistant users (`/api/home_in_review/...` requires authentication;
   the panel uses short-lived signed links).
-- The only outside service is Open-Meteo. It receives your location **rounded to 0.1° (about 10 km)** and the
-  dates. Nothing else leaves your home.
+- Outside services, all optional except Open-Meteo, which you can switch off:
+  - **Open-Meteo** receives your location **rounded to 0.1° (about 10 km)** and the dates.
+  - **TeslaMate**: only your own Grafana, read-only.
+  - **AI summary**: your own AI Task entity receives the report's figures (no entity names, no raw data).
+- The TeslaMate token is stored in Home Assistant's config entry, like other integrations' credentials. Use a
+  Grafana service account with only the Viewer role.
 - The report pages load no external fonts, scripts or images.
 
 ## Requirements
@@ -105,12 +140,10 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
 
 ## Roadmap
 
-- Yearly review
-- Heat pump: electricity per degree day and COP when production is measured
-- Electric car via TeslaMate (optional)
-- Optional AI-written summary through Home Assistant's AI Task (your own model)
-- Custom slides from your own statistics
-- More languages (currently English and Dutch)
+- Listing in the default HACS / Marketplace catalogue
+- More languages (translations welcome: `i18n.py` for the report, `tools/translations.py` for the settings)
+- More car sources besides TeslaMate
+- A rain sensor as an alternative to Open-Meteo
 
 ## License
 
