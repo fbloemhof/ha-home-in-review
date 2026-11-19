@@ -366,3 +366,11 @@ def test_weather_note_says_where():
     doc["weather"].update(source="sensor", sensor_name="Tuinsensor")
     html = R.render_month("2026-02", {"2026-02": doc}, "nl", None, 1)
     assert "Buitensensor: Tuinsensor." in html and "52,1° N" in html
+
+
+def test_split_unit():
+    from custom_components.home_in_review.render import split_unit
+    assert split_unit("17,3 kWh/100 km") == "17,3<small>kWh/100 km</small>"
+    assert split_unit("12 m³") == "12<small>m³</small>"
+    assert split_unit("1 234") == "1 234"  # a thousands separator is not a unit
+    assert split_unit("€ 12,30") == "€ 12,30"

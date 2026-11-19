@@ -538,7 +538,8 @@ def temp_chart(L: Lang, daily: list[dict], normal: float | None, unit: str, W=10
 def split_unit(value: str) -> str:
     """'123 kWh' -> '123<small>kWh</small>'."""
     num, sep, unit = value.rpartition(" ")
-    if sep and num and any(c.isdigit() for c in num) and not any(c.isdigit() for c in unit):
+    # the unit may contain digits (kWh/100 km, m³) but must not start with one
+    if sep and num and unit and any(c.isdigit() for c in num) and not unit[0].isdigit():
         return f"{esc(num)}<small>{esc(unit)}</small>"
     return esc(value)
 

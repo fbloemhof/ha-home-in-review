@@ -5,6 +5,7 @@
 **Fixed**
 - Electricity: the stacked daily bars now have rounded ends like the other charts (only the outer end; the
   seams between grid, solar and battery stay straight).
+- Units with digits in them (kWh/100 km, m³) are now printed small like the other units.
 
 ## 0.4.0
 
