@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (0.5.0)
+## 0.5.0
 
 **New**
 - Batteries: what they were worth in money (each hour, discharged energy at that hour's price minus what charging
