@@ -7,6 +7,12 @@ A monthly report of your home, made from data Home Assistant already has. Once a
 warm, humid and fresh it was inside**. The result is a calm, scrollable presentation in the sidebar, one topic
 per screen.
 
+[![Open your Home Assistant instance and show Home in Review in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=fbloemhof&repository=ha-home-in-review&category=integration)
+[![Open your Home Assistant instance and start setting up Home in Review.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=home_in_review)
+
+Install from the Marketplace (Home Assistant 2026.11+), restart, then add the integration. Other ways: see
+[Installation](#installation).
+
 > **Status: early test version (0.3).** It works on the author's own installation and is now shared with a few
 > testers. Expect rough edges. Please [open an issue](https://github.com/fbloemhof/ha-home-in-review/issues) with
 > what you see.
