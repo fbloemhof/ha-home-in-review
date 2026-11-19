@@ -20,84 +20,85 @@
     "step": {
       "init": {
         "title": "Options Home in Review",
-        "menu": {
-          "general": "Planification et notifications",
-          "energy": "Énergie, coûts et pompe à chaleur",
-          "climate": "Climat intérieur et météo",
-          "car": "Voiture",
-          "ai": "Résumé IA",
+        "menu_options": {
+          "settings": "Paramètres",
           "tile_add": "Ajouter un chiffre",
-          "tile_remove": "Supprimer des chiffres",
-          "save": "Enregistrer et fermer"
+          "tile_remove": "Supprimer des chiffres"
         }
       },
-      "general": {
-        "title": "Planification et notifications",
-        "data": {
-          "notify_services": "Notifier quand un rapport est prêt",
-          "report_day": "Jour du mois",
-          "report_time": "Heure",
-          "year_start_month": "Le bilan annuel commence en"
-        },
-        "data_description": {
-          "notify_services": "La notification ouvre le rapport.",
-          "report_day": "Le rapport du mois précédent est créé ce jour-là.",
-          "year_start_month": "Janvier pour une année civile ; par exemple juillet pour une saison de chauffe ou le début de votre contrat."
-        }
-      },
-      "energy": {
-        "title": "Énergie, coûts et pompe à chaleur",
-        "data": {
-          "fixed_costs_daily": "Coûts fixes par jour",
-          "fixed_costs_monthly": "Coûts fixes par mois",
-          "max_hourly_kwh": "Consommation horaire maximale plausible",
-          "heat_pump_devices": "Électricité de la pompe à chaleur",
-          "heat_pump_heat_sensor": "Chaleur fournie par la pompe à chaleur"
-        },
-        "data_description": {
-          "fixed_costs_daily": "Facultatif, TTC : abonnement et frais de réseau.",
-          "fixed_costs_monthly": "Facultatif, TTC. Montant négatif pour un crédit d'impôt fixe.",
-          "max_hourly_kwh": "Les sauts au-delà sont considérés comme des erreurs. Environ votre raccordement : 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
-          "heat_pump_devices": "Toute marque : un ou plusieurs capteurs d'énergie (intégration de la pompe, compteur ou prise, p. ex. compresseur et appoint). Ajoute une diapositive pompe à chaleur.",
-          "heat_pump_heat_sensor": "Facultatif : capteurs de chaleur fournie (souvent chauffage et eau chaude séparés ; choisissez les deux). Ajoute le COP."
-        }
-      },
-      "climate": {
-        "title": "Climat intérieur et météo",
-        "data": {
-          "excluded_areas": "Pièces qui ne sont pas à l'intérieur",
-          "outdoor_sensor": "Capteur de température extérieure",
-          "use_open_meteo": "Utiliser Open-Meteo pour la météo"
-        },
-        "data_description": {
-          "excluded_areas": "Les capteurs de ces pièces sont exclus. Vide = tout compter.",
-          "outdoor_sensor": "Facultatif. Tout capteur avec historique ; remplace la température modélisée.",
-          "use_open_meteo": "Archive météo gratuite pour votre région (position arrondie à ~10 km). Désactivé : seulement votre capteur."
-        }
-      },
-      "car": {
-        "title": "Voiture",
-        "description": "Toute voiture : choisissez le compteur kilométrique (de l'intégration de la voiture) et le capteur d'énergie de votre borne. Avec TeslaMate vous obtenez plus : URL de Grafana et jeton d'un compte de service Viewer.",
-        "data": {
-          "car_odometers": "Compteur kilométrique (un par voiture)",
-          "car_chargers": "Énergie de la borne",
-          "teslamate_grafana_url": "URL de Grafana",
-          "teslamate_grafana_token": "Jeton du compte de service",
-          "teslamate_home_geofence": "Nom de votre geofence domicile"
-        },
-        "data_description": {
-          "teslamate_home_geofence": "Pour compter la recharge à domicile. Vide : un geofence nommé Home ou Maison."
-        }
-      },
-      "ai": {
-        "title": "Résumé IA",
-        "description": "Facultatif : un court résumé au début de chaque rapport, par votre propre entité AI Task. Seuls les chiffres du rapport sont envoyés.",
-        "data": {
-          "ai_task_entity": "Entité AI Task",
-          "ai_instructions": "Instructions supplémentaires"
-        },
-        "data_description": {
-          "ai_instructions": "Facultatif, par ex. le ton ou qui habite la maison."
+      "settings": {
+        "title": "Options Home in Review",
+        "description": "Ouvrez une section pour la modifier. Enregistrer ferme cette fenêtre.",
+        "sections": {
+          "general": {
+            "name": "Planification et notifications",
+            "data": {
+              "notify_services": "Notifier quand un rapport est prêt",
+              "report_day": "Jour du mois",
+              "report_time": "Heure",
+              "year_start_month": "Le bilan annuel commence en"
+            },
+            "data_description": {
+              "notify_services": "La notification ouvre le rapport.",
+              "report_day": "Le rapport du mois précédent est créé ce jour-là.",
+              "year_start_month": "Janvier pour une année civile ; par exemple juillet pour une saison de chauffe ou le début de votre contrat."
+            }
+          },
+          "energy": {
+            "name": "Énergie, coûts et pompe à chaleur",
+            "data": {
+              "fixed_costs_daily": "Coûts fixes par jour",
+              "fixed_costs_monthly": "Coûts fixes par mois",
+              "max_hourly_kwh": "Consommation horaire maximale plausible",
+              "heat_pump_devices": "Électricité de la pompe à chaleur",
+              "heat_pump_heat_sensor": "Chaleur fournie par la pompe à chaleur"
+            },
+            "data_description": {
+              "fixed_costs_daily": "Facultatif, TTC : abonnement et frais de réseau.",
+              "fixed_costs_monthly": "Facultatif, TTC. Montant négatif pour un crédit d'impôt fixe.",
+              "max_hourly_kwh": "Les sauts au-delà sont considérés comme des erreurs. Environ votre raccordement : 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
+              "heat_pump_devices": "Toute marque : un ou plusieurs capteurs d'énergie (intégration de la pompe, compteur ou prise, p. ex. compresseur et appoint). Ajoute une diapositive pompe à chaleur.",
+              "heat_pump_heat_sensor": "Facultatif : capteurs de chaleur fournie (souvent chauffage et eau chaude séparés ; choisissez les deux). Ajoute le COP."
+            }
+          },
+          "climate": {
+            "name": "Climat intérieur et météo",
+            "data": {
+              "excluded_areas": "Pièces qui ne sont pas à l'intérieur",
+              "outdoor_sensor": "Capteur de température extérieure",
+              "use_open_meteo": "Utiliser Open-Meteo pour la météo"
+            },
+            "data_description": {
+              "excluded_areas": "Les capteurs de ces pièces sont exclus. Vide = tout compter.",
+              "outdoor_sensor": "Facultatif. Tout capteur avec historique ; remplace la température modélisée.",
+              "use_open_meteo": "Archive météo gratuite pour votre région (position arrondie à ~10 km). Désactivé : seulement votre capteur."
+            }
+          },
+          "car": {
+            "name": "Voiture",
+            "data": {
+              "car_odometers": "Compteur kilométrique (un par voiture)",
+              "car_chargers": "Énergie de la borne",
+              "teslamate_grafana_url": "URL de Grafana",
+              "teslamate_grafana_token": "Jeton du compte de service",
+              "teslamate_home_geofence": "Nom de votre geofence domicile"
+            },
+            "data_description": {
+              "teslamate_home_geofence": "Pour compter la recharge à domicile. Vide : un geofence nommé Home ou Maison."
+            },
+            "description": "Toute voiture : choisissez le compteur kilométrique (de l'intégration de la voiture) et le capteur d'énergie de votre borne. Avec TeslaMate vous obtenez plus : URL de Grafana et jeton d'un compte de service Viewer."
+          },
+          "ai": {
+            "name": "Résumé IA",
+            "data": {
+              "ai_task_entity": "Entité AI Task",
+              "ai_instructions": "Instructions supplémentaires"
+            },
+            "data_description": {
+              "ai_instructions": "Facultatif, par ex. le ton ou qui habite la maison."
+            },
+            "description": "Facultatif : un court résumé au début de chaque rapport, par votre propre entité AI Task. Seuls les chiffres du rapport sont envoyés."
+          }
         }
       },
       "tile_add": {

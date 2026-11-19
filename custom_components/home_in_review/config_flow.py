@@ -14,6 +14,7 @@ from homeassistant.config_entries import (
     OptionsFlow,
 )
 from homeassistant.core import callback
+from homeassistant.data_entry_flow import section
 from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import floor_registry as fr
 from homeassistant.helpers import selector
@@ -82,37 +83,55 @@ def _suggest(value: Any) -> dict:
     return {"suggested_value": value} if value not in (None, "") else {}
 
 
+# Settings form: one form with collapsible sections; key -> fields in that section.
+SECTIONS = {
+    "general": [CONF_NOTIFY, CONF_REPORT_DAY, CONF_REPORT_TIME, CONF_YEAR_START],
+    "energy": [CONF_FIXED_DAILY, CONF_FIXED_MONTHLY, CONF_MAX_HOURLY_KWH, CONF_HP_DEVICES, CONF_HP_HEAT],
+    "climate": [CONF_EXCLUDED_AREAS, CONF_OUTDOOR_SENSOR, CONF_USE_OPEN_METEO],
+    "car": [CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS, CONF_TM_URL, CONF_TM_TOKEN, CONF_TM_HOME],
+    "ai": [CONF_AI_TASK, CONF_AI_INSTRUCTIONS],
+}
+
+
 class HomeInReviewOptionsFlow(OptionsFlow):
-    def __init__(self) -> None:
-        self.opts: dict[str, Any] | None = None
+    """A short menu: the settings (one form with sections), and adding or removing own figures.
+
+    Every path ends by saving, because Home Assistant forms have no way back to a menu.
+    """
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        if self.opts is None:
-            self.opts = dict(self.config_entry.options)
-        return self.async_show_menu(step_id="init", menu_options=[
-            "general", "energy", "climate", "car", "ai", "tile_add", "tile_remove", "save"])
+        menu = ["settings", "tile_add"]
+        if self.config_entry.options.get(CONF_TILES):
+            menu.append("tile_remove")
+        return self.async_show_menu(step_id="init", menu_options=menu)
 
-    async def async_step_save(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        return self.async_create_entry(data=self.opts)
-
-    def _merge(self, user_input: dict[str, Any], keys: list[str]) -> None:
-        """Store a group: given values replace the old ones, emptied optional fields are removed."""
-        for k in keys:
-            if k in user_input and user_input[k] not in (None, ""):
-                self.opts[k] = user_input[k]
-            else:
-                self.opts.pop(k, None)
-
-    # ------------------------------------------------------------------ general
-    async def async_step_general(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        o = self.opts
+    # ------------------------------------------------------------------ settings
+    async def async_step_settings(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        o = dict(self.config_entry.options)
         if user_input is not None:
-            self._merge(user_input, [CONF_NOTIFY, CONF_REPORT_DAY, CONF_REPORT_TIME])
-            self.opts[CONF_YEAR_START] = int(user_input.get(CONF_YEAR_START, 1))
-            return await self.async_step_init()
+            flat: dict[str, Any] = {}
+            for part in user_input.values():
+                if isinstance(part, dict):
+                    flat.update(part)
+            for keys in SECTIONS.values():
+                for k in keys:
+                    if k in flat and flat[k] not in (None, "", []):
+                        o[k] = flat[k]
+                    else:
+                        o.pop(k, None)
+            # An emptied area list means "exclude nothing" ([]); a missing key would bring back the automatic
+            # outdoor exclusion.
+            o[CONF_EXCLUDED_AREAS] = flat.get(CONF_EXCLUDED_AREAS) or []
+            o[CONF_USE_OPEN_METEO] = bool(flat.get(CONF_USE_OPEN_METEO, True))
+            o[CONF_YEAR_START] = int(flat.get(CONF_YEAR_START, 1))
+            return self.async_create_entry(data=o)
+
         notify = sorted(f"notify.{name}" for name in self.hass.services.async_services_for_domain("notify")
                         if name not in ("send_message", "persistent_notification"))
-        return self.async_show_form(step_id="general", data_schema=vol.Schema({
+        excluded = o.get(CONF_EXCLUDED_AREAS)
+        if excluded is None:
+            excluded = self._suggested_excluded_areas()
+        general = vol.Schema({
             vol.Optional(CONF_NOTIFY, default=o.get(CONF_NOTIFY, [])): selector.SelectSelector(
                 selector.SelectSelectorConfig(options=notify, multiple=True, custom_value=True)),
             vol.Required(CONF_REPORT_DAY, default=o.get(CONF_REPORT_DAY, DEFAULT_REPORT_DAY)): selector.NumberSelector(
@@ -121,46 +140,49 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             vol.Required(CONF_YEAR_START, default=str(o.get(CONF_YEAR_START, 1))): selector.SelectSelector(
                 selector.SelectSelectorConfig(options=[str(i) for i in range(1, 13)], translation_key="month",
                                               mode=selector.SelectSelectorMode.DROPDOWN)),
-        }))
-
-    # ------------------------------------------------------------------ energy
-    async def async_step_energy(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        o = self.opts
-        if user_input is not None:
-            self._merge(user_input, [CONF_FIXED_DAILY, CONF_FIXED_MONTHLY, CONF_MAX_HOURLY_KWH, CONF_HP_DEVICES, CONF_HP_HEAT])
-            return await self.async_step_init()
-        return self.async_show_form(step_id="energy", data_schema=vol.Schema({
+        })
+        energy = vol.Schema({
             vol.Optional(CONF_FIXED_DAILY, description=_suggest(o.get(CONF_FIXED_DAILY))): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=0, max=100, step="any", mode=BOX)),
             vol.Optional(CONF_FIXED_MONTHLY, description=_suggest(o.get(CONF_FIXED_MONTHLY))): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=-1000, max=10000, step="any", mode=BOX)),
             vol.Required(CONF_MAX_HOURLY_KWH, default=o.get(CONF_MAX_HOURLY_KWH, DEFAULT_MAX_HOURLY_KWH)): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=1, max=1000, step=1, mode=BOX, unit_of_measurement="kWh")),
-            vol.Optional(CONF_HP_DEVICES, description=_suggest(o.get(CONF_HP_DEVICES))): selector.EntitySelector(
+            vol.Optional(CONF_HP_DEVICES, description=_suggest(_as_list(o.get(CONF_HP_DEVICES)))): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", device_class="energy", multiple=True)),
             vol.Optional(CONF_HP_HEAT, description=_suggest(_as_list(o.get(CONF_HP_HEAT)))): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", device_class="energy", multiple=True)),
-        }))
-
-    # ------------------------------------------------------------------ climate & weather
-    async def async_step_climate(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        o = self.opts
-        if user_input is not None:
-            # An emptied area list is stored as [] ("exclude nothing"); a missing key would bring back the
-            # automatic outdoor exclusion.
-            self.opts[CONF_EXCLUDED_AREAS] = user_input.get(CONF_EXCLUDED_AREAS) or []
-            self._merge(user_input, [CONF_OUTDOOR_SENSOR])
-            self.opts[CONF_USE_OPEN_METEO] = bool(user_input.get(CONF_USE_OPEN_METEO, True))
-            return await self.async_step_init()
-        excluded = o.get(CONF_EXCLUDED_AREAS)
-        if excluded is None:
-            excluded = self._suggested_excluded_areas()
-        return self.async_show_form(step_id="climate", data_schema=vol.Schema({
+        })
+        climate = vol.Schema({
             vol.Optional(CONF_EXCLUDED_AREAS, description=_suggest(excluded)): selector.AreaSelector(
                 selector.AreaSelectorConfig(multiple=True)),
             vol.Optional(CONF_OUTDOOR_SENSOR, description=_suggest(o.get(CONF_OUTDOOR_SENSOR))): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", device_class="temperature")),
             vol.Required(CONF_USE_OPEN_METEO, default=o.get(CONF_USE_OPEN_METEO, True)): selector.BooleanSelector(),
+        })
+        car = vol.Schema({
+            vol.Optional(CONF_CAR_ODOMETERS, description=_suggest(o.get(CONF_CAR_ODOMETERS))): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class="distance", multiple=True)),
+            vol.Optional(CONF_CAR_CHARGERS, description=_suggest(o.get(CONF_CAR_CHARGERS))): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class="energy", multiple=True)),
+            vol.Optional(CONF_TM_URL, description=_suggest(o.get(CONF_TM_URL))): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.URL)),
+            vol.Optional(CONF_TM_TOKEN, description=_suggest(o.get(CONF_TM_TOKEN))): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)),
+            vol.Optional(CONF_TM_HOME, description=_suggest(o.get(CONF_TM_HOME))): selector.TextSelector(),
+        })
+        ai = vol.Schema({
+            vol.Optional(CONF_AI_TASK, description=_suggest(o.get(CONF_AI_TASK))): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="ai_task")),
+            vol.Optional(CONF_AI_INSTRUCTIONS, description=_suggest(o.get(CONF_AI_INSTRUCTIONS))): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)),
+        })
+        return self.async_show_form(step_id="settings", data_schema=vol.Schema({
+            vol.Required("general"): section(general, {"collapsed": False}),
+            vol.Required("energy"): section(energy, {"collapsed": True}),
+            vol.Required("climate"): section(climate, {"collapsed": True}),
+            vol.Required("car"): section(car, {"collapsed": True}),
+            vol.Required("ai"): section(ai, {"collapsed": True}),
         }))
 
     def _suggested_excluded_areas(self) -> list[str]:
@@ -172,37 +194,6 @@ class HomeInReviewOptionsFlow(OptionsFlow):
                 out.append(area.id)
         return out
 
-    # ------------------------------------------------------------------ car
-    async def async_step_car(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        o = self.opts
-        if user_input is not None:
-            self._merge(user_input, [CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS, CONF_TM_URL, CONF_TM_TOKEN, CONF_TM_HOME])
-            return await self.async_step_init()
-        return self.async_show_form(step_id="car", data_schema=vol.Schema({
-            vol.Optional(CONF_CAR_ODOMETERS, description=_suggest(o.get(CONF_CAR_ODOMETERS))): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class="distance", multiple=True)),
-            vol.Optional(CONF_CAR_CHARGERS, description=_suggest(o.get(CONF_CAR_CHARGERS))): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class="energy", multiple=True)),
-            vol.Optional(CONF_TM_URL, description=_suggest(o.get(CONF_TM_URL))): selector.TextSelector(
-                selector.TextSelectorConfig(type=selector.TextSelectorType.URL)),
-            vol.Optional(CONF_TM_TOKEN, description=_suggest(o.get(CONF_TM_TOKEN))): selector.TextSelector(
-                selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)),
-            vol.Optional(CONF_TM_HOME, description=_suggest(o.get(CONF_TM_HOME))): selector.TextSelector(),
-        }))
-
-    # ------------------------------------------------------------------ AI summary
-    async def async_step_ai(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        o = self.opts
-        if user_input is not None:
-            self._merge(user_input, [CONF_AI_TASK, CONF_AI_INSTRUCTIONS])
-            return await self.async_step_init()
-        return self.async_show_form(step_id="ai", data_schema=vol.Schema({
-            vol.Optional(CONF_AI_TASK, description=_suggest(o.get(CONF_AI_TASK))): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="ai_task")),
-            vol.Optional(CONF_AI_INSTRUCTIONS, description=_suggest(o.get(CONF_AI_INSTRUCTIONS))): selector.TextSelector(
-                selector.TextSelectorConfig(multiline=True)),
-        }))
-
     # ------------------------------------------------------------------ custom tiles
     async def async_step_tile_add(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
@@ -210,8 +201,9 @@ class HomeInReviewOptionsFlow(OptionsFlow):
                     "unit": user_input.get("unit") or "", "decimals": int(user_input.get("decimals", 0))}
             if user_input.get("threshold") is not None:
                 tile["threshold"] = float(user_input["threshold"])
-            self.opts[CONF_TILES] = [*self.opts.get(CONF_TILES, []), tile]
-            return await self.async_step_init()
+            o = dict(self.config_entry.options)
+            o[CONF_TILES] = [*o.get(CONF_TILES, []), tile]
+            return self.async_create_entry(data=o)
         return self.async_show_form(step_id="tile_add", data_schema=vol.Schema({
             vol.Required("name"): selector.TextSelector(),
             vol.Required("statistic"): selector.StatisticSelector(selector.StatisticSelectorConfig()),
@@ -224,11 +216,12 @@ class HomeInReviewOptionsFlow(OptionsFlow):
         }))
 
     async def async_step_tile_remove(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        tiles = self.opts.get(CONF_TILES, [])
+        tiles = self.config_entry.options.get(CONF_TILES, [])
         if user_input is not None:
             drop = {int(i) for i in user_input.get("tiles", [])}
-            self.opts[CONF_TILES] = [t for i, t in enumerate(tiles) if i not in drop]
-            return await self.async_step_init()
+            o = dict(self.config_entry.options)
+            o[CONF_TILES] = [t for i, t in enumerate(tiles) if i not in drop]
+            return self.async_create_entry(data=o)
         options = [selector.SelectOptionDict(value=str(i), label=f'{t["name"]} ({t["statistic"]}, {t["type"]})')
                    for i, t in enumerate(tiles)]
         return self.async_show_form(step_id="tile_remove", data_schema=vol.Schema({

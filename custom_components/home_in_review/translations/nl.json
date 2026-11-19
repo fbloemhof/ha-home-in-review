@@ -20,84 +20,85 @@
     "step": {
       "init": {
         "title": "Opties Home in Review",
-        "menu": {
-          "general": "Planning en meldingen",
-          "energy": "Energie, kosten en warmtepomp",
-          "climate": "Binnenklimaat en weer",
-          "car": "Auto",
-          "ai": "AI-samenvatting",
+        "menu_options": {
+          "settings": "Instellingen",
           "tile_add": "Eigen cijfer toevoegen",
-          "tile_remove": "Eigen cijfers verwijderen",
-          "save": "Opslaan en sluiten"
+          "tile_remove": "Eigen cijfers verwijderen"
         }
       },
-      "general": {
-        "title": "Planning en meldingen",
-        "data": {
-          "notify_services": "Melding sturen als een rapport klaar is",
-          "report_day": "Dag van de maand",
-          "report_time": "Tijd",
-          "year_start_month": "Jaaroverzicht begint in"
-        },
-        "data_description": {
-          "notify_services": "De melding opent het rapport.",
-          "report_day": "Op deze dag wordt het rapport over de vorige maand gemaakt.",
-          "year_start_month": "Januari voor een kalenderjaar; bijvoorbeeld juli voor een stookseizoen of de maand waarin je energiecontract begint."
-        }
-      },
-      "energy": {
-        "title": "Energie, kosten en warmtepomp",
-        "data": {
-          "fixed_costs_daily": "Vaste energiekosten per dag",
-          "fixed_costs_monthly": "Vaste energiekosten per maand",
-          "max_hourly_kwh": "Grootst mogelijke netafname per uur",
-          "heat_pump_devices": "Stroom van de warmtepomp",
-          "heat_pump_heat_sensor": "Door de warmtepomp geleverde warmte"
-        },
-        "data_description": {
-          "fixed_costs_daily": "Optioneel, inclusief btw: vaste leveringskosten en netbeheer.",
-          "fixed_costs_monthly": "Optioneel, inclusief btw. Gebruik een negatief bedrag voor een vaste belastingkorting.",
-          "max_hourly_kwh": "Sprongen in de meterstand boven deze waarde per uur gelden als storing. Ongeveer je aansluiting: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
-          "heat_pump_devices": "Elk merk: een of meer energiesensoren (de eigen integratie van de warmtepomp, een kWh-meter of slimme stekker, bijv. compressor en backupheater). Voegt een warmtepompdia toe met stroom per graaddag.",
-          "heat_pump_heat_sensor": "Optioneel: energiesensoren voor de geleverde warmte (veel merken melden verwarming en tapwater apart; kies dan beide). Voegt de COP toe."
-        }
-      },
-      "climate": {
-        "title": "Binnenklimaat en weer",
-        "data": {
-          "excluded_areas": "Ruimtes die niet binnen zijn",
-          "outdoor_sensor": "Buitentemperatuursensor",
-          "use_open_meteo": "Open-Meteo gebruiken voor het weer"
-        },
-        "data_description": {
-          "excluded_areas": "Sensoren in deze ruimtes tellen niet mee voor het binnenklimaat. Leeg = alles meetellen.",
-          "outdoor_sensor": "Optioneel. Elke temperatuursensor met historie; vervangt de modeltemperatuur.",
-          "use_open_meteo": "Gratis weerarchief voor jouw omgeving (locatie afgerond op ~10 km). Uit: alleen je eigen sensor, zonder normalen, neerslag of zon."
-        }
-      },
-      "car": {
-        "title": "Auto",
-        "description": "Elke auto: kies de kilometerteller (uit de integratie van je auto) en de energiesensor van je laadpaal. Met TeslaMate krijg je meer (ritten, thuis en elders laden, Wh/km): vul de URL van de bijbehorende Grafana in en de token van een serviceaccount met de rol Viewer.",
-        "data": {
-          "car_odometers": "Kilometerteller (één per auto)",
-          "car_chargers": "Energie van de laadpaal",
-          "teslamate_grafana_url": "Grafana-URL",
-          "teslamate_grafana_token": "Serviceaccount-token",
-          "teslamate_home_geofence": "Naam van je thuis-geofence"
-        },
-        "data_description": {
-          "teslamate_home_geofence": "Om laden thuis te tellen. Leeg: een geofence met de naam Home of Thuis."
-        }
-      },
-      "ai": {
-        "title": "AI-samenvatting",
-        "description": "Optioneel: een korte geschreven samenvatting aan het begin van elk rapport, door je eigen AI Task-entiteit. Alleen de cijfers uit het rapport worden verstuurd.",
-        "data": {
-          "ai_task_entity": "AI Task-entiteit",
-          "ai_instructions": "Extra instructies"
-        },
-        "data_description": {
-          "ai_instructions": "Optioneel, bijvoorbeeld de toon of wie er in huis wonen."
+      "settings": {
+        "title": "Opties Home in Review",
+        "description": "Klap een onderdeel open om het te wijzigen. Opslaan sluit dit venster.",
+        "sections": {
+          "general": {
+            "name": "Planning en meldingen",
+            "data": {
+              "notify_services": "Melding sturen als een rapport klaar is",
+              "report_day": "Dag van de maand",
+              "report_time": "Tijd",
+              "year_start_month": "Jaaroverzicht begint in"
+            },
+            "data_description": {
+              "notify_services": "De melding opent het rapport.",
+              "report_day": "Op deze dag wordt het rapport over de vorige maand gemaakt.",
+              "year_start_month": "Januari voor een kalenderjaar; bijvoorbeeld juli voor een stookseizoen of de maand waarin je energiecontract begint."
+            }
+          },
+          "energy": {
+            "name": "Energie, kosten en warmtepomp",
+            "data": {
+              "fixed_costs_daily": "Vaste energiekosten per dag",
+              "fixed_costs_monthly": "Vaste energiekosten per maand",
+              "max_hourly_kwh": "Grootst mogelijke netafname per uur",
+              "heat_pump_devices": "Stroom van de warmtepomp",
+              "heat_pump_heat_sensor": "Door de warmtepomp geleverde warmte"
+            },
+            "data_description": {
+              "fixed_costs_daily": "Optioneel, inclusief btw: vaste leveringskosten en netbeheer.",
+              "fixed_costs_monthly": "Optioneel, inclusief btw. Gebruik een negatief bedrag voor een vaste belastingkorting.",
+              "max_hourly_kwh": "Sprongen in de meterstand boven deze waarde per uur gelden als storing. Ongeveer je aansluiting: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
+              "heat_pump_devices": "Elk merk: een of meer energiesensoren (de eigen integratie van de warmtepomp, een kWh-meter of slimme stekker, bijv. compressor en backupheater). Voegt een warmtepompdia toe met stroom per graaddag.",
+              "heat_pump_heat_sensor": "Optioneel: energiesensoren voor de geleverde warmte (veel merken melden verwarming en tapwater apart; kies dan beide). Voegt de COP toe."
+            }
+          },
+          "climate": {
+            "name": "Binnenklimaat en weer",
+            "data": {
+              "excluded_areas": "Ruimtes die niet binnen zijn",
+              "outdoor_sensor": "Buitentemperatuursensor",
+              "use_open_meteo": "Open-Meteo gebruiken voor het weer"
+            },
+            "data_description": {
+              "excluded_areas": "Sensoren in deze ruimtes tellen niet mee voor het binnenklimaat. Leeg = alles meetellen.",
+              "outdoor_sensor": "Optioneel. Elke temperatuursensor met historie; vervangt de modeltemperatuur.",
+              "use_open_meteo": "Gratis weerarchief voor jouw omgeving (locatie afgerond op ~10 km). Uit: alleen je eigen sensor, zonder normalen, neerslag of zon."
+            }
+          },
+          "car": {
+            "name": "Auto",
+            "data": {
+              "car_odometers": "Kilometerteller (één per auto)",
+              "car_chargers": "Energie van de laadpaal",
+              "teslamate_grafana_url": "Grafana-URL",
+              "teslamate_grafana_token": "Serviceaccount-token",
+              "teslamate_home_geofence": "Naam van je thuis-geofence"
+            },
+            "data_description": {
+              "teslamate_home_geofence": "Om laden thuis te tellen. Leeg: een geofence met de naam Home of Thuis."
+            },
+            "description": "Elke auto: kies de kilometerteller (uit de integratie van je auto) en de energiesensor van je laadpaal. Met TeslaMate krijg je meer (ritten, thuis en elders laden, Wh/km): vul de URL van de bijbehorende Grafana in en de token van een serviceaccount met de rol Viewer."
+          },
+          "ai": {
+            "name": "AI-samenvatting",
+            "data": {
+              "ai_task_entity": "AI Task-entiteit",
+              "ai_instructions": "Extra instructies"
+            },
+            "data_description": {
+              "ai_instructions": "Optioneel, bijvoorbeeld de toon of wie er in huis wonen."
+            },
+            "description": "Optioneel: een korte geschreven samenvatting aan het begin van elk rapport, door je eigen AI Task-entiteit. Alleen de cijfers uit het rapport worden verstuurd."
+          }
         }
       },
       "tile_add": {

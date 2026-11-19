@@ -20,84 +20,85 @@
     "step": {
       "init": {
         "title": "Home in Review Optionen",
-        "menu": {
-          "general": "Zeitplan und Benachrichtigungen",
-          "energy": "Energie, Kosten und Wärmepumpe",
-          "climate": "Raumklima und Wetter",
-          "car": "Auto",
-          "ai": "KI-Zusammenfassung",
+        "menu_options": {
+          "settings": "Einstellungen",
           "tile_add": "Eigene Kennzahl hinzufügen",
-          "tile_remove": "Eigene Kennzahlen entfernen",
-          "save": "Speichern und schließen"
+          "tile_remove": "Eigene Kennzahlen entfernen"
         }
       },
-      "general": {
-        "title": "Zeitplan und Benachrichtigungen",
-        "data": {
-          "notify_services": "Benachrichtigen, wenn ein Bericht fertig ist",
-          "report_day": "Tag des Monats",
-          "report_time": "Uhrzeit",
-          "year_start_month": "Jahresrückblick beginnt im"
-        },
-        "data_description": {
-          "notify_services": "Die Benachrichtigung öffnet den Bericht.",
-          "report_day": "An diesem Tag wird der Bericht des Vormonats erstellt.",
-          "year_start_month": "Januar für ein Kalenderjahr; zum Beispiel Juli für eine Heizperiode oder den Beginn Ihres Energievertrags."
-        }
-      },
-      "energy": {
-        "title": "Energie, Kosten und Wärmepumpe",
-        "data": {
-          "fixed_costs_daily": "Fixe Energiekosten pro Tag",
-          "fixed_costs_monthly": "Fixe Energiekosten pro Monat",
-          "max_hourly_kwh": "Größter plausibler Netzbezug pro Stunde",
-          "heat_pump_devices": "Strom der Wärmepumpe",
-          "heat_pump_heat_sensor": "Von der Wärmepumpe gelieferte Wärme"
-        },
-        "data_description": {
-          "fixed_costs_daily": "Optional, inkl. Steuern: Grundgebühr und Netzentgelte.",
-          "fixed_costs_monthly": "Optional, inkl. Steuern. Negativ für eine feste Steuergutschrift.",
-          "max_hourly_kwh": "Zählersprünge darüber gelten als Störung. Etwa Ihr Anschluss: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
-          "heat_pump_devices": "Jede Marke: ein oder mehrere Energiesensoren (Integration der Wärmepumpe, Zähler oder Steckdose, z. B. Verdichter und Heizstab). Fügt eine Wärmepumpen-Folie hinzu.",
-          "heat_pump_heat_sensor": "Optional: Energiesensoren für die gelieferte Wärme (oft getrennt für Heizung und Warmwasser; beide wählen). Ergänzt den COP."
-        }
-      },
-      "climate": {
-        "title": "Raumklima und Wetter",
-        "data": {
-          "excluded_areas": "Bereiche, die nicht drinnen sind",
-          "outdoor_sensor": "Außentemperatursensor",
-          "use_open_meteo": "Open-Meteo für das Wetter nutzen"
-        },
-        "data_description": {
-          "excluded_areas": "Sensoren in diesen Bereichen zählen nicht zum Raumklima. Leer = alles zählen.",
-          "outdoor_sensor": "Optional. Jeder Temperatursensor mit Verlauf; ersetzt die Modelltemperatur.",
-          "use_open_meteo": "Kostenloses Wetterarchiv für Ihre Gegend (Standort auf ~10 km gerundet). Aus: nur Ihr eigener Sensor."
-        }
-      },
-      "car": {
-        "title": "Auto",
-        "description": "Jedes Auto: wählen Sie den Kilometerzähler (aus der Integration Ihres Autos) und den Energiesensor Ihrer Ladestation. Mit TeslaMate erhalten Sie mehr: Grafana-URL und das Token eines Dienstkontos mit der Rolle Viewer eintragen.",
-        "data": {
-          "car_odometers": "Kilometerzähler (einer pro Auto)",
-          "car_chargers": "Energie der Ladestation",
-          "teslamate_grafana_url": "Grafana-URL",
-          "teslamate_grafana_token": "Dienstkonto-Token",
-          "teslamate_home_geofence": "Name Ihres Zuhause-Geofence"
-        },
-        "data_description": {
-          "teslamate_home_geofence": "Um das Laden zu Hause zu zählen. Leer: ein Geofence namens Home oder Zuhause."
-        }
-      },
-      "ai": {
-        "title": "KI-Zusammenfassung",
-        "description": "Optional: eine kurze Zusammenfassung am Anfang jedes Berichts durch Ihre eigene KI-Aufgaben-Entität. Nur die Zahlen des Berichts werden gesendet.",
-        "data": {
-          "ai_task_entity": "KI-Aufgaben-Entität",
-          "ai_instructions": "Zusätzliche Anweisungen"
-        },
-        "data_description": {
-          "ai_instructions": "Optional, z. B. Tonfall oder wer im Haus wohnt."
+      "settings": {
+        "title": "Home in Review Optionen",
+        "description": "Öffnen Sie einen Abschnitt, um ihn zu ändern. Speichern schließt dieses Fenster.",
+        "sections": {
+          "general": {
+            "name": "Zeitplan und Benachrichtigungen",
+            "data": {
+              "notify_services": "Benachrichtigen, wenn ein Bericht fertig ist",
+              "report_day": "Tag des Monats",
+              "report_time": "Uhrzeit",
+              "year_start_month": "Jahresrückblick beginnt im"
+            },
+            "data_description": {
+              "notify_services": "Die Benachrichtigung öffnet den Bericht.",
+              "report_day": "An diesem Tag wird der Bericht des Vormonats erstellt.",
+              "year_start_month": "Januar für ein Kalenderjahr; zum Beispiel Juli für eine Heizperiode oder den Beginn Ihres Energievertrags."
+            }
+          },
+          "energy": {
+            "name": "Energie, Kosten und Wärmepumpe",
+            "data": {
+              "fixed_costs_daily": "Fixe Energiekosten pro Tag",
+              "fixed_costs_monthly": "Fixe Energiekosten pro Monat",
+              "max_hourly_kwh": "Größter plausibler Netzbezug pro Stunde",
+              "heat_pump_devices": "Strom der Wärmepumpe",
+              "heat_pump_heat_sensor": "Von der Wärmepumpe gelieferte Wärme"
+            },
+            "data_description": {
+              "fixed_costs_daily": "Optional, inkl. Steuern: Grundgebühr und Netzentgelte.",
+              "fixed_costs_monthly": "Optional, inkl. Steuern. Negativ für eine feste Steuergutschrift.",
+              "max_hourly_kwh": "Zählersprünge darüber gelten als Störung. Etwa Ihr Anschluss: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
+              "heat_pump_devices": "Jede Marke: ein oder mehrere Energiesensoren (Integration der Wärmepumpe, Zähler oder Steckdose, z. B. Verdichter und Heizstab). Fügt eine Wärmepumpen-Folie hinzu.",
+              "heat_pump_heat_sensor": "Optional: Energiesensoren für die gelieferte Wärme (oft getrennt für Heizung und Warmwasser; beide wählen). Ergänzt den COP."
+            }
+          },
+          "climate": {
+            "name": "Raumklima und Wetter",
+            "data": {
+              "excluded_areas": "Bereiche, die nicht drinnen sind",
+              "outdoor_sensor": "Außentemperatursensor",
+              "use_open_meteo": "Open-Meteo für das Wetter nutzen"
+            },
+            "data_description": {
+              "excluded_areas": "Sensoren in diesen Bereichen zählen nicht zum Raumklima. Leer = alles zählen.",
+              "outdoor_sensor": "Optional. Jeder Temperatursensor mit Verlauf; ersetzt die Modelltemperatur.",
+              "use_open_meteo": "Kostenloses Wetterarchiv für Ihre Gegend (Standort auf ~10 km gerundet). Aus: nur Ihr eigener Sensor."
+            }
+          },
+          "car": {
+            "name": "Auto",
+            "data": {
+              "car_odometers": "Kilometerzähler (einer pro Auto)",
+              "car_chargers": "Energie der Ladestation",
+              "teslamate_grafana_url": "Grafana-URL",
+              "teslamate_grafana_token": "Dienstkonto-Token",
+              "teslamate_home_geofence": "Name Ihres Zuhause-Geofence"
+            },
+            "data_description": {
+              "teslamate_home_geofence": "Um das Laden zu Hause zu zählen. Leer: ein Geofence namens Home oder Zuhause."
+            },
+            "description": "Jedes Auto: wählen Sie den Kilometerzähler (aus der Integration Ihres Autos) und den Energiesensor Ihrer Ladestation. Mit TeslaMate erhalten Sie mehr: Grafana-URL und das Token eines Dienstkontos mit der Rolle Viewer eintragen."
+          },
+          "ai": {
+            "name": "KI-Zusammenfassung",
+            "data": {
+              "ai_task_entity": "KI-Aufgaben-Entität",
+              "ai_instructions": "Zusätzliche Anweisungen"
+            },
+            "data_description": {
+              "ai_instructions": "Optional, z. B. Tonfall oder wer im Haus wohnt."
+            },
+            "description": "Optional: eine kurze Zusammenfassung am Anfang jedes Berichts durch Ihre eigene KI-Aufgaben-Entität. Nur die Zahlen des Berichts werden gesendet."
+          }
         }
       },
       "tile_add": {

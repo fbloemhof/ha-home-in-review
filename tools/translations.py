@@ -24,106 +24,384 @@ TILE = {
     "hours_above": t("Hours above threshold", "Uren boven drempel", "Stunden über Schwelle", "Heures au-dessus du seuil"),
 }
 
-STEPS = {
-    "init": {
-        "title": t("Home in Review options", "Opties Home in Review", "Home in Review Optionen", "Options Home in Review"),
-        "menu": {
-            "general": t("Schedule and notifications", "Planning en meldingen", "Zeitplan und Benachrichtigungen", "Planification et notifications"),
-            "energy": t("Energy, costs and heat pump", "Energie, kosten en warmtepomp", "Energie, Kosten und Wärmepumpe", "Énergie, coûts et pompe à chaleur"),
-            "climate": t("Indoor climate and weather", "Binnenklimaat en weer", "Raumklima und Wetter", "Climat intérieur et météo"),
-            "car": t("Car", "Auto", "Auto", "Voiture"),
-            "ai": t("AI summary", "AI-samenvatting", "KI-Zusammenfassung", "Résumé IA"),
-            "tile_add": t("Add your own figure", "Eigen cijfer toevoegen", "Eigene Kennzahl hinzufügen", "Ajouter un chiffre"),
-            "tile_remove": t("Remove your own figures", "Eigen cijfers verwijderen", "Eigene Kennzahlen entfernen", "Supprimer des chiffres"),
-            "save": t("Save and close", "Opslaan en sluiten", "Speichern und schließen", "Enregistrer et fermer"),
-        },
-    },
-    "general": {
-        "title": t("Schedule and notifications", "Planning en meldingen", "Zeitplan und Benachrichtigungen", "Planification et notifications"),
-        "data": {
-            "notify_services": t("Notify when a report is ready", "Melding sturen als een rapport klaar is", "Benachrichtigen, wenn ein Bericht fertig ist", "Notifier quand un rapport est prêt"),
-            "report_day": t("Day of the month", "Dag van de maand", "Tag des Monats", "Jour du mois"),
-            "report_time": t("Time", "Tijd", "Uhrzeit", "Heure"),
-            "year_start_month": t("Year review starts in", "Jaaroverzicht begint in", "Jahresrückblick beginnt im", "Le bilan annuel commence en"),
-        },
-        "data_description": {
-            "notify_services": t("The notification opens the report.", "De melding opent het rapport.", "Die Benachrichtigung öffnet den Bericht.", "La notification ouvre le rapport."),
-            "report_day": t("Last month's report is made on this day.", "Op deze dag wordt het rapport over de vorige maand gemaakt.", "An diesem Tag wird der Bericht des Vormonats erstellt.", "Le rapport du mois précédent est créé ce jour-là."),
-            "year_start_month": t("January for a calendar year; for example July for a heating season or the month your energy contract starts.", "Januari voor een kalenderjaar; bijvoorbeeld juli voor een stookseizoen of de maand waarin je energiecontract begint.", "Januar für ein Kalenderjahr; zum Beispiel Juli für eine Heizperiode oder den Beginn Ihres Energievertrags.", "Janvier pour une année civile ; par exemple juillet pour une saison de chauffe ou le début de votre contrat."),
-        },
-    },
-    "energy": {
-        "title": t("Energy, costs and heat pump", "Energie, kosten en warmtepomp", "Energie, Kosten und Wärmepumpe", "Énergie, coûts et pompe à chaleur"),
-        "data": {
-            "fixed_costs_daily": t("Fixed energy costs per day", "Vaste energiekosten per dag", "Fixe Energiekosten pro Tag", "Coûts fixes par jour"),
-            "fixed_costs_monthly": t("Fixed energy costs per month", "Vaste energiekosten per maand", "Fixe Energiekosten pro Monat", "Coûts fixes par mois"),
-            "max_hourly_kwh": t("Largest plausible grid use per hour", "Grootst mogelijke netafname per uur", "Größter plausibler Netzbezug pro Stunde", "Consommation horaire maximale plausible"),
-            "heat_pump_devices": t("Heat pump electricity", "Stroom van de warmtepomp", "Strom der Wärmepumpe", "Électricité de la pompe à chaleur"),
-            "heat_pump_heat_sensor": t("Heat delivered by the heat pump", "Door de warmtepomp geleverde warmte", "Von der Wärmepumpe gelieferte Wärme", "Chaleur fournie par la pompe à chaleur"),
-        },
-        "data_description": {
-            "fixed_costs_daily": t("Optional, including tax: standing charges and grid fees.", "Optioneel, inclusief btw: vaste leveringskosten en netbeheer.", "Optional, inkl. Steuern: Grundgebühr und Netzentgelte.", "Facultatif, TTC : abonnement et frais de réseau."),
-            "fixed_costs_monthly": t("Optional, including tax. Use a negative amount for a fixed tax credit.", "Optioneel, inclusief btw. Gebruik een negatief bedrag voor een vaste belastingkorting.", "Optional, inkl. Steuern. Negativ für eine feste Steuergutschrift.", "Facultatif, TTC. Montant négatif pour un crédit d'impôt fixe."),
-            "max_hourly_kwh": t("Meter jumps above this per hour are treated as glitches. Roughly your connection: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.", "Sprongen in de meterstand boven deze waarde per uur gelden als storing. Ongeveer je aansluiting: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.", "Zählersprünge darüber gelten als Störung. Etwa Ihr Anschluss: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.", "Les sauts au-delà sont considérés comme des erreurs. Environ votre raccordement : 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh."),
-            "heat_pump_devices": t("Any brand: one or more energy sensors (the heat pump's own integration, a kWh meter or smart plug, e.g. compressor and backup heater). Adds a heat pump slide with electricity per degree day.", "Elk merk: een of meer energiesensoren (de eigen integratie van de warmtepomp, een kWh-meter of slimme stekker, bijv. compressor en backupheater). Voegt een warmtepompdia toe met stroom per graaddag.", "Jede Marke: ein oder mehrere Energiesensoren (Integration der Wärmepumpe, Zähler oder Steckdose, z. B. Verdichter und Heizstab). Fügt eine Wärmepumpen-Folie hinzu.", "Toute marque : un ou plusieurs capteurs d'énergie (intégration de la pompe, compteur ou prise, p. ex. compresseur et appoint). Ajoute une diapositive pompe à chaleur."),
-            "heat_pump_heat_sensor": t("Optional: energy sensors for heat delivered (many brands report heating and hot water separately; choose both). Adds the COP.", "Optioneel: energiesensoren voor de geleverde warmte (veel merken melden verwarming en tapwater apart; kies dan beide). Voegt de COP toe.", "Optional: Energiesensoren für die gelieferte Wärme (oft getrennt für Heizung und Warmwasser; beide wählen). Ergänzt den COP.", "Facultatif : capteurs de chaleur fournie (souvent chauffage et eau chaude séparés ; choisissez les deux). Ajoute le COP."),
-        },
-    },
-    "climate": {
-        "title": t("Indoor climate and weather", "Binnenklimaat en weer", "Raumklima und Wetter", "Climat intérieur et météo"),
-        "data": {
-            "excluded_areas": t("Areas that are not indoors", "Ruimtes die niet binnen zijn", "Bereiche, die nicht drinnen sind", "Pièces qui ne sont pas à l'intérieur"),
-            "outdoor_sensor": t("Outdoor temperature sensor", "Buitentemperatuursensor", "Außentemperatursensor", "Capteur de température extérieure"),
-            "use_open_meteo": t("Use Open-Meteo for weather", "Open-Meteo gebruiken voor het weer", "Open-Meteo für das Wetter nutzen", "Utiliser Open-Meteo pour la météo"),
-        },
-        "data_description": {
-            "excluded_areas": t("Sensors in these areas are left out of the indoor climate. Empty = count everything.", "Sensoren in deze ruimtes tellen niet mee voor het binnenklimaat. Leeg = alles meetellen.", "Sensoren in diesen Bereichen zählen nicht zum Raumklima. Leer = alles zählen.", "Les capteurs de ces pièces sont exclus. Vide = tout compter."),
-            "outdoor_sensor": t("Optional. Any temperature sensor with history; replaces the modelled temperature.", "Optioneel. Elke temperatuursensor met historie; vervangt de modeltemperatuur.", "Optional. Jeder Temperatursensor mit Verlauf; ersetzt die Modelltemperatur.", "Facultatif. Tout capteur avec historique ; remplace la température modélisée."),
-            "use_open_meteo": t("Free weather archive for your area (location rounded to ~10 km). Off: only your own sensor, without normals, rain or sunshine.", "Gratis weerarchief voor jouw omgeving (locatie afgerond op ~10 km). Uit: alleen je eigen sensor, zonder normalen, neerslag of zon.", "Kostenloses Wetterarchiv für Ihre Gegend (Standort auf ~10 km gerundet). Aus: nur Ihr eigener Sensor.", "Archive météo gratuite pour votre région (position arrondie à ~10 km). Désactivé : seulement votre capteur."),
-        },
-    },
-    "car": {
-        "title": t("Car", "Auto", "Auto", "Voiture"),
-        "description": t("Any car: choose its odometer sensor (from the car's own integration) and the energy sensor of your charger. With TeslaMate you get more (trips, charging at home and elsewhere, Wh/km): fill in its Grafana URL and the token of a Grafana service account with the Viewer role.", "Elke auto: kies de kilometerteller (uit de integratie van je auto) en de energiesensor van je laadpaal. Met TeslaMate krijg je meer (ritten, thuis en elders laden, Wh/km): vul de URL van de bijbehorende Grafana in en de token van een serviceaccount met de rol Viewer.", "Jedes Auto: wählen Sie den Kilometerzähler (aus der Integration Ihres Autos) und den Energiesensor Ihrer Ladestation. Mit TeslaMate erhalten Sie mehr: Grafana-URL und das Token eines Dienstkontos mit der Rolle Viewer eintragen.", "Toute voiture : choisissez le compteur kilométrique (de l'intégration de la voiture) et le capteur d'énergie de votre borne. Avec TeslaMate vous obtenez plus : URL de Grafana et jeton d'un compte de service Viewer."),
-        "data": {
-            "car_odometers": t("Odometer (one per car)", "Kilometerteller (één per auto)", "Kilometerzähler (einer pro Auto)", "Compteur kilométrique (un par voiture)"),
-            "car_chargers": t("Charger energy", "Energie van de laadpaal", "Energie der Ladestation", "Énergie de la borne"),
-            "teslamate_grafana_url": t("Grafana URL", "Grafana-URL", "Grafana-URL", "URL de Grafana"),
-            "teslamate_grafana_token": t("Service account token", "Serviceaccount-token", "Dienstkonto-Token", "Jeton du compte de service"),
-            "teslamate_home_geofence": t("Name of your home geofence", "Naam van je thuis-geofence", "Name Ihres Zuhause-Geofence", "Nom de votre geofence domicile"),
-        },
-        "data_description": {
-            "teslamate_home_geofence": t("Used to count charging at home. Empty: a geofence called Home (or its translation).", "Om laden thuis te tellen. Leeg: een geofence met de naam Home of Thuis.", "Um das Laden zu Hause zu zählen. Leer: ein Geofence namens Home oder Zuhause.", "Pour compter la recharge à domicile. Vide : un geofence nommé Home ou Maison."),
-        },
-    },
-    "ai": {
-        "title": t("AI summary", "AI-samenvatting", "KI-Zusammenfassung", "Résumé IA"),
-        "description": t("Optional: a short written summary at the start of each report, by your own AI Task entity. Only the report's figures are sent.", "Optioneel: een korte geschreven samenvatting aan het begin van elk rapport, door je eigen AI Task-entiteit. Alleen de cijfers uit het rapport worden verstuurd.", "Optional: eine kurze Zusammenfassung am Anfang jedes Berichts durch Ihre eigene KI-Aufgaben-Entität. Nur die Zahlen des Berichts werden gesendet.", "Facultatif : un court résumé au début de chaque rapport, par votre propre entité AI Task. Seuls les chiffres du rapport sont envoyés."),
-        "data": {
-            "ai_task_entity": t("AI Task entity", "AI Task-entiteit", "KI-Aufgaben-Entität", "Entité AI Task"),
-            "ai_instructions": t("Extra instructions", "Extra instructies", "Zusätzliche Anweisungen", "Instructions supplémentaires"),
-        },
-        "data_description": {
-            "ai_instructions": t("Optional, e.g. the tone of voice or who lives in the house.", "Optioneel, bijvoorbeeld de toon of wie er in huis wonen.", "Optional, z. B. Tonfall oder wer im Haus wohnt.", "Facultatif, par ex. le ton ou qui habite la maison."),
-        },
-    },
-    "tile_add": {
-        "title": t("Add your own figure", "Eigen cijfer toevoegen", "Eigene Kennzahl hinzufügen", "Ajouter un chiffre"),
-        "description": t("Shown on a 'Your figures' slide, compared with earlier months.", "Verschijnt op een dia 'Eigen cijfers', vergeleken met eerdere maanden.", "Erscheint auf einer Folie 'Eigene Kennzahlen', verglichen mit früheren Monaten.", "Affiché sur une diapositive « Vos chiffres », comparé aux mois précédents."),
-        "data": {
-            "name": t("Name", "Naam", "Name", "Nom"),
-            "statistic": t("Statistic", "Statistiek", "Statistik", "Statistique"),
-            "type": t("Calculation", "Berekening", "Berechnung", "Calcul"),
-            "threshold": t("Threshold (for hours above)", "Drempel (voor uren boven)", "Schwelle (für Stunden über)", "Seuil (pour heures au-dessus)"),
-            "unit": t("Unit", "Eenheid", "Einheit", "Unité"),
-            "decimals": t("Decimals", "Decimalen", "Nachkommastellen", "Décimales"),
-        },
-    },
-    "tile_remove": {
-        "title": t("Remove your own figures", "Eigen cijfers verwijderen", "Eigene Kennzahlen entfernen", "Supprimer des chiffres"),
-        "data": {"tiles": t("Figures to remove", "Te verwijderen cijfers", "Zu entfernende Kennzahlen", "Chiffres à supprimer")},
-    },
-}
+STEPS = {'init': {'title': {'en': 'Home in Review options',
+                    'nl': 'Opties Home in Review',
+                    'de': 'Home in Review Optionen',
+                    'fr': 'Options Home in Review'},
+          'menu_options': {'settings': {'en': 'Settings',
+                                        'nl': 'Instellingen',
+                                        'de': 'Einstellungen',
+                                        'fr': 'Paramètres'},
+                           'tile_add': {'en': 'Add your own figure',
+                                        'nl': 'Eigen cijfer toevoegen',
+                                        'de': 'Eigene Kennzahl hinzufügen',
+                                        'fr': 'Ajouter un chiffre'},
+                           'tile_remove': {'en': 'Remove your own figures',
+                                           'nl': 'Eigen cijfers verwijderen',
+                                           'de': 'Eigene Kennzahlen entfernen',
+                                           'fr': 'Supprimer des chiffres'}}},
+ 'settings': {'title': {'en': 'Home in Review options',
+                        'nl': 'Opties Home in Review',
+                        'de': 'Home in Review Optionen',
+                        'fr': 'Options Home in Review'},
+              'description': {'en': 'Open a section to change it. Saving closes this window.',
+                              'nl': 'Klap een onderdeel open om het te wijzigen. Opslaan sluit dit venster.',
+                              'de': 'Öffnen Sie einen Abschnitt, um ihn zu ändern. Speichern schließt dieses '
+                                    'Fenster.',
+                              'fr': 'Ouvrez une section pour la modifier. Enregistrer ferme cette fenêtre.'},
+              'sections': {'general': {'name': {'en': 'Schedule and notifications',
+                                                'nl': 'Planning en meldingen',
+                                                'de': 'Zeitplan und Benachrichtigungen',
+                                                'fr': 'Planification et notifications'},
+                                       'data': {'notify_services': {'en': 'Notify when a report is ready',
+                                                                    'nl': 'Melding sturen als een rapport klaar is',
+                                                                    'de': 'Benachrichtigen, wenn ein Bericht fertig '
+                                                                          'ist',
+                                                                    'fr': 'Notifier quand un rapport est prêt'},
+                                                'report_day': {'en': 'Day of the month',
+                                                               'nl': 'Dag van de maand',
+                                                               'de': 'Tag des Monats',
+                                                               'fr': 'Jour du mois'},
+                                                'report_time': {'en': 'Time',
+                                                                'nl': 'Tijd',
+                                                                'de': 'Uhrzeit',
+                                                                'fr': 'Heure'},
+                                                'year_start_month': {'en': 'Year review starts in',
+                                                                     'nl': 'Jaaroverzicht begint in',
+                                                                     'de': 'Jahresrückblick beginnt im',
+                                                                     'fr': 'Le bilan annuel commence en'}},
+                                       'data_description': {'notify_services': {'en': 'The notification opens the '
+                                                                                      'report.',
+                                                                                'nl': 'De melding opent het rapport.',
+                                                                                'de': 'Die Benachrichtigung öffnet '
+                                                                                      'den Bericht.',
+                                                                                'fr': 'La notification ouvre le '
+                                                                                      'rapport.'},
+                                                            'report_day': {'en': "Last month's report is made on "
+                                                                                 'this day.',
+                                                                           'nl': 'Op deze dag wordt het rapport over '
+                                                                                 'de vorige maand gemaakt.',
+                                                                           'de': 'An diesem Tag wird der Bericht des '
+                                                                                 'Vormonats erstellt.',
+                                                                           'fr': 'Le rapport du mois précédent est '
+                                                                                 'créé ce jour-là.'},
+                                                            'year_start_month': {'en': 'January for a calendar year; '
+                                                                                       'for example July for a '
+                                                                                       'heating season or the month '
+                                                                                       'your energy contract starts.',
+                                                                                 'nl': 'Januari voor een '
+                                                                                       'kalenderjaar; bijvoorbeeld '
+                                                                                       'juli voor een stookseizoen '
+                                                                                       'of de maand waarin je '
+                                                                                       'energiecontract begint.',
+                                                                                 'de': 'Januar für ein Kalenderjahr; '
+                                                                                       'zum Beispiel Juli für eine '
+                                                                                       'Heizperiode oder den Beginn '
+                                                                                       'Ihres Energievertrags.',
+                                                                                 'fr': 'Janvier pour une année '
+                                                                                       'civile ; par exemple juillet '
+                                                                                       'pour une saison de chauffe '
+                                                                                       'ou le début de votre '
+                                                                                       'contrat.'}}},
+                           'energy': {'name': {'en': 'Energy, costs and heat pump',
+                                               'nl': 'Energie, kosten en warmtepomp',
+                                               'de': 'Energie, Kosten und Wärmepumpe',
+                                               'fr': 'Énergie, coûts et pompe à chaleur'},
+                                      'data': {'fixed_costs_daily': {'en': 'Fixed energy costs per day',
+                                                                     'nl': 'Vaste energiekosten per dag',
+                                                                     'de': 'Fixe Energiekosten pro Tag',
+                                                                     'fr': 'Coûts fixes par jour'},
+                                               'fixed_costs_monthly': {'en': 'Fixed energy costs per month',
+                                                                       'nl': 'Vaste energiekosten per maand',
+                                                                       'de': 'Fixe Energiekosten pro Monat',
+                                                                       'fr': 'Coûts fixes par mois'},
+                                               'max_hourly_kwh': {'en': 'Largest plausible grid use per hour',
+                                                                  'nl': 'Grootst mogelijke netafname per uur',
+                                                                  'de': 'Größter plausibler Netzbezug pro Stunde',
+                                                                  'fr': 'Consommation horaire maximale plausible'},
+                                               'heat_pump_devices': {'en': 'Heat pump electricity',
+                                                                     'nl': 'Stroom van de warmtepomp',
+                                                                     'de': 'Strom der Wärmepumpe',
+                                                                     'fr': 'Électricité de la pompe à chaleur'},
+                                               'heat_pump_heat_sensor': {'en': 'Heat delivered by the heat pump',
+                                                                         'nl': 'Door de warmtepomp geleverde warmte',
+                                                                         'de': 'Von der Wärmepumpe gelieferte Wärme',
+                                                                         'fr': 'Chaleur fournie par la pompe à '
+                                                                               'chaleur'}},
+                                      'data_description': {'fixed_costs_daily': {'en': 'Optional, including tax: '
+                                                                                       'standing charges and grid '
+                                                                                       'fees.',
+                                                                                 'nl': 'Optioneel, inclusief btw: '
+                                                                                       'vaste leveringskosten en '
+                                                                                       'netbeheer.',
+                                                                                 'de': 'Optional, inkl. Steuern: '
+                                                                                       'Grundgebühr und '
+                                                                                       'Netzentgelte.',
+                                                                                 'fr': 'Facultatif, TTC : abonnement '
+                                                                                       'et frais de réseau.'},
+                                                           'fixed_costs_monthly': {'en': 'Optional, including tax. '
+                                                                                         'Use a negative amount for '
+                                                                                         'a fixed tax credit.',
+                                                                                   'nl': 'Optioneel, inclusief btw. '
+                                                                                         'Gebruik een negatief '
+                                                                                         'bedrag voor een vaste '
+                                                                                         'belastingkorting.',
+                                                                                   'de': 'Optional, inkl. Steuern. '
+                                                                                         'Negativ für eine feste '
+                                                                                         'Steuergutschrift.',
+                                                                                   'fr': 'Facultatif, TTC. Montant '
+                                                                                         'négatif pour un crédit '
+                                                                                         "d'impôt fixe."},
+                                                           'max_hourly_kwh': {'en': 'Meter jumps above this per hour '
+                                                                                    'are treated as glitches. '
+                                                                                    'Roughly your connection: 3 × 25 '
+                                                                                    'A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, '
+                                                                                    '1 × 40 A ≈ 9 kWh.',
+                                                                              'nl': 'Sprongen in de meterstand boven '
+                                                                                    'deze waarde per uur gelden als '
+                                                                                    'storing. Ongeveer je '
+                                                                                    'aansluiting: 3 × 25 A ≈ 17 kWh, '
+                                                                                    '3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 '
+                                                                                    'kWh.',
+                                                                              'de': 'Zählersprünge darüber gelten '
+                                                                                    'als Störung. Etwa Ihr '
+                                                                                    'Anschluss: 3 × 25 A ≈ 17 kWh, 3 '
+                                                                                    '× 35 A ≈ 24 kWh.',
+                                                                              'fr': 'Les sauts au-delà sont '
+                                                                                    'considérés comme des erreurs. '
+                                                                                    'Environ votre raccordement : 3 '
+                                                                                    '× 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 '
+                                                                                    'kWh.'},
+                                                           'heat_pump_devices': {'en': 'Any brand: one or more '
+                                                                                       'energy sensors (the heat '
+                                                                                       "pump's own integration, a "
+                                                                                       'kWh meter or smart plug, '
+                                                                                       'e.g. compressor and backup '
+                                                                                       'heater). Adds a heat pump '
+                                                                                       'slide with electricity per '
+                                                                                       'degree day.',
+                                                                                 'nl': 'Elk merk: een of meer '
+                                                                                       'energiesensoren (de eigen '
+                                                                                       'integratie van de '
+                                                                                       'warmtepomp, een kWh-meter of '
+                                                                                       'slimme stekker, bijv. '
+                                                                                       'compressor en backupheater). '
+                                                                                       'Voegt een warmtepompdia toe '
+                                                                                       'met stroom per graaddag.',
+                                                                                 'de': 'Jede Marke: ein oder mehrere '
+                                                                                       'Energiesensoren (Integration '
+                                                                                       'der Wärmepumpe, Zähler oder '
+                                                                                       'Steckdose, z. B. Verdichter '
+                                                                                       'und Heizstab). Fügt eine '
+                                                                                       'Wärmepumpen-Folie hinzu.',
+                                                                                 'fr': 'Toute marque : un ou '
+                                                                                       "plusieurs capteurs d'énergie "
+                                                                                       '(intégration de la pompe, '
+                                                                                       'compteur ou prise, p. ex. '
+                                                                                       'compresseur et appoint). '
+                                                                                       'Ajoute une diapositive pompe '
+                                                                                       'à chaleur.'},
+                                                           'heat_pump_heat_sensor': {'en': 'Optional: energy sensors '
+                                                                                           'for heat delivered (many '
+                                                                                           'brands report heating '
+                                                                                           'and hot water '
+                                                                                           'separately; choose '
+                                                                                           'both). Adds the COP.',
+                                                                                     'nl': 'Optioneel: '
+                                                                                           'energiesensoren voor de '
+                                                                                           'geleverde warmte (veel '
+                                                                                           'merken melden verwarming '
+                                                                                           'en tapwater apart; kies '
+                                                                                           'dan beide). Voegt de COP '
+                                                                                           'toe.',
+                                                                                     'de': 'Optional: '
+                                                                                           'Energiesensoren für die '
+                                                                                           'gelieferte Wärme (oft '
+                                                                                           'getrennt für Heizung und '
+                                                                                           'Warmwasser; beide '
+                                                                                           'wählen). Ergänzt den '
+                                                                                           'COP.',
+                                                                                     'fr': 'Facultatif : capteurs de '
+                                                                                           'chaleur fournie (souvent '
+                                                                                           'chauffage et eau chaude '
+                                                                                           'séparés ; choisissez les '
+                                                                                           'deux). Ajoute le COP.'}}},
+                           'climate': {'name': {'en': 'Indoor climate and weather',
+                                                'nl': 'Binnenklimaat en weer',
+                                                'de': 'Raumklima und Wetter',
+                                                'fr': 'Climat intérieur et météo'},
+                                       'data': {'excluded_areas': {'en': 'Areas that are not indoors',
+                                                                   'nl': 'Ruimtes die niet binnen zijn',
+                                                                   'de': 'Bereiche, die nicht drinnen sind',
+                                                                   'fr': "Pièces qui ne sont pas à l'intérieur"},
+                                                'outdoor_sensor': {'en': 'Outdoor temperature sensor',
+                                                                   'nl': 'Buitentemperatuursensor',
+                                                                   'de': 'Außentemperatursensor',
+                                                                   'fr': 'Capteur de température extérieure'},
+                                                'use_open_meteo': {'en': 'Use Open-Meteo for weather',
+                                                                   'nl': 'Open-Meteo gebruiken voor het weer',
+                                                                   'de': 'Open-Meteo für das Wetter nutzen',
+                                                                   'fr': 'Utiliser Open-Meteo pour la météo'}},
+                                       'data_description': {'excluded_areas': {'en': 'Sensors in these areas are '
+                                                                                     'left out of the indoor '
+                                                                                     'climate. Empty = count '
+                                                                                     'everything.',
+                                                                               'nl': 'Sensoren in deze ruimtes '
+                                                                                     'tellen niet mee voor het '
+                                                                                     'binnenklimaat. Leeg = alles '
+                                                                                     'meetellen.',
+                                                                               'de': 'Sensoren in diesen Bereichen '
+                                                                                     'zählen nicht zum Raumklima. '
+                                                                                     'Leer = alles zählen.',
+                                                                               'fr': 'Les capteurs de ces pièces '
+                                                                                     'sont exclus. Vide = tout '
+                                                                                     'compter.'},
+                                                            'outdoor_sensor': {'en': 'Optional. Any temperature '
+                                                                                     'sensor with history; replaces '
+                                                                                     'the modelled temperature.',
+                                                                               'nl': 'Optioneel. Elke '
+                                                                                     'temperatuursensor met '
+                                                                                     'historie; vervangt de '
+                                                                                     'modeltemperatuur.',
+                                                                               'de': 'Optional. Jeder '
+                                                                                     'Temperatursensor mit Verlauf; '
+                                                                                     'ersetzt die Modelltemperatur.',
+                                                                               'fr': 'Facultatif. Tout capteur avec '
+                                                                                     'historique ; remplace la '
+                                                                                     'température modélisée.'},
+                                                            'use_open_meteo': {'en': 'Free weather archive for your '
+                                                                                     'area (location rounded to ~10 '
+                                                                                     'km). Off: only your own '
+                                                                                     'sensor, without normals, rain '
+                                                                                     'or sunshine.',
+                                                                               'nl': 'Gratis weerarchief voor jouw '
+                                                                                     'omgeving (locatie afgerond op '
+                                                                                     '~10 km). Uit: alleen je eigen '
+                                                                                     'sensor, zonder normalen, '
+                                                                                     'neerslag of zon.',
+                                                                               'de': 'Kostenloses Wetterarchiv für '
+                                                                                     'Ihre Gegend (Standort auf ~10 '
+                                                                                     'km gerundet). Aus: nur Ihr '
+                                                                                     'eigener Sensor.',
+                                                                               'fr': 'Archive météo gratuite pour '
+                                                                                     'votre région (position '
+                                                                                     'arrondie à ~10 km). Désactivé '
+                                                                                     ': seulement votre capteur.'}}},
+                           'car': {'name': {'en': 'Car', 'nl': 'Auto', 'de': 'Auto', 'fr': 'Voiture'},
+                                   'data': {'car_odometers': {'en': 'Odometer (one per car)',
+                                                              'nl': 'Kilometerteller (één per auto)',
+                                                              'de': 'Kilometerzähler (einer pro Auto)',
+                                                              'fr': 'Compteur kilométrique (un par voiture)'},
+                                            'car_chargers': {'en': 'Charger energy',
+                                                             'nl': 'Energie van de laadpaal',
+                                                             'de': 'Energie der Ladestation',
+                                                             'fr': 'Énergie de la borne'},
+                                            'teslamate_grafana_url': {'en': 'Grafana URL',
+                                                                      'nl': 'Grafana-URL',
+                                                                      'de': 'Grafana-URL',
+                                                                      'fr': 'URL de Grafana'},
+                                            'teslamate_grafana_token': {'en': 'Service account token',
+                                                                        'nl': 'Serviceaccount-token',
+                                                                        'de': 'Dienstkonto-Token',
+                                                                        'fr': 'Jeton du compte de service'},
+                                            'teslamate_home_geofence': {'en': 'Name of your home geofence',
+                                                                        'nl': 'Naam van je thuis-geofence',
+                                                                        'de': 'Name Ihres Zuhause-Geofence',
+                                                                        'fr': 'Nom de votre geofence domicile'}},
+                                   'data_description': {'teslamate_home_geofence': {'en': 'Used to count charging at '
+                                                                                          'home. Empty: a geofence '
+                                                                                          'called Home (or its '
+                                                                                          'translation).',
+                                                                                    'nl': 'Om laden thuis te tellen. '
+                                                                                          'Leeg: een geofence met de '
+                                                                                          'naam Home of Thuis.',
+                                                                                    'de': 'Um das Laden zu Hause zu '
+                                                                                          'zählen. Leer: ein '
+                                                                                          'Geofence namens Home oder '
+                                                                                          'Zuhause.',
+                                                                                    'fr': 'Pour compter la recharge '
+                                                                                          'à domicile. Vide : un '
+                                                                                          'geofence nommé Home ou '
+                                                                                          'Maison.'}},
+                                   'description': {'en': "Any car: choose its odometer sensor (from the car's own "
+                                                         'integration) and the energy sensor of your charger. With '
+                                                         'TeslaMate you get more (trips, charging at home and '
+                                                         'elsewhere, Wh/km): fill in its Grafana URL and the token '
+                                                         'of a Grafana service account with the Viewer role.',
+                                                   'nl': 'Elke auto: kies de kilometerteller (uit de integratie van '
+                                                         'je auto) en de energiesensor van je laadpaal. Met '
+                                                         'TeslaMate krijg je meer (ritten, thuis en elders laden, '
+                                                         'Wh/km): vul de URL van de bijbehorende Grafana in en de '
+                                                         'token van een serviceaccount met de rol Viewer.',
+                                                   'de': 'Jedes Auto: wählen Sie den Kilometerzähler (aus der '
+                                                         'Integration Ihres Autos) und den Energiesensor Ihrer '
+                                                         'Ladestation. Mit TeslaMate erhalten Sie mehr: Grafana-URL '
+                                                         'und das Token eines Dienstkontos mit der Rolle Viewer '
+                                                         'eintragen.',
+                                                   'fr': 'Toute voiture : choisissez le compteur kilométrique (de '
+                                                         "l'intégration de la voiture) et le capteur d'énergie de "
+                                                         'votre borne. Avec TeslaMate vous obtenez plus : URL de '
+                                                         "Grafana et jeton d'un compte de service Viewer."}},
+                           'ai': {'name': {'en': 'AI summary',
+                                           'nl': 'AI-samenvatting',
+                                           'de': 'KI-Zusammenfassung',
+                                           'fr': 'Résumé IA'},
+                                  'data': {'ai_task_entity': {'en': 'AI Task entity',
+                                                              'nl': 'AI Task-entiteit',
+                                                              'de': 'KI-Aufgaben-Entität',
+                                                              'fr': 'Entité AI Task'},
+                                           'ai_instructions': {'en': 'Extra instructions',
+                                                               'nl': 'Extra instructies',
+                                                               'de': 'Zusätzliche Anweisungen',
+                                                               'fr': 'Instructions supplémentaires'}},
+                                  'data_description': {'ai_instructions': {'en': 'Optional, e.g. the tone of voice '
+                                                                                 'or who lives in the house.',
+                                                                           'nl': 'Optioneel, bijvoorbeeld de toon of '
+                                                                                 'wie er in huis wonen.',
+                                                                           'de': 'Optional, z. B. Tonfall oder wer '
+                                                                                 'im Haus wohnt.',
+                                                                           'fr': 'Facultatif, par ex. le ton ou qui '
+                                                                                 'habite la maison.'}},
+                                  'description': {'en': 'Optional: a short written summary at the start of each '
+                                                        "report, by your own AI Task entity. Only the report's "
+                                                        'figures are sent.',
+                                                  'nl': 'Optioneel: een korte geschreven samenvatting aan het begin '
+                                                        'van elk rapport, door je eigen AI Task-entiteit. Alleen de '
+                                                        'cijfers uit het rapport worden verstuurd.',
+                                                  'de': 'Optional: eine kurze Zusammenfassung am Anfang jedes '
+                                                        'Berichts durch Ihre eigene KI-Aufgaben-Entität. Nur die '
+                                                        'Zahlen des Berichts werden gesendet.',
+                                                  'fr': 'Facultatif : un court résumé au début de chaque rapport, '
+                                                        'par votre propre entité AI Task. Seuls les chiffres du '
+                                                        'rapport sont envoyés.'}}}},
+ 'tile_add': {'title': {'en': 'Add your own figure',
+                        'nl': 'Eigen cijfer toevoegen',
+                        'de': 'Eigene Kennzahl hinzufügen',
+                        'fr': 'Ajouter un chiffre'},
+              'description': {'en': "Shown on a 'Your figures' slide, compared with earlier months.",
+                              'nl': "Verschijnt op een dia 'Eigen cijfers', vergeleken met eerdere maanden.",
+                              'de': "Erscheint auf einer Folie 'Eigene Kennzahlen', verglichen mit früheren Monaten.",
+                              'fr': 'Affiché sur une diapositive « Vos chiffres », comparé aux mois précédents.'},
+              'data': {'name': {'en': 'Name', 'nl': 'Naam', 'de': 'Name', 'fr': 'Nom'},
+                       'statistic': {'en': 'Statistic', 'nl': 'Statistiek', 'de': 'Statistik', 'fr': 'Statistique'},
+                       'type': {'en': 'Calculation', 'nl': 'Berekening', 'de': 'Berechnung', 'fr': 'Calcul'},
+                       'threshold': {'en': 'Threshold (for hours above)',
+                                     'nl': 'Drempel (voor uren boven)',
+                                     'de': 'Schwelle (für Stunden über)',
+                                     'fr': 'Seuil (pour heures au-dessus)'},
+                       'unit': {'en': 'Unit', 'nl': 'Eenheid', 'de': 'Einheit', 'fr': 'Unité'},
+                       'decimals': {'en': 'Decimals',
+                                    'nl': 'Decimalen',
+                                    'de': 'Nachkommastellen',
+                                    'fr': 'Décimales'}}},
+ 'tile_remove': {'title': {'en': 'Remove your own figures',
+                           'nl': 'Eigen cijfers verwijderen',
+                           'de': 'Eigene Kennzahlen entfernen',
+                           'fr': 'Supprimer des chiffres'},
+                 'data': {'tiles': {'en': 'Figures to remove',
+                                    'nl': 'Te verwijderen cijfers',
+                                    'de': 'Zu entfernende Kennzahlen',
+                                    'fr': 'Chiffres à supprimer'}}}}
 
 CONFIG = {
     "abort": {"single_instance_allowed": t("Home in Review is already set up.", "Home in Review is al ingesteld.", "Home in Review ist bereits eingerichtet.", "Home in Review est déjà configuré.")},
