@@ -239,48 +239,90 @@ async def evcc(col, doc: dict, start: dt.datetime, end: dt.datetime) -> None:
 
 
 # ============================================================================ custom tiles
-TILE_TYPES = ("sum", "mean", "max", "min", "hours_above", "days_above")
-MEAN_TYPES = {"mean": "mean", "hours_above": "mean", "days_above": "mean", "max": "max", "min": "min"}
+TILE_TYPES = ("sum", "mean", "max", "min", "hours_above", "days_above", "runs_above")
+MEAN_TYPES = {"mean": "mean", "hours_above": "mean", "days_above": "mean", "runs_above": "mean", "max": "max", "min": "min"}
+RUN_GAP_H = 2  # hours below the threshold that still belong to the same run (a pause in a programme)
+
+
+def count_runs(active: list[int], run_hours: float | None) -> list[int]:
+    """Start hours of runs: blocks of active hours, merging pauses of up to RUN_GAP_H hours. With ``run_hours`` (the
+    typical length of one run) a long block counts as several runs, e.g. two dishwasher programmes back to back."""
+    blocks: list[list[int]] = []
+    for h in sorted(active):
+        if blocks and h - blocks[-1][-1] <= (RUN_GAP_H + 1) * 3600:
+            blocks[-1].append(h)
+        else:
+            blocks.append([h])
+    starts = []
+    for b in blocks:
+        n = max(1, round(((b[-1] - b[0]) / 3600 + 1) / run_hours)) if run_hours else 1
+        starts += [b[0]] * n
+    return starts
 
 
 async def custom_tiles(col, doc: dict, start, end, hours) -> None:
-    """User-defined figures from any statistic: total increase, average, extremes, or the hours / days in which
-    the hourly average was above a threshold (e.g. days the wood stove burned)."""
+    """User-defined figures from any statistic: total increase, average, extremes, the hours or days in which the
+    hourly average was above a threshold, or the number of runs (e.g. dishwasher programmes from its power).
+    Each figure also gets a value per day of the month for the report's day strip."""
     from zoneinfo import ZoneInfo
 
-    from .collector import hourly_deltas, total
+    from .collector import hourly_deltas
 
     tiles = col.opt.get("custom_tiles") or []
     if not tiles:
         return
     tz = ZoneInfo(doc["period"]["time_zone"])
+    days = [(start + dt.timedelta(days=i)).date() for i in range((end.date() - start.date()).days)]
+    index = {d: i for i, d in enumerate(days)}
+    day_of = lambda ts: index.get(dt.datetime.fromtimestamp(ts, tz).date())  # noqa: E731
     sums = await col._sums({t["statistic"] for t in tiles if t.get("type") == "sum"}, start, end, {})
     mean_ids = {t["statistic"] for t in tiles if t.get("statistic") and t.get("type") != "sum"}
     means = await col.src.statistics(mean_ids, start, end, "hour", {}, {"mean", "min", "max"}) if mean_ids else {}
     out = []
     for t in tiles:
         sid, typ = t.get("statistic"), t.get("type", "sum")
-        value = None
+        thr = float(t.get("threshold") or 0)
+        value, daily = None, None
         if typ == "sum" and sums.get(sid):
-            value = total(hourly_deltas(sums[sid], hours, None)[0], hours)
+            per_hour = hourly_deltas(sums[sid], hours, None)[0]
+            daily = [0.0] * len(days)
+            for h, v in per_hour.items():
+                if (i := day_of(h)) is not None:
+                    daily[i] += v
+            value = sum(daily)
         elif typ != "sum":
             col_name = MEAN_TYPES.get(typ, "mean")
             rows = [r for r in (means.get(sid) or []) if r.get(col_name) is not None]
-            vals = [r[col_name] for r in rows]
-            thr = float(t.get("threshold") or 0)
-            if vals:
+            if rows:
+                buckets: list[list[float]] = [[] for _ in days]
+                for r in rows:
+                    if (i := day_of(r["start"])) is not None:
+                        buckets[i].append(r[col_name])
+                vals = [r[col_name] for r in rows]
                 if typ == "mean":
                     value = sum(vals) / len(vals)
+                    daily = [sum(b) / len(b) if b else None for b in buckets]
                 elif typ == "max":
                     value = max(vals)
+                    daily = [max(b) if b else None for b in buckets]
                 elif typ == "min":
                     value = min(vals)
+                    daily = [min(b) if b else None for b in buckets]
                 elif typ == "hours_above":
-                    value = float(sum(1 for v in vals if v > thr))
+                    daily = [float(sum(1 for v in b if v > thr)) for b in buckets]
+                    value = sum(daily)
                 elif typ == "days_above":
-                    value = float(len({dt.datetime.fromtimestamp(r["start"], tz).date() for r in rows if r[col_name] > thr}))
-        unit = {"hours_above": "h", "days_above": "days"}.get(typ, t.get("unit") or "")
-        out.append({"name": t.get("name") or sid, "statistic": sid, "type": typ, "value": value,
+                    daily = [1.0 if any(v > thr for v in b) else 0.0 for b in buckets]
+                    value = sum(daily)
+                elif typ == "runs_above":
+                    starts = count_runs([int(r["start"]) for r in rows if r[col_name] > thr], t.get("run_hours"))
+                    daily = [0.0] * len(days)
+                    for h in starts:
+                        if (i := day_of(h)) is not None:
+                            daily[i] += 1
+                    value = float(len(starts))
+        unit = {"hours_above": "h", "days_above": "days", "runs_above": "runs"}.get(typ, t.get("unit") or "")
+        out.append({"name": t.get("name") or sid, "statistic": sid, "type": typ, "value": value, "daily": daily,
                     "unit": unit, "decimals": int(t.get("decimals", 0))})
     if any(x["value"] is not None for x in out):
         doc["custom"] = out

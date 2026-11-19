@@ -146,4 +146,15 @@ IT = {
     "Also re-make months that already have a report (after an update or a change in options).": "Rigenera anche i mesi che hanno già un resoconto (dopo un aggiornamento o una modifica delle opzioni).",
 }
 
+ES.update({
+    "Runs (from power above threshold)": "Ciclos (potencia por encima del umbral)",
+    "Typical length of one run": "Duración típica de un ciclo",
+    "For runs only, optional: a longer block counts as several runs (e.g. 3 h for a dishwasher). Runs are counted from the hourly average power; pauses of up to 2 hours belong to the same run.": "Solo para ciclos, opcional: un bloque más largo cuenta como varios ciclos (p. ej. 3 h para un lavavajillas). Los ciclos se cuentan a partir de la potencia media horaria; las pausas de hasta 2 horas forman parte del mismo ciclo.",
+})
+IT.update({
+    "Runs (from power above threshold)": "Cicli (potenza sopra la soglia)",
+    "Typical length of one run": "Durata tipica di un ciclo",
+    "For runs only, optional: a longer block counts as several runs (e.g. 3 h for a dishwasher). Runs are counted from the hourly average power; pauses of up to 2 hours belong to the same run.": "Solo per i cicli, facoltativo: un blocco più lungo conta come più cicli (ad es. 3 h per una lavastoviglie). I cicli sono contati dalla potenza media oraria; le pause fino a 2 ore fanno parte dello stesso ciclo.",
+})
+
 EXTRA = {"es": ES, "it": IT}

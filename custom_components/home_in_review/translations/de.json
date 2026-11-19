@@ -114,7 +114,11 @@
           "type": "Berechnung",
           "threshold": "Schwelle (für Stunden oder Tage über)",
           "unit": "Einheit",
-          "decimals": "Nachkommastellen"
+          "decimals": "Nachkommastellen",
+          "run_hours": "Typische Dauer eines Durchgangs"
+        },
+        "data_description": {
+          "run_hours": "Nur für Durchgänge, optional: ein längerer Block zählt als mehrere Durchgänge (z. B. 3 h für einen Geschirrspüler). Gezählt wird aus der stündlichen Durchschnittsleistung; Pausen bis 2 Stunden gehören zum selben Durchgang."
         }
       },
       "tile_remove": {
@@ -152,7 +156,8 @@
         "max": "Höchstwert",
         "min": "Tiefstwert",
         "hours_above": "Stunden über Schwelle",
-        "days_above": "Tage über Schwelle"
+        "days_above": "Tage über Schwelle",
+        "runs_above": "Durchgänge (Leistung über Schwelle)"
       }
     }
   },

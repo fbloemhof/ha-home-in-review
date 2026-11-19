@@ -26,6 +26,7 @@ TILE = {
     "min": t("Lowest", "Laagste", "Tiefstwert", "Minimum"),
     "hours_above": t("Hours above threshold", "Uren boven drempel", "Stunden über Schwelle", "Heures au-dessus du seuil"),
     "days_above": t("Days above threshold", "Dagen boven drempel", "Tage über Schwelle", "Jours au-dessus du seuil"),
+    "runs_above": t("Runs (from power above threshold)", "Beurten (vermogen boven drempel)", "Durchgänge (Leistung über Schwelle)", "Cycles (puissance au-dessus du seuil)"),
 }
 
 STEPS = {'init': {'title': {'en': 'Home in Review options',
@@ -472,6 +473,15 @@ _cl["data_description"]["use_open_meteo"] = t(
     "Gratis weerarchief voor jouw omgeving (locatie afgerond op ~10 km). Uit: alleen je eigen sensoren, zonder normalen of zon.",
     "Kostenloses Wetterarchiv für Ihre Gegend (Standort auf ~10 km gerundet). Aus: nur Ihre eigenen Sensoren, ohne Normalwerte und Sonne.",
     "Archive météo gratuite pour votre région (position arrondie à ~10 km). Désactivé : seulement vos capteurs, sans normales ni soleil.")
+
+
+_tile = STEPS["tile_add"]
+_tile["data"]["run_hours"] = t("Typical length of one run", "Typische duur van één beurt", "Typische Dauer eines Durchgangs", "Durée typique d'un cycle")
+_tile.setdefault("data_description", {})["run_hours"] = t(
+    "For runs only, optional: a longer block counts as several runs (e.g. 3 h for a dishwasher). Runs are counted from the hourly average power; pauses of up to 2 hours belong to the same run.",
+    "Alleen voor beurten, optioneel: een langer blok telt als meerdere beurten (bijv. 3 uur voor een vaatwasser). Beurten worden geteld uit het uurgemiddelde vermogen; pauzes tot 2 uur horen bij dezelfde beurt.",
+    "Nur für Durchgänge, optional: ein längerer Block zählt als mehrere Durchgänge (z. B. 3 h für einen Geschirrspüler). Gezählt wird aus der stündlichen Durchschnittsleistung; Pausen bis 2 Stunden gehören zum selben Durchgang.",
+    "Pour les cycles uniquement, facultatif : un bloc plus long compte comme plusieurs cycles (p. ex. 3 h pour un lave-vaisselle). Les cycles sont comptés à partir de la puissance moyenne horaire ; les pauses jusqu'à 2 heures font partie du même cycle.")
 
 
 def _strings(node):

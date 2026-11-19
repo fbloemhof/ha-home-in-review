@@ -7,7 +7,10 @@
 - Car: [evcc](https://evcc.io) as a source: charging sessions, energy, cost and solar share per vehicle (kilometres
   from the odometer sensors when evcc doesn't know them).
 - Weather: a rain gauge of your own can replace the modelled rainfall.
-- Your own figures: "days above a threshold", e.g. the days the wood stove burned.
+- Your own figures: "days above a threshold" (e.g. the days the wood stove burned) and "runs" counted from a
+  device's power (e.g. dishwasher, washing machine and dryer programmes, also for months before you had counters).
+- The "Your figures" slide shows each figure as a card with the comparison, a bar per day and a 13-month trend;
+  the headline names the figure that changed most.
 - Spanish and Italian, for the report and the settings.
 - Amounts follow the language's convention (`€ 12` in Dutch, `12 €` in German, French, Spanish and Italian).
 

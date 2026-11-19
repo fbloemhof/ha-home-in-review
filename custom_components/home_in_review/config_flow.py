@@ -212,6 +212,8 @@ class HomeInReviewOptionsFlow(OptionsFlow):
                     "unit": user_input.get("unit") or "", "decimals": int(user_input.get("decimals", 0))}
             if user_input.get("threshold") is not None:
                 tile["threshold"] = float(user_input["threshold"])
+            if user_input.get("run_hours"):
+                tile["run_hours"] = float(user_input["run_hours"])
             o = dict(self.config_entry.options)
             o[CONF_TILES] = [*o.get(CONF_TILES, []), tile]
             return self.async_create_entry(data=o)
@@ -222,6 +224,8 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             vol.Required("type", default="sum"): selector.SelectSelector(
                 selector.SelectSelectorConfig(options=list(TILE_TYPES), translation_key="tile_type")),
             vol.Optional("threshold"): selector.NumberSelector(selector.NumberSelectorConfig(step="any", mode=BOX)),
+            vol.Optional("run_hours"): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0.5, max=24, step=0.5, mode=BOX, unit_of_measurement="h")),
             vol.Optional("unit"): selector.TextSelector(),
             vol.Optional("decimals", default=0): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=0, max=3, step=1, mode=BOX)),

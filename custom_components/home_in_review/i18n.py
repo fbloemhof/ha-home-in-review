@@ -1079,6 +1079,18 @@ TEXTS["it"] = {'months': ['gennaio',
  'car_note_evcc': 'Sessioni di ricarica da evcc. Costo e quota solare come calcolati da evcc; per 100 km conta solo '
                   'queste sessioni.'}
 
+# Own figures, richer slide (0.3)
+_more = {
+    "en": ("<em>{name}</em> was <em>{pct} higher</em> than {ref}.", "<em>{name}</em> was <em>{pct} lower</em> than {ref}.", "runs", "per month"),
+    "nl": ("<em>{name}</em> was <em>{pct} hoger</em> dan {ref}.", "<em>{name}</em> was <em>{pct} lager</em> dan {ref}.", "beurten", "per maand"),
+    "de": ("<em>{name}</em> lag <em>{pct} höher</em> als {ref}.", "<em>{name}</em> lag <em>{pct} niedriger</em> als {ref}.", "Durchgänge", "pro Monat"),
+    "fr": ("<em>{name}</em> était <em>{pct} plus élevé</em> que {ref}.", "<em>{name}</em> était <em>{pct} plus bas</em> que {ref}.", "cycles", "par mois"),
+    "es": ("<em>{name}</em> fue un <em>{pct} más alto</em> que {ref}.", "<em>{name}</em> fue un <em>{pct} más bajo</em> que {ref}.", "ciclos", "por mes"),
+    "it": ("<em>{name}</em> è stato <em>{pct} più alto</em> rispetto a {ref}.", "<em>{name}</em> è stato <em>{pct} più basso</em> rispetto a {ref}.", "cicli", "al mese"),
+}
+for _l, (_up, _down, _runs, _pm) in _more.items():
+    TEXTS[_l].update({"h_custom_more": _up, "h_custom_less": _down, "unit_runs": _runs, "per_month_short": _pm})
+
 CURRENCY_SYMBOLS = {"EUR": "€", "USD": "$", "GBP": "£", "JPY": "¥", "CHF": "CHF", "SEK": "kr", "NOK": "kr", "DKK": "kr",
                     "AUD": "A$", "CAD": "C$", "NZD": "NZ$", "PLN": "zł", "CZK": "Kč", "INR": "₹"}
 

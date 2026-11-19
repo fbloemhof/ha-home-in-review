@@ -177,6 +177,15 @@ td .sm{color:var(--mut);font-size:12.5px;margin-left:6px}
 .story{max-width:40em}
 .story p{font-family:var(--serif);font-size:clamp(17px,1.45vw,20px);line-height:1.5;margin:0 0 .8em;color:var(--ink2)}
 .story p:first-child{font-size:clamp(21px,2vw,27px);line-height:1.38;color:var(--ink)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px 32px}
+.card{border-top:2px solid var(--ink);padding-top:12px;display:grid;gap:8px;align-content:start}
+.card .cl{font-size:13px;color:var(--mut);letter-spacing:.02em}
+.card .cv{font-family:var(--serif);font-size:clamp(30px,3.4vw,44px);font-weight:500;letter-spacing:-.02em;line-height:1.05}
+.card .cv small{font-family:var(--sans);font-size:14px;font-weight:500;color:var(--ink2);margin-left:6px;letter-spacing:0}
+.card .cmp{font-size:13px;margin:0;min-height:1.2em}
+.card .trend{max-width:none}
+.card .trend .cap{display:none}
+svg.days{margin-top:2px}
 ul.src{margin:0;padding-left:1.1em;color:var(--ink2);font-size:14.5px}
 #tip{position:fixed;pointer-events:none;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:8px;
   padding:6px 10px;font-size:13px;box-shadow:0 6px 24px rgba(0,0,0,.12);opacity:0;transition:opacity .1s;z-index:9;max-width:280px}
@@ -359,6 +368,28 @@ def hour_profile(L: Lang, w: list[float | None], W=1000, H=240) -> str:
         out.append(f'<rect class="hit" x="{x:.1f}" y="0" width="{bw:.1f}" height="{H}" data-tip="{i:02d}:00–{(i + 1) % 24:02d}:00 · {L.num(v)} W"/>')
         if i % 3 == 0:
             out.append(f'<text x="{x + bw / 2:.1f}" y="{H - 6}" class="ax" text-anchor="middle">{i:02d}</text>')
+    out.append("</svg>")
+    return "".join(out)
+
+
+def day_bars(L: Lang, period: dict, daily: list | None, fmt, W=420, H=64) -> str:
+    """A small bar per day of the month (weekends slightly lighter)."""
+    if not daily or not any(v for v in daily if v):
+        return ""
+    vals = [v or 0 for v in daily]
+    hi = max(vals) or 1
+    bw = W / len(vals)
+    first = dt.date(period["year"], period["month"], 1)
+    out = [f'<svg class="days" viewBox="0 0 {W} {H + 14}" role="img">']
+    for i, v in enumerate(vals):
+        day = first + dt.timedelta(days=i)
+        h = max(v / hi * H, 1.2 if v else 0)
+        op = ".55" if day.weekday() >= 5 else "1"
+        if h:
+            out.append(f'<rect x="{i * bw + bw * .15:.1f}" y="{H - h:.1f}" width="{bw * .7:.1f}" height="{h:.1f}" rx="2" fill="var(--s1)" opacity="{op}"/>')
+        out.append(f'<rect class="hit" x="{i * bw:.1f}" y="0" width="{bw:.1f}" height="{H + 14}" data-tip="{day.day} {esc(L.month_short(day.month))}: {esc(fmt(daily[i]) if daily[i] is not None else L("no_data"))}"/>')
+        if day.day in (1, 15) or i == len(vals) - 1:
+            out.append(f'<text x="{i * bw + bw / 2:.1f}" y="{H + 12}" class="ax" text-anchor="middle">{day.day}</text>')
     out.append("</svg>")
     return "".join(out)
 
@@ -877,19 +908,39 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
 <div><div class="stats">{"".join(stats)}</div><div style="margin-top:28px">{tr}</div></div></div>''')
 
     # ---------------------------------------------------------------- custom tiles (optional)
-    if d.get("custom"):
-        stats = []
-        for i, t in enumerate(d["custom"]):
-            if t["value"] is None:
-                continue
-            unit = L("unit_days") if t["type"] == "days_above" else t["unit"]
-            unit = f" {unit}" if unit else ""
-            stats.append(P.stat(t["name"], f'{L.num(t["value"], t["decimals"])}{unit}', t["value"],
-                                _get(lambda x, i=i, sid=t["statistic"], typ=t["type"]: next(
-                                    (c["value"] for c in x["custom"] if c["statistic"] == sid and c["type"] == typ), None)),
-                                lambda v, n=t["decimals"]: L.num(v, n)))
+    tiles = [t for t in d.get("custom") or [] if t["value"] is not None]
+    if tiles:
+        cards, best = [], None
+        for t in tiles:
+            nd = t["decimals"]
+            unit = {"days_above": L("unit_days"), "runs_above": L("unit_runs")}.get(t["type"], t["unit"])
+            fmt = lambda v, nd=nd, unit=unit: f"{L.num(v, nd)} {unit}".strip()  # noqa: E731
+            fn = _get(lambda x, sid=t["statistic"], typ=t["type"], name=t["name"]: next(
+                (c["value"] for c in x["custom"] if c["statistic"] == sid and c["type"] == typ and c["name"] == name), None))
+            ref, refs = P.compare(fn)
+            cmp_txt = ""
+            if ref is not None:
+                name = L("last_year") if refs.get("kind") == "ly" else L("avg")
+                if ref and abs(t["value"] - ref) / abs(ref) >= .05:
+                    p = (t["value"] - ref) / abs(ref)
+                    cmp_txt = f'{esc(name)} {esc(fmt(ref))} · <b>{"▲" if p > 0 else "▼"} {L.num(abs(p) * 100)}%</b>'
+                    if best is None or abs(p) > abs(best[1]):
+                        best = (t["name"], p, refs)
+                elif ref:
+                    cmp_txt = f'{esc(name)} {esc(fmt(ref))} · {esc(L("same"))}'
+                else:  # a reference of 0 (e.g. not measured yet) says nothing about this month
+                    cmp_txt = f'{esc(name)} {esc(fmt(ref))}'
+            strip = day_bars(L, d["period"], t.get("daily"), fmt)
+            tr = trend(L, P.series13(fn), L("per_month_short"), fmt)
+            cards.append(f'''<div class="card"><div class="cl">{esc(t["name"])}</div>
+<div class="cv">{split_unit(fmt(t["value"]))}</div><div class="cmp">{cmp_txt}</div>{strip}{tr}</div>''')
+        if best:
+            head = L("h_custom_more" if best[1] > 0 else "h_custom_less", name=esc(best[0]),
+                     pct=L.pct(abs(best[1])), **best[2])
+        else:
+            head = esc(L("h_custom"))
         P.add("custom", L("s_custom"), "info", f'''{P.kicker(L("s_custom"), "info")}
-<h2>{esc(L("h_custom"))}</h2><div class="stats">{"".join(stats)}</div>''')
+<h2>{head}</h2><div class="cards">{"".join(cards)}</div>''')
 
     # ---------------------------------------------------------------- about
     src = []

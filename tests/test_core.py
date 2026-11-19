@@ -291,3 +291,14 @@ def test_days_above_rain_gauge_and_evcc():
     text = re.sub(r"<[^>]+>", "", html)
     assert "zonnestroom" in text, re.findall(r"Er werd.{0,120}", text)
     assert re.search(r"Stove\s*14\s*dagen", text), re.findall(r"Stove.{0,60}", text)
+
+
+def test_count_runs():
+    from hir.extras import count_runs
+
+    h = 3600
+    # a 2-hour run, a pause of 4 hours, a 1-hour run with a 1-hour pause inside, and a 7-hour block
+    active = [0, h, 6 * h, 8 * h, 20 * h, 21 * h, 22 * h, 23 * h, 24 * h, 25 * h, 26 * h]
+    assert len(count_runs(active, None)) == 3
+    assert len(count_runs(active, 3)) == 4  # 2 h + 3 h blocks count once, the 7-hour block as two programmes
+    assert count_runs([], 3) == []

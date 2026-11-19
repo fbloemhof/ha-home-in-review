@@ -114,7 +114,11 @@
           "type": "Berekening",
           "threshold": "Drempel (voor uren of dagen boven)",
           "unit": "Eenheid",
-          "decimals": "Decimalen"
+          "decimals": "Decimalen",
+          "run_hours": "Typische duur van één beurt"
+        },
+        "data_description": {
+          "run_hours": "Alleen voor beurten, optioneel: een langer blok telt als meerdere beurten (bijv. 3 uur voor een vaatwasser). Beurten worden geteld uit het uurgemiddelde vermogen; pauzes tot 2 uur horen bij dezelfde beurt."
         }
       },
       "tile_remove": {
@@ -152,7 +156,8 @@
         "max": "Hoogste",
         "min": "Laagste",
         "hours_above": "Uren boven drempel",
-        "days_above": "Dagen boven drempel"
+        "days_above": "Dagen boven drempel",
+        "runs_above": "Beurten (vermogen boven drempel)"
       }
     }
   },

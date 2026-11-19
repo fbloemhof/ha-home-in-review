@@ -114,7 +114,11 @@
           "type": "Cálculo",
           "threshold": "Umbral (para horas o días por encima)",
           "unit": "Unidad",
-          "decimals": "Decimales"
+          "decimals": "Decimales",
+          "run_hours": "Duración típica de un ciclo"
+        },
+        "data_description": {
+          "run_hours": "Solo para ciclos, opcional: un bloque más largo cuenta como varios ciclos (p. ej. 3 h para un lavavajillas). Los ciclos se cuentan a partir de la potencia media horaria; las pausas de hasta 2 horas forman parte del mismo ciclo."
         }
       },
       "tile_remove": {
@@ -152,7 +156,8 @@
         "max": "Máximo",
         "min": "Mínimo",
         "hours_above": "Horas por encima del umbral",
-        "days_above": "Días por encima del umbral"
+        "days_above": "Días por encima del umbral",
+        "runs_above": "Ciclos (potencia por encima del umbral)"
       }
     }
   },

@@ -114,7 +114,11 @@
           "type": "Calcul",
           "threshold": "Seuil (pour heures ou jours au-dessus)",
           "unit": "Unité",
-          "decimals": "Décimales"
+          "decimals": "Décimales",
+          "run_hours": "Durée typique d'un cycle"
+        },
+        "data_description": {
+          "run_hours": "Pour les cycles uniquement, facultatif : un bloc plus long compte comme plusieurs cycles (p. ex. 3 h pour un lave-vaisselle). Les cycles sont comptés à partir de la puissance moyenne horaire ; les pauses jusqu'à 2 heures font partie du même cycle."
         }
       },
       "tile_remove": {
@@ -152,7 +156,8 @@
         "max": "Maximum",
         "min": "Minimum",
         "hours_above": "Heures au-dessus du seuil",
-        "days_above": "Jours au-dessus du seuil"
+        "days_above": "Jours au-dessus du seuil",
+        "runs_above": "Cycles (puissance au-dessus du seuil)"
       }
     }
   },

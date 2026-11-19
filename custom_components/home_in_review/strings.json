@@ -114,7 +114,11 @@
           "type": "Calculation",
           "threshold": "Threshold (for hours or days above)",
           "unit": "Unit",
-          "decimals": "Decimals"
+          "decimals": "Decimals",
+          "run_hours": "Typical length of one run"
+        },
+        "data_description": {
+          "run_hours": "For runs only, optional: a longer block counts as several runs (e.g. 3 h for a dishwasher). Runs are counted from the hourly average power; pauses of up to 2 hours belong to the same run."
         }
       },
       "tile_remove": {
@@ -152,7 +156,8 @@
         "max": "Highest",
         "min": "Lowest",
         "hours_above": "Hours above threshold",
-        "days_above": "Days above threshold"
+        "days_above": "Days above threshold",
+        "runs_above": "Runs (from power above threshold)"
       }
     }
   },

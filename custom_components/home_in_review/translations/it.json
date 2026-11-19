@@ -114,7 +114,11 @@
           "type": "Calcolo",
           "threshold": "Soglia (per ore o giorni sopra)",
           "unit": "Unità",
-          "decimals": "Decimali"
+          "decimals": "Decimali",
+          "run_hours": "Durata tipica di un ciclo"
+        },
+        "data_description": {
+          "run_hours": "Solo per i cicli, facoltativo: un blocco più lungo conta come più cicli (ad es. 3 h per una lavastoviglie). I cicli sono contati dalla potenza media oraria; le pause fino a 2 ore fanno parte dello stesso ciclo."
         }
       },
       "tile_remove": {
@@ -152,7 +156,8 @@
         "max": "Massimo",
         "min": "Minimo",
         "hours_above": "Ore sopra la soglia",
-        "days_above": "Giorni sopra la soglia"
+        "days_above": "Giorni sopra la soglia",
+        "runs_above": "Cicli (potenza sopra la soglia)"
       }
     }
   },
