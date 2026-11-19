@@ -94,6 +94,21 @@ class WsSource:
                         "floor_name": (floors.get(area.get("floor_id")) or {}).get("name")})
         return out
 
+    async def device_names(self, ids):
+        out = await self.names(ids)
+        ents = {e["entity_id"]: e for e in await self.call({"type": "config/entity_registry/list"})}
+        devs = {d["id"]: d for d in await self.call({"type": "config/device_registry/list"})}
+        for i in ids:
+            d = devs.get((ents.get(i) or {}).get("device_id"))
+            if d:
+                out[i] = d.get("name_by_user") or d.get("name") or out.get(i, i)
+        return out
+
+    async def names(self, ids):
+        states = await self.call({"type": "get_states"})
+        return {x["entity_id"]: x["attributes"].get("friendly_name") for x in states
+                if x["entity_id"] in ids and x["attributes"].get("friendly_name")}
+
     async def areas(self):
         floors = {f["floor_id"]: f["name"] for f in await self.call({"type": "config/floor_registry/list"})}
         return [{"area_id": a["area_id"], "name": a["name"], "floor_name": floors.get(a.get("floor_id"))}

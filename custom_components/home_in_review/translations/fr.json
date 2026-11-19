@@ -24,7 +24,7 @@
           "general": "Planification et notifications",
           "energy": "Énergie, coûts et pompe à chaleur",
           "climate": "Climat intérieur et météo",
-          "car": "Voiture (TeslaMate)",
+          "car": "Voiture",
           "ai": "Résumé IA",
           "tile_add": "Ajouter un chiffre",
           "tile_remove": "Supprimer des chiffres",
@@ -51,15 +51,15 @@
           "fixed_costs_daily": "Coûts fixes par jour",
           "fixed_costs_monthly": "Coûts fixes par mois",
           "max_hourly_kwh": "Consommation horaire maximale plausible",
-          "heat_pump_devices": "Pompe à chaleur (appareils du tableau énergie)",
+          "heat_pump_devices": "Électricité de la pompe à chaleur",
           "heat_pump_heat_sensor": "Chaleur fournie par la pompe à chaleur"
         },
         "data_description": {
           "fixed_costs_daily": "Facultatif, TTC : abonnement et frais de réseau.",
           "fixed_costs_monthly": "Facultatif, TTC. Montant négatif pour un crédit d'impôt fixe.",
           "max_hourly_kwh": "Les sauts au-delà sont considérés comme des erreurs. Environ votre raccordement : 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
-          "heat_pump_devices": "Ajoute une diapositive pompe à chaleur avec l'électricité par degré-jour.",
-          "heat_pump_heat_sensor": "Capteur d'énergie (total) facultatif pour la chaleur produite ; ajoute le COP."
+          "heat_pump_devices": "Toute marque : un ou plusieurs capteurs d'énergie (intégration de la pompe, compteur ou prise, p. ex. compresseur et appoint). Ajoute une diapositive pompe à chaleur.",
+          "heat_pump_heat_sensor": "Facultatif : capteurs de chaleur fournie (souvent chauffage et eau chaude séparés ; choisissez les deux). Ajoute le COP."
         }
       },
       "climate": {
@@ -76,9 +76,11 @@
         }
       },
       "car": {
-        "title": "Voiture (TeslaMate)",
-        "description": "Lit TeslaMate via son Grafana. Créez un compte de service avec le rôle Viewer et collez le jeton.",
+        "title": "Voiture",
+        "description": "Toute voiture : choisissez le compteur kilométrique (de l'intégration de la voiture) et le capteur d'énergie de votre borne. Avec TeslaMate vous obtenez plus : URL de Grafana et jeton d'un compte de service Viewer.",
         "data": {
+          "car_odometers": "Compteur kilométrique (un par voiture)",
+          "car_chargers": "Énergie de la borne",
           "teslamate_grafana_url": "URL de Grafana",
           "teslamate_grafana_token": "Jeton du compte de service",
           "teslamate_home_geofence": "Nom de votre geofence domicile"

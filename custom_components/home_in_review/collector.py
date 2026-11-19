@@ -210,6 +210,8 @@ class Collector:
         cap = float(self.opt.get("max_hourly_kwh") or DEFAULT_MAX_HOURLY_KWH)
         await extras.heat_pump(self, doc, start, end, hours, cap)
         await extras.teslamate(self, doc, start, end)
+        if "car" not in doc:
+            await extras.car_generic(self, doc, start, end, hours, cap)
         await extras.custom_tiles(self, doc, start, end, hours)
         doc["sections"] = [k for k in ("energy", "devices", "batteries", "heat_pump", "car", "water", "gas", "weather",
                                        "indoor", "custom") if doc.get(k)]

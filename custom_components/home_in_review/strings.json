@@ -24,7 +24,7 @@
           "general": "Schedule and notifications",
           "energy": "Energy, costs and heat pump",
           "climate": "Indoor climate and weather",
-          "car": "Car (TeslaMate)",
+          "car": "Car",
           "ai": "AI summary",
           "tile_add": "Add your own figure",
           "tile_remove": "Remove your own figures",
@@ -51,15 +51,15 @@
           "fixed_costs_daily": "Fixed energy costs per day",
           "fixed_costs_monthly": "Fixed energy costs per month",
           "max_hourly_kwh": "Largest plausible grid use per hour",
-          "heat_pump_devices": "Heat pump (devices from the energy dashboard)",
+          "heat_pump_devices": "Heat pump electricity",
           "heat_pump_heat_sensor": "Heat delivered by the heat pump"
         },
         "data_description": {
           "fixed_costs_daily": "Optional, including tax: standing charges and grid fees.",
           "fixed_costs_monthly": "Optional, including tax. Use a negative amount for a fixed tax credit.",
           "max_hourly_kwh": "Meter jumps above this per hour are treated as glitches. Roughly your connection: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
-          "heat_pump_devices": "Adds a heat pump slide with electricity per degree day.",
-          "heat_pump_heat_sensor": "Optional energy sensor (total) for heat output; adds the COP."
+          "heat_pump_devices": "Any brand: one or more energy sensors (the heat pump's own integration, a kWh meter or smart plug, e.g. compressor and backup heater). Adds a heat pump slide with electricity per degree day.",
+          "heat_pump_heat_sensor": "Optional: energy sensors for heat delivered (many brands report heating and hot water separately; choose both). Adds the COP."
         }
       },
       "climate": {
@@ -76,9 +76,11 @@
         }
       },
       "car": {
-        "title": "Car (TeslaMate)",
-        "description": "Reads TeslaMate through its Grafana. Create a service account with the Viewer role in Grafana and paste its token.",
+        "title": "Car",
+        "description": "Any car: choose its odometer sensor (from the car's own integration) and the energy sensor of your charger. With TeslaMate you get more (trips, charging at home and elsewhere, Wh/km): fill in its Grafana URL and the token of a Grafana service account with the Viewer role.",
         "data": {
+          "car_odometers": "Odometer (one per car)",
+          "car_chargers": "Charger energy",
           "teslamate_grafana_url": "Grafana URL",
           "teslamate_grafana_token": "Service account token",
           "teslamate_home_geofence": "Name of your home geofence"

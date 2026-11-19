@@ -590,6 +590,40 @@ TEXTS["fr"] = {'months': ['janvier',
  'index_empty': 'Pas encore de rapports. Le premier est créé après le premier mois complet, ou lancez un rattrapage '
                 "depuis l'intégration."}
 
+# Added in 0.2.1
+TEXTS["en"].update({
+    "s_battery_one": "Battery", "h_battery_one": "The battery stored <em>{v}</em> and gave back {back}.",
+    "h_car_km": "The car drove <em>{km}</em>.", "h_car_charged": "<em>{v}</em> was charged at home.",
+    "car_charged_home": "Charged at home", "car_per_100": "Per 100 km (home charging)",
+    "car_per_100_mi": "Per 100 mi (home charging)",
+    "car_note_generic": "Distance from the odometer, charging from your charger. Per 100 km only counts charging at home, so it is too low if you also charge elsewhere.",
+    "menu": "Menu",
+})
+TEXTS["nl"].update({
+    "s_battery_one": "Batterij", "h_battery_one": "De batterij sloeg <em>{v}</em> op en gaf {back} terug.",
+    "h_car_km": "De auto reed <em>{km}</em>.", "h_car_charged": "Er werd thuis <em>{v}</em> geladen.",
+    "car_charged_home": "Thuis geladen", "car_per_100": "Per 100 km (thuis geladen)",
+    "car_per_100_mi": "Per 100 mijl (thuis geladen)",
+    "car_note_generic": "Afstand van de kilometerteller, laden van je laadpaal. Per 100 km telt alleen thuis laden mee, dus valt te laag uit als je ook elders laadt.",
+    "menu": "Menu",
+})
+TEXTS["de"].update({
+    "s_battery_one": "Batterie", "h_battery_one": "Die Batterie speicherte <em>{v}</em> und gab {back} zurück.",
+    "h_car_km": "Das Auto fuhr <em>{km}</em>.", "h_car_charged": "Zu Hause wurden <em>{v}</em> geladen.",
+    "car_charged_home": "Zu Hause geladen", "car_per_100": "Pro 100 km (Laden zu Hause)",
+    "car_per_100_mi": "Pro 100 mi (Laden zu Hause)",
+    "car_note_generic": "Strecke vom Kilometerzähler, Laden von Ihrer Ladestation. Pro 100 km zählt nur das Laden zu Hause und ist daher zu niedrig, wenn Sie auch anderswo laden.",
+    "menu": "Menü",
+})
+TEXTS["fr"].update({
+    "s_battery_one": "Batterie", "h_battery_one": "La batterie a stocké <em>{v}</em> et restitué {back}.",
+    "h_car_km": "La voiture a parcouru <em>{km}</em>.", "h_car_charged": "<em>{v}</em> ont été chargés à domicile.",
+    "car_charged_home": "Chargé à domicile", "car_per_100": "Pour 100 km (recharge à domicile)",
+    "car_per_100_mi": "Pour 100 mi (recharge à domicile)",
+    "car_note_generic": "Distance du compteur kilométrique, recharge de votre borne. Le chiffre pour 100 km ne compte que la recharge à domicile ; il est trop bas si vous rechargez aussi ailleurs.",
+    "menu": "Menu",
+})
+
 CURRENCY_SYMBOLS = {"EUR": "€", "USD": "$", "GBP": "£", "JPY": "¥", "CHF": "CHF", "SEK": "kr", "NOK": "kr", "DKK": "kr",
                     "AUD": "A$", "CAD": "C$", "NZD": "NZ$", "PLN": "zł", "CZK": "Kč", "INR": "₹"}
 

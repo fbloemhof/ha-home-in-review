@@ -12,23 +12,31 @@ HOME_WORDS = re.compile(r"^(home|thuis|thús|zuhause|maison|casa|hjem|hemma|koti
 
 
 # ============================================================================ heat pump
+def as_list(v) -> list[str]:
+    if not v:
+        return []
+    return [v] if isinstance(v, str) else list(v)
+
+
 async def heat_pump(col, doc: dict, start, end, hours, cap: float) -> None:
-    """Electricity of the chosen energy-dashboard device(s), heat produced (optional), COP, kWh per degree day."""
+    """Any brand: electricity from one or more energy sensors (energy-dashboard devices, a kWh meter, a smart plug
+    or the heat pump's own integration) and, optionally, heat delivered from one or more energy sensors (many
+    brands report heating and hot water separately). Gives COP and kWh per degree day."""
     from .collector import (  # local import: collector imports this module
         hourly_deltas,
         total,
     )
 
-    devices = col.opt.get("heat_pump_devices") or []
-    heat_sensor = col.opt.get("heat_pump_heat_sensor")
-    if not devices:
+    elec_ids = as_list(col.opt.get("heat_pump_devices"))
+    heat_ids = as_list(col.opt.get("heat_pump_heat_sensor"))
+    if not elec_ids:
         return
-    rows = await col._sums(set(devices) | ({heat_sensor} if heat_sensor else set()), start, end, {"energy": "kWh"})
-    elec = sum(total(hourly_deltas(rows.get(d, []), hours, cap)[0], hours) for d in devices)
+    rows = await col._sums(set(elec_ids) | set(heat_ids), start, end, {"energy": "kWh"})
+    elec = sum(total(hourly_deltas(rows.get(d, []), hours, cap)[0], hours) for d in elec_ids)
     heat = None
-    if heat_sensor and rows.get(heat_sensor):
+    if any(rows.get(h) for h in heat_ids):
         # Heat output can be several times the electrical input; allow a COP of up to 8 per hour.
-        heat = total(hourly_deltas(rows[heat_sensor], hours, cap * 8)[0], hours)
+        heat = sum(total(hourly_deltas(rows.get(h, []), hours, cap * 8)[0], hours) for h in heat_ids)
     if elec < 0.01 and not heat:
         return
     hp: dict[str, Any] = {"electricity": elec, "heat": heat, "cop": heat / elec if heat and elec > 0.5 else None,
@@ -39,8 +47,56 @@ async def heat_pump(col, doc: dict, start, end, hours, cap: float) -> None:
     if e.get("consumption"):
         hp["share"] = elec / e["consumption"]
     names = {x["stat"]: x["name"] for x in (doc.get("devices") or {}).get("items", [])}
-    hp["devices"] = [names.get(d, d) for d in devices]
+    missing = [d for d in elec_ids if d not in names]
+    if missing:
+        names.update(await col.src.names(set(missing)))
+    hp["devices"] = [names.get(d, d) for d in elec_ids]
     doc["heat_pump"] = hp
+
+
+# ============================================================================ any car (odometer + charger)
+async def car_generic(col, doc: dict, start, end, hours, cap: float) -> None:
+    """Any brand: kilometres from odometer sensors (one per car) and home charging from charger energy sensors.
+
+    km per car = highest odometer reading this month minus the highest reading before the month (or the lowest in
+    the month for the first month). kWh per 100 km is an estimate: it only knows the energy charged at home.
+    """
+    from .collector import hourly_deltas, total
+
+    odos = as_list(col.opt.get("car_odometers"))
+    chargers = as_list(col.opt.get("car_chargers"))
+    if not odos and not chargers:
+        return
+    cars = []
+    if odos:
+        # Unit conversion to km; odometers in miles come back as km and are shown in the user's unit later.
+        # Odometers are usually total_increasing (statistics keep "state"); some are measurements ("max"/"mean").
+        st = await col.src.statistics(set(odos), start - dt.timedelta(days=3), end, "hour", {"distance": "km"},
+                                      {"max", "mean", "state"})
+        names = await col.src.device_names(set(odos))
+        for o in odos:
+            def val(r: dict) -> float | None:
+                return next((r[k] for k in ("state", "max", "mean") if r.get(k) is not None), None)
+
+            rows = [r for r in st.get(o, []) if val(r) is not None]
+            before = [val(r) for r in rows if r["start"] < start.timestamp()]
+            inside = [val(r) for r in rows if r["start"] >= start.timestamp()]
+            if not inside:
+                continue
+            base = max(before) if before else min(inside)
+            km = max(0.0, max(inside) - base)
+            cars.append({"name": names.get(o, o), "km": km, "drives": None, "longest_km": None, "charged": None,
+                         "charged_home": None, "wh_per_km": None, "odometer_end": max(inside)})
+    home_kwh = None
+    if chargers:
+        rows = await col._sums(set(chargers), start, end, {"energy": "kWh"})
+        if any(rows.get(c) for c in chargers):
+            home_kwh = sum(total(hourly_deltas(rows.get(c, []), hours, cap)[0], hours) for c in chargers)
+    if not cars and home_kwh is None:
+        return
+    km = sum(c["km"] for c in cars)
+    doc["car"] = {"cars": cars, "km": km, "drives": None, "charged": home_kwh, "charged_home": home_kwh,
+                  "kwh_per_100km_home": (home_kwh / km * 100) if home_kwh and km > 10 else None, "source": "sensors"}
 
 
 # ============================================================================ TeslaMate

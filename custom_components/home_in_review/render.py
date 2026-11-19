@@ -153,6 +153,12 @@ td .sm{color:var(--mut);font-size:12.5px;margin-left:6px}
 .topbar a,.topbar select{font:600 11.5px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);text-decoration:none;
   background:color-mix(in srgb,var(--paper) 85%,transparent);border:1px solid var(--line);border-radius:999px;padding:6px 12px;
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);cursor:pointer}
+.topbar a{white-space:nowrap}
+.topbar .home .short{display:none}
+.topbar .home .short .ic{width:15px;height:15px;vertical-align:-3px}
+@media (max-width:480px){.topbar .home .full{display:none}.topbar .home .short{display:inline}}
+.topbar .hmenu{font:600 15px var(--sans);line-height:1;color:var(--ink2);background:color-mix(in srgb,var(--paper) 85%,transparent);
+  border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}
 .topbar a:hover,.topbar select:hover{color:var(--hi);border-color:var(--hi)}
 .topbar select{appearance:none;-webkit-appearance:none;text-align:center}
 .mnav{display:flex;gap:6px;align-items:center}
@@ -191,6 +197,9 @@ if(t&&t!=='auto')r.dataset.theme=t;})()</script>"""
 JS = r"""
 window.hirGo=f=>{if(window.parent!==window)parent.postMessage({homeInReview:f},'*');else location.href='./'+f+'.html'};
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[data-go]');if(!a)return;e.preventDefault();hirGo(a.dataset.go)});
+(()=>{const b=document.querySelector('.hmenu');if(!b||window.parent===window)return;const set=v=>{b.hidden=!v};
+ set(/(^|[#&])menu\b/.test(location.hash));addEventListener('message',e=>{if(e.source===parent&&e.data&&'hirNarrow' in e.data)set(!!e.data.hirNarrow)});
+ b.onclick=()=>parent.postMessage({homeInReview:'menu'},'*')})();
 window.hirTheme=t=>{const r=document.documentElement;delete r.dataset.theme;if(t!=='auto')r.dataset.theme=t;
  try{localStorage.setItem('hir-theme',t)}catch(e){};document.querySelectorAll('.themes button').forEach(b=>b.classList.toggle('on',b.dataset.t===t))};
 (()=>{const t=document.documentElement.dataset.theme||'auto';document.querySelectorAll('.themes button').forEach(b=>b.classList.toggle('on',b.dataset.t===t))})();
@@ -228,6 +237,13 @@ ICONS = {
     "car": '<path d="M3.5 16.5v-3.5l2-5a2 2 0 0 1 1.9-1.3h9.2a2 2 0 0 1 1.9 1.3l2 5v3.5"/><path d="M3.5 13h17"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/>',
     "cloud": '<path d="M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.2 4.5 4.5 0 0 0 7 18z"/>',
 }
+
+
+def topbar_left(L: Lang) -> str:
+    """Left side of the top bar: the sidebar menu button (only shown inside the panel on narrow screens) and home."""
+    return (f'<div class="mnav"><button class="hmenu" type="button" aria-label="{esc(L("menu"))}" hidden>☰</button>'
+            f'<a href="#" data-go="index" class="home" aria-label="{esc(L("title"))}"><span class="full">{esc(L("title"))}</span>'
+            f'<span class="short">{icon("house")}</span></a></div>')
 
 
 def icon(name: str, cls: str = "ic") -> str:
@@ -407,7 +423,7 @@ class Page:
         for d in self.ref:
             try:
                 v = fn(d)
-            except (KeyError, TypeError, IndexError):
+            except (KeyError, TypeError, IndexError, StopIteration):
                 v = None
             if v is not None:
                 vals.append(v)
@@ -419,7 +435,7 @@ class Page:
         if ly and not g(ly, "energy", "partial_from"):
             try:
                 v = fn(ly)
-            except (KeyError, TypeError, IndexError):
+            except (KeyError, TypeError, IndexError, StopIteration):
                 v = None
             if v is not None:
                 mn = self.L.month(int(self.ym[5:]))
@@ -433,7 +449,7 @@ class Page:
             d = self.docs.get(m)
             try:
                 out.append((m, fn(d) if d else None))
-            except (KeyError, TypeError, IndexError):
+            except (KeyError, TypeError, IndexError, StopIteration):
                 out.append((m, None))
         return out
 
@@ -460,7 +476,7 @@ def _get(fn):
     def inner(d):
         try:
             return fn(d)
-        except (KeyError, TypeError, IndexError):
+        except (KeyError, TypeError, IndexError, StopIteration):
             return None
     return inner
 
@@ -593,13 +609,15 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
     # ---------------------------------------------------------------- batteries
     b = d.get("batteries")
     if b and b.get("charge", 0) > 1:
-        head = L("h_battery", v=kwh(b["charge"]), back=kwh(b["discharge"]))
+        one = len(b["units"]) == 1
+        head = L("h_battery_one" if one else "h_battery", v=kwh(b["charge"]), back=kwh(b["discharge"]))
         rows = "".join(
             f'<tr><td>{esc(x["name"])}</td><td>{L.num(x["charge"], 1)}</td><td>{L.num(x["discharge"], 1)}</td><td>{L.pct(x["efficiency"])}</td></tr>'
             for x in b["units"])
         if len(b["units"]) > 1:
             rows += f'<tr><td><b>{esc(L("total"))}</b></td><td><b>{L.num(b["charge"], 1)}</b></td><td><b>{L.num(b["discharge"], 1)}</b></td><td><b>{L.pct(b["efficiency"])}</b></td></tr>'
-        P.add("battery", L("s_battery"), "battery", f'''{P.kicker(L("s_battery"), "battery")}
+        bt = L("s_battery_one" if one else "s_battery")
+        P.add("battery", bt, "battery", f'''{P.kicker(bt, "battery")}
 <h2>{head}</h2>
 <div class="tbl"><table><thead><tr><th></th><th>{esc(L("charged"))} (kWh)</th><th>{esc(L("discharged"))} (kWh)</th><th>{esc(L("efficiency"))}</th></tr></thead>
 <tbody>{rows}</tbody></table></div>''')
@@ -623,7 +641,7 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
             badge = f'<small>{esc(L("partial"))}</small>' if partial else ""
             tip = ""
             if stat:
-                a = P.ref_avg(lambda x, s=stat: next(i["kwh"] for i in x["devices"]["items"] if i["stat"] == s))
+                a = P.ref_avg(lambda x, s=stat: next((i["kwh"] for i in x["devices"]["items"] if i["stat"] == s), None))
                 if a:
                     tip = f' data-tip="{esc(L("avg"))} {esc(kwh(a))}"'
             lines.append(f'<div class="r"{tip}><div class="lb">{esc(name)}{badge}</div><div class="t"><div class="f{muted}" style="width:{k / mx * 100:.1f}%"></div></div>'
@@ -659,7 +677,23 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
 
     # ---------------------------------------------------------------- car (optional, TeslaMate)
     car = d.get("car")
-    if car:
+    if car and car.get("source") == "sensors":
+        mi = tu == "°F"
+        dist = (lambda v: f"{L.num(v / 1.609344)} mi") if mi else (lambda v: f"{L.num(v)} km")  # noqa: E731
+        head = L("h_car_km", km=dist(car["km"])) if car["km"] else L("h_car_charged", v=kwh(car["charged_home"] or 0))
+        stats = [P.stat(c["name"], dist(c["km"]), c["km"], _get(lambda x, n=c["name"]: next(
+            (y["km"] for y in x["car"]["cars"] if y["name"] == n), None))) for c in car["cars"]]
+        if car.get("charged_home") is not None:
+            stats.append(P.stat(L("car_charged_home"), kwh(car["charged_home"]), car["charged_home"],
+                                _get(lambda x: x["car"]["charged_home"])))
+        if car.get("kwh_per_100km_home"):
+            per = car["kwh_per_100km_home"] * (1.609344 if mi else 1)
+            stats.append(P.stat(L("car_per_100_mi" if mi else "car_per_100"), f"{L.num(per, 1)} kWh"))
+        tr = trend(L, P.series13(_get(lambda x: x["car"]["km"])), L("trend_car"), dist) if car["km"] else ""
+        P.add("car", L("s_car"), "car", f'''{P.kicker(L("s_car"), "car")}
+<div class="head2"><h2>{head}</h2>{tr}</div><div class="stats">{"".join(stats)}</div>
+<p class="note">{esc(L("car_note_generic"))}</p>''')
+    elif car:
         head = L("h_car", km=f'{L.num(car["km"])} km', n=car["drives"])
         rows = "".join(
             f'<tr><td>{esc(c["name"])}</td><td>{L.num(c["km"])}</td><td>{c["drives"]}</td><td>{L.num(c["longest_km"])}</td>'
@@ -777,7 +811,7 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
             unit = f' {t["unit"]}' if t["unit"] else ""
             stats.append(P.stat(t["name"], f'{L.num(t["value"], t["decimals"])}{unit}', t["value"],
                                 _get(lambda x, i=i, sid=t["statistic"], typ=t["type"]: next(
-                                    c["value"] for c in x["custom"] if c["statistic"] == sid and c["type"] == typ)),
+                                    (c["value"] for c in x["custom"] if c["statistic"] == sid and c["type"] == typ), None)),
                                 lambda v, n=t["decimals"]: L.num(v, n)))
         P.add("custom", L("s_custom"), "info", f'''{P.kicker(L("s_custom"), "info")}
 <h2>{esc(L("h_custom"))}</h2><div class="stats">{"".join(stats)}</div>''')
@@ -840,7 +874,7 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
     # ---------------------------------------------------------------- page
     nav = "".join(f'<a href="#{sid}" data-l="{esc(lab)}"></a>' for sid, lab, _ in P.slides)
     opts = "".join(f'<option value="{x}"{" selected" if x == ym else ""}>{esc(mlabel(x))}</option>' for x in reversed(months))
-    top = (f'<div class="topbar"><a href="#" data-go="index">{esc(L("title"))}</a><div class="mnav">'
+    top = (f'<div class="topbar">{topbar_left(L)}<div class="mnav">'
            + (f'<a href="#" class="prev" data-go="{prv}">‹</a>' if prv else "")
            + f'<select class="msel" aria-label="month">{opts}</select>'
            + (f'<a href="#" class="next" data-go="{nxt}">›</a>' if nxt else "") + "</div></div>")
@@ -877,6 +911,7 @@ def render_index(docs: dict[str, dict], lang: str = "en", home_name: str | None 
     sub = esc(home_name) if home_name else ""
     return (f'<!doctype html><html lang="{L.code}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
             f'<title>{esc(L("title"))}</title>{THEME_HEAD}<style>{CSS} html{{scroll-snap-type:none}}</style></head><body>'
+            f'<div class="topbar">{topbar_left(L)}</div>'
             f'<section class="slide" style="align-content:start"><div class="kicker">{icon("house")}{esc(L("title"))}{(" · " + sub) if sub else ""}</div>'
             f'<h2>{esc(L("index_title"))}</h2><div class="idx">{body}</div></section><div class="bar"></div><div id="tip"></div><script>{JS}</script></body></html>')
 
@@ -969,7 +1004,7 @@ def render_year(key: str, docs: dict[str, dict], lang: str = "en", home_name: st
         for m in ms:
             try:
                 out.append(fn(docs[m]) if m in docs else None)
-            except (KeyError, TypeError, IndexError):
+            except (KeyError, TypeError, IndexError, StopIteration):
                 out.append(None)
         return out
 
@@ -1140,7 +1175,7 @@ def render_year(key: str, docs: dict[str, dict], lang: str = "en", home_name: st
 <p class="note">{esc(L("year_about", n=len(have)))}</p><p style="font-size:15px">{mlinks}</p>
 <p class="note">{esc(L("made_with"))}</p><div class="mfoot">{"".join(links)}</div>''')
     nav = "".join(f'<a href="#{sid}" data-l="{esc(lab)}"></a>' for sid, lab, _ in P.slides)
-    top = f'<div class="topbar"><a href="#" data-go="index">{esc(L("title"))}</a><div class="mnav"><a href="#" data-go="{have[-1]}">{esc(L.month(int(have[-1][5:])))} {have[-1][:4]}</a></div></div>'
+    top = f'<div class="topbar">{topbar_left(L)}<div class="mnav"><a href="#" data-go="{have[-1]}">{esc(L.month(int(have[-1][5:])))} {have[-1][:4]}</a></div></div>'
     return (f'<!doctype html><html lang="{L.code}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
             f'<title>{esc(L("title"))} · {esc(label)}</title>{THEME_HEAD}<style>{CSS}</style></head><body>'
             f'<div class="bar"></div>{top}<nav class="nav">{nav}</nav>{"".join(s for _, _, s in P.slides)}<div id="tip"></div>'

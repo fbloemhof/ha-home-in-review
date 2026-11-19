@@ -78,6 +78,25 @@ class HassSource:
                         "area_name": area.name if area else None, "floor_name": floor.name if floor else None})
         return out
 
+    async def device_names(self, ids: set[str]) -> dict[str, str]:
+        """The name of the device each entity belongs to (falls back to the entity name)."""
+        ents, devs = er.async_get(self.hass), dr.async_get(self.hass)
+        out = await self.names(ids)
+        for i in ids:
+            entry = ents.async_get(i)
+            device = devs.async_get(entry.device_id) if entry and entry.device_id else None
+            if device:
+                out[i] = device.name_by_user or device.name or out.get(i, i)
+        return out
+
+    async def names(self, ids: set[str]) -> dict[str, str]:
+        out = {}
+        for i in ids:
+            st = self.hass.states.get(i)
+            if st and st.attributes.get("friendly_name"):
+                out[i] = st.attributes["friendly_name"]
+        return out
+
     async def areas(self) -> list[dict]:
         floors = fr.async_get(self.hass)
         out = []

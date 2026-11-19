@@ -24,7 +24,7 @@
           "general": "Zeitplan und Benachrichtigungen",
           "energy": "Energie, Kosten und Wärmepumpe",
           "climate": "Raumklima und Wetter",
-          "car": "Auto (TeslaMate)",
+          "car": "Auto",
           "ai": "KI-Zusammenfassung",
           "tile_add": "Eigene Kennzahl hinzufügen",
           "tile_remove": "Eigene Kennzahlen entfernen",
@@ -51,15 +51,15 @@
           "fixed_costs_daily": "Fixe Energiekosten pro Tag",
           "fixed_costs_monthly": "Fixe Energiekosten pro Monat",
           "max_hourly_kwh": "Größter plausibler Netzbezug pro Stunde",
-          "heat_pump_devices": "Wärmepumpe (Geräte aus dem Energie-Dashboard)",
+          "heat_pump_devices": "Strom der Wärmepumpe",
           "heat_pump_heat_sensor": "Von der Wärmepumpe gelieferte Wärme"
         },
         "data_description": {
           "fixed_costs_daily": "Optional, inkl. Steuern: Grundgebühr und Netzentgelte.",
           "fixed_costs_monthly": "Optional, inkl. Steuern. Negativ für eine feste Steuergutschrift.",
           "max_hourly_kwh": "Zählersprünge darüber gelten als Störung. Etwa Ihr Anschluss: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
-          "heat_pump_devices": "Fügt eine Wärmepumpen-Folie mit Strom pro Gradtag hinzu.",
-          "heat_pump_heat_sensor": "Optionaler Energiesensor (Summe) für die Wärmeabgabe; ergänzt den COP."
+          "heat_pump_devices": "Jede Marke: ein oder mehrere Energiesensoren (Integration der Wärmepumpe, Zähler oder Steckdose, z. B. Verdichter und Heizstab). Fügt eine Wärmepumpen-Folie hinzu.",
+          "heat_pump_heat_sensor": "Optional: Energiesensoren für die gelieferte Wärme (oft getrennt für Heizung und Warmwasser; beide wählen). Ergänzt den COP."
         }
       },
       "climate": {
@@ -76,9 +76,11 @@
         }
       },
       "car": {
-        "title": "Auto (TeslaMate)",
-        "description": "Liest TeslaMate über dessen Grafana. Legen Sie in Grafana ein Dienstkonto mit der Rolle Viewer an und fügen Sie das Token ein.",
+        "title": "Auto",
+        "description": "Jedes Auto: wählen Sie den Kilometerzähler (aus der Integration Ihres Autos) und den Energiesensor Ihrer Ladestation. Mit TeslaMate erhalten Sie mehr: Grafana-URL und das Token eines Dienstkontos mit der Rolle Viewer eintragen.",
         "data": {
+          "car_odometers": "Kilometerzähler (einer pro Auto)",
+          "car_chargers": "Energie der Ladestation",
           "teslamate_grafana_url": "Grafana-URL",
           "teslamate_grafana_token": "Dienstkonto-Token",
           "teslamate_home_geofence": "Name Ihres Zuhause-Geofence"

@@ -18,11 +18,13 @@ from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import floor_registry as fr
 from homeassistant.helpers import selector
 
-from .collector import is_outdoor_name, parse_energy_prefs
+from .collector import is_outdoor_name
 from .const import (
     CONF_AI_INSTRUCTIONS,
     CONF_AI_TASK,
     CONF_BACKFILL_MONTHS,
+    CONF_CAR_CHARGERS,
+    CONF_CAR_ODOMETERS,
     CONF_EXCLUDED_AREAS,
     CONF_FIXED_DAILY,
     CONF_FIXED_MONTHLY,
@@ -47,7 +49,6 @@ from .const import (
     NAME,
 )
 from .extras import TILE_TYPES
-from .hass_source import HassSource
 
 BOX = selector.NumberSelectorMode.BOX
 
@@ -69,6 +70,12 @@ class HomeInReviewConfigFlow(ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
         return HomeInReviewOptionsFlow()
+
+
+def _as_list(value: Any) -> list[str] | None:
+    if not value:
+        return None
+    return [value] if isinstance(value, str) else list(value)
 
 
 def _suggest(value: Any) -> dict:
@@ -122,8 +129,6 @@ class HomeInReviewOptionsFlow(OptionsFlow):
         if user_input is not None:
             self._merge(user_input, [CONF_FIXED_DAILY, CONF_FIXED_MONTHLY, CONF_MAX_HOURLY_KWH, CONF_HP_DEVICES, CONF_HP_HEAT])
             return await self.async_step_init()
-        prefs = parse_energy_prefs(await HassSource(self.hass).energy_prefs())
-        devices = [selector.SelectOptionDict(value=d["stat"], label=d.get("name") or d["stat"]) for d in prefs["devices"]]
         return self.async_show_form(step_id="energy", data_schema=vol.Schema({
             vol.Optional(CONF_FIXED_DAILY, description=_suggest(o.get(CONF_FIXED_DAILY))): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=0, max=100, step="any", mode=BOX)),
@@ -131,10 +136,10 @@ class HomeInReviewOptionsFlow(OptionsFlow):
                 selector.NumberSelectorConfig(min=-1000, max=10000, step="any", mode=BOX)),
             vol.Required(CONF_MAX_HOURLY_KWH, default=o.get(CONF_MAX_HOURLY_KWH, DEFAULT_MAX_HOURLY_KWH)): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=1, max=1000, step=1, mode=BOX, unit_of_measurement="kWh")),
-            vol.Optional(CONF_HP_DEVICES, default=o.get(CONF_HP_DEVICES, [])): selector.SelectSelector(
-                selector.SelectSelectorConfig(options=devices, multiple=True)),
-            vol.Optional(CONF_HP_HEAT, description=_suggest(o.get(CONF_HP_HEAT))): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class="energy")),
+            vol.Optional(CONF_HP_DEVICES, description=_suggest(o.get(CONF_HP_DEVICES))): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class="energy", multiple=True)),
+            vol.Optional(CONF_HP_HEAT, description=_suggest(_as_list(o.get(CONF_HP_HEAT)))): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class="energy", multiple=True)),
         }))
 
     # ------------------------------------------------------------------ climate & weather
@@ -171,9 +176,13 @@ class HomeInReviewOptionsFlow(OptionsFlow):
     async def async_step_car(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         o = self.opts
         if user_input is not None:
-            self._merge(user_input, [CONF_TM_URL, CONF_TM_TOKEN, CONF_TM_HOME])
+            self._merge(user_input, [CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS, CONF_TM_URL, CONF_TM_TOKEN, CONF_TM_HOME])
             return await self.async_step_init()
         return self.async_show_form(step_id="car", data_schema=vol.Schema({
+            vol.Optional(CONF_CAR_ODOMETERS, description=_suggest(o.get(CONF_CAR_ODOMETERS))): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class="distance", multiple=True)),
+            vol.Optional(CONF_CAR_CHARGERS, description=_suggest(o.get(CONF_CAR_CHARGERS))): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class="energy", multiple=True)),
             vol.Optional(CONF_TM_URL, description=_suggest(o.get(CONF_TM_URL))): selector.TextSelector(
                 selector.TextSelectorConfig(type=selector.TextSelectorType.URL)),
             vol.Optional(CONF_TM_TOKEN, description=_suggest(o.get(CONF_TM_TOKEN))): selector.TextSelector(

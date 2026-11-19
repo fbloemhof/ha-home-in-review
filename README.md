@@ -29,8 +29,8 @@ help are marked with a `Co-Authored-By: Claude` line. If something looks wrong, 
 | Solar: production, share used at home, sunshine vs. normal | energy dashboard, Open-Meteo | solar is set up |
 | Batteries: charged, discharged, efficiency | energy dashboard | batteries are set up |
 | Where it went: devices ranked, untracked rest, value | energy dashboard "individual devices" | devices are set up |
-| Heat pump: electricity, heat, COP, kWh per degree day | devices you mark as heat pump | set in the options |
-| Car: km, trips, charging at home, Wh/km | TeslaMate (through its Grafana) | set in the options |
+| Heat pump (any brand): electricity, heat, COP, kWh per degree day | energy sensors you choose | set in the options |
+| Car (any brand): km, charging at home, kWh per 100 km; with TeslaMate also trips and Wh/km | odometer and charger sensors, or TeslaMate | set in the options |
 | Daily rhythm: average power per hour of day, busiest hour | energy dashboard | a grid source is set up |
 | Weather: temperature, rain, sunshine, degree days vs. 1991–2020 | Open-Meteo and/or your own outdoor sensor | your home has a location |
 | Indoors: temperature, humidity and CO₂ per area | your sensors | climate sensors are assigned to areas |
@@ -77,12 +77,17 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
   last month's report is made (default the 1st at 07:00), and the month the year review starts.
 - **Energy, costs and heat pump**: fixed costs per day and/or month (including tax); the largest plausible
   grid use per hour (meter jumps above it are skipped as glitches; default 25 kWh, roughly a 3 × 35 A
-  connection; 3 × 25 A is about 17 kWh); which energy-dashboard devices are your heat pump, and optionally a
-  sensor for the heat it delivers (adds the COP).
+  connection; 3 × 25 A is about 17 kWh). For a heat pump of any brand: one or more energy sensors for its
+  electricity (its own integration, a kWh meter or a smart plug; for example compressor and backup heater) and,
+  optionally, one or more sensors for the heat it delivers (often heating and hot water separately). With heat
+  sensors you also get the COP.
 - **Indoor climate and weather**: areas that are not indoors, an outdoor temperature sensor, and whether to
   use Open-Meteo at all.
-- **Car (TeslaMate)**: the URL of TeslaMate's Grafana and a token of a Grafana service account with the
-  *Viewer* role. The data source is found automatically. Optionally the name of your home geofence.
+- **Car**: for any brand, the odometer sensor of each car (from the car's own integration) and the energy
+  sensor of your charger. That gives kilometres, energy charged at home and an estimate per 100 km. With
+  [TeslaMate](https://github.com/teslamate-org/teslamate) you get more (trips, charging at home and elsewhere,
+  Wh/km): fill in the URL of its Grafana and a token of a Grafana service account with the *Viewer* role. The
+  data source is found automatically; optionally give the name of your home geofence.
 - **AI summary**: an AI Task entity (for example OpenAI, Anthropic, Google or a local model set up in Home
   Assistant) and optional extra instructions. Only the figures in the report are sent to it; the text is
   labelled as written by AI.
@@ -142,7 +147,7 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
 
 - Listing in the default HACS / Marketplace catalogue
 - More languages (translations welcome: `i18n.py` for the report, `tools/translations.py` for the settings)
-- More car sources besides TeslaMate
+- More car sources with trip data besides TeslaMate (e.g. evcc sessions)
 - A rain sensor as an alternative to Open-Meteo
 
 ## License

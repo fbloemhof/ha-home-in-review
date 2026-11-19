@@ -117,6 +117,12 @@ class FakeSource:
     async def climate_sensors(self):
         return []
 
+    async def names(self, ids):
+        return {i: i.split(".")[1].replace("_", " ").title() for i in ids}
+
+    async def device_names(self, ids):
+        return await self.names(ids)
+
     async def areas(self):
         return [{"area_id": "garden", "name": "Achtertuin", "floor_name": None},
                 {"area_id": "sun", "name": "Tuinkamer", "floor_name": None}]
@@ -209,3 +215,35 @@ def test_custom_tiles_and_story_facts():
     assert f["electricity_used_kwh"] == round(28 * 24 * 1.3)
     text = story.instructions("2026-02", {"2026-02": doc}, "nl")
     assert "Dutch" in text and "never invent" in text
+
+
+def test_any_brand_heat_pump_car_and_single_battery():
+    src = FakeSource()
+    src.prefs["energy_sources"].append({"type": "battery", "stat_energy_from": "sensor.b_out",
+                                        "stat_energy_to": "sensor.b_in", "name": "Home battery"})
+    orig = src.statistics
+
+    async def more(ids, start, end, period, units, types):
+        out = await orig(ids, start, end, period, units, types)
+        first = int(start.timestamp())
+        n = int((end - start).total_seconds() // 3600)
+        per = {"sensor.hp_kwh": 0.5, "sensor.heat_ch": 1.5, "sensor.heat_dhw": 0.5, "sensor.charger": 0.25,
+               "sensor.b_in": 0.2, "sensor.b_out": 0.18}
+        for i in ids:
+            if i in per:
+                out[i] = [{"start": first + k * 3600, "sum": per[i] * k} for k in range(n)]
+        if "sensor.odometer" in ids:  # 10 km a day
+            out["sensor.odometer"] = [{"start": first + k * 3600, "max": 20000 + k * 10 / 24, "mean": None} for k in range(n)]
+        return out
+
+    src.statistics = more
+    opts = {"heat_pump_devices": ["sensor.hp_kwh"], "heat_pump_heat_sensor": ["sensor.heat_ch", "sensor.heat_dhw"],
+            "car_odometers": ["sensor.odometer"], "car_chargers": ["sensor.charger"]}
+    doc = asyncio.run(C.Collector(src, opts).collect(2026, 2))
+    assert round(doc["heat_pump"]["cop"], 2) == 4.0
+    assert doc["heat_pump"]["devices"] == ["Hp Kwh"]
+    car = doc["car"]
+    assert car["source"] == "sensors" and 270 < car["km"] < 290  # 28 days x 10 km, measured from the month start
+    assert round(car["charged_home"]) == 28 * 24 * 0.25
+    html = R.render_month("2026-02", {"2026-02": doc}, "nl", None, 1)
+    assert "De batterij sloeg" in html and "De auto reed" in html and "COP" in html
