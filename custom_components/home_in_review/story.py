@@ -57,23 +57,29 @@ def observations(ym: str, docs: dict[str, dict]) -> list[str]:
     f = facts(doc)
     out = []
 
-    def compare(label: str, key: str, unit: str, nd: int = 0) -> None:
+    def compare(label: str, key: str, unit: str, nd: int = 0, absolute: bool = False) -> None:
         if key not in f:
             return
         v = f[key]
         parts = [f"{label}: {v:.{nd}f} {unit}".strip()]
         for name, rf in refs:
             if rf.get(key):
-                parts.append(f"{_pct(v, rf[key])} {name} ({rf[key]:.{nd}f} {unit})".strip())
+                if absolute:  # temperatures: a difference in degrees, not a percentage
+                    d = v - rf[key]
+                    rel = "about the same as" if abs(d) < 0.3 else f"{abs(d):.1f} {unit} {'higher' if d > 0 else 'lower'} than"
+                else:
+                    rel = _pct(v, rf[key])
+                parts.append(f"{rel} {name} ({rf[key]:.{nd}f} {unit})".strip())
         out.append(", ".join(parts) + ".")
 
     def money(v: float) -> str:
-        return f"earned {abs(v):.0f} {cur}" if v < 0 else f"paid {v:.0f} {cur}"
+        return f"earned {abs(v):.0f} {cur} (income, not a cost)" if v < 0 else f"paid {v:.0f} {cur}"
 
     compare("Electricity used in the house", "electricity_used_kwh", "kWh")
     ck = f"energy_cost_{cur.lower()}"
     if ck in f:
-        line = f"Energy costs: the household {money(f[ck])} this month"
+        line = ("Energy result: the household made money on energy this month, it " if f[ck] < 0
+                else "Energy costs: the household ") + f"{money(f[ck])} this month"
         line += "".join(f"; {name}: {money(rf[ck])}" for name, rf in refs if ck in rf)
         out.append(line + ".")
     compare("Solar production", "solar_production_kwh", "kWh")
@@ -98,7 +104,7 @@ def observations(ym: str, docs: dict[str, dict]) -> list[str]:
             line += f" and delivered {f['heat_pump_heat_delivered_kwh']:.0f} kWh of heat (COP {f['heat_pump_cop']:.1f}"
             line += "".join(f"; {name}: COP {rf['heat_pump_cop']:.1f}" for name, rf in refs if rf.get("heat_pump_cop")) + ")"
         out.append(line + ".")
-    compare("Indoor temperature", next((k for k in f if k.startswith("indoor_temperature_")), "-"), tu, 1)
+    compare("Indoor temperature", next((k for k in f if k.startswith("indoor_temperature_")), "-"), tu, 1, absolute=True)
     compare("Water used", "water_litres", "litres")
     compare("Car", "car_km", "km")
     if f.get("biggest_devices_kwh"):
