@@ -439,8 +439,34 @@ class Page:
                 v = None
             if v is not None:
                 mn = self.L.month(int(self.ym[5:]))
-                return v, {"ref": self.L("ref_ly", month=mn), "ref2": self.L("ref2_ly", month=mn)}
-        return self.ref_avg(fn), {"ref": self.L("ref_avg"), "ref2": self.L("ref2_avg")}
+                return v, {"ref": self.L("ref_ly", month=mn), "ref2": self.L("ref2_ly", month=mn), "kind": "ly"}
+        return self.ref_avg(fn), {"ref": self.L("ref_avg"), "ref2": self.L("ref2_avg"), "kind": "avg"}
+
+    def delta(self, cur, fn, unit: str, nd: int = 1) -> tuple[str, str] | None:
+        """Absolute difference with the reference (same month last year, else 12-month average), for seasonal
+        figures like indoor temperature where a percentage means little. Returns (short text, tooltip)."""
+        if cur is None:
+            return None
+        ref, refs = self.compare(fn)
+        if ref is None:
+            return None
+        d = cur - ref
+        label = self.L("last_year") if refs.get("kind") == "ly" else self.L("avg")
+        tip = f"{label}: {self.L.num(ref, nd)}{unit}"
+        if abs(d) < 0.5 * 10 ** -nd * 2:
+            return "=", tip
+        return f'{"▲" if d > 0 else "▼"} {self.L.num(abs(d), nd)}{unit}', tip
+
+    def stat_vs(self, label: str, value: str, cur, fn, unit: str, nd: int = 1) -> str:
+        """A stat whose comparison line uses the seasonal reference (see delta)."""
+        c = ""
+        ref, refs = self.compare(fn) if cur is not None else (None, {})
+        if ref is not None:
+            name = self.L("last_year") if refs.get("kind") == "ly" else self.L("avg")
+            d = cur - ref
+            arrow = "" if abs(d) < 10 ** -nd else f' · {"▲" if d > 0 else "▼"} {self.L.num(abs(d), nd)}{unit}'
+            c = f'<div class="c">{esc(name)} {self.L.num(ref, nd)}{esc(unit)}{arrow}</div>'
+        return f'<div class="stat"><div class="l">{esc(label)}</div><div class="v">{split_unit(value)}</div>{c}</div>'
 
     def series13(self, fn) -> list[tuple[str, float | None]]:
         out = []
@@ -803,13 +829,25 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
             if len(floors) > 1 and a.get("floor") != floor:
                 floor = a.get("floor")
                 rows.append(f'<tr class="fl"><td colspan="4">{esc(floor or "–")}</td></tr>')
-            t = f'{L.num(a["temp"], 1)}{tu}<span class="sm">{L.num(a["temp_min"], 0)}–{L.num(a["temp_max"], 0)}</span>' if "temp" in a else "–"
+            t = "–"
+            if "temp" in a:
+                dl = P.delta(a["temp"], lambda x, aid=a["area_id"]: next(
+                    (y["temp"] for y in x["indoor"]["areas"] if y["area_id"] == aid and "temp" in y), None), "°")
+                dl_html = f'<span class="sm" data-tip="{esc(dl[1])}">{esc(dl[0])}</span>' if dl else ""
+                t = f'{L.num(a["temp"], 1)}{tu}{dl_html}<span class="sm">{L.num(a["temp_min"], 0)}–{L.num(a["temp_max"], 0)}</span>'
             h = (f'{L.num(a["humidity"])}%' + (f'<span class="sm">{a["humid_hours"]} {esc(L("humid_hours"))}</span>' if a.get("humid_hours") else "")) if "humidity" in a else ""
             c = (f'{L.num(a["co2"])} ppm' + (f'<span class="sm">{L.pct(a["co2_over_1000"])} {esc(L("co2_high"))}</span>' if a.get("co2_over_1000") else "")) if "co2" in a else ""
             rows.append(f'<tr><td>{esc(a["name"])}</td><td>{t}</td>' + (f"<td>{h}</td>" if has_h else "") + (f"<td>{c}</td>" if has_c else "") + "</tr>")
         th = f'<th>{esc(L("room"))}</th><th>{esc(L("temp"))}</th>' + (f'<th>{esc(L("humidity"))}</th>' if has_h else "") + (f'<th>{esc(L("co2"))}</th>' if has_c else "")
+        stats = [P.stat_vs(L("temp"), f'{L.num(ind["temp"], 1)} {tu}', ind["temp"], _get(lambda x: x["indoor"]["temp"]), tu)]
+        if ind.get("humidity") is not None:
+            stats.append(P.stat_vs(L("humidity"), f'{L.num(ind["humidity"])} %', ind["humidity"],
+                                   _get(lambda x: x["indoor"]["humidity"]), "%", 0))
+        if ind.get("co2") is not None:
+            stats.append(P.stat_vs(L("co2"), f'{L.num(ind["co2"])} ppm', ind["co2"], _get(lambda x: x["indoor"]["co2"]), " ppm", 0))
         P.add("indoor", L("s_indoor"), "thermo", f'''{P.kicker(L("s_indoor"), "thermo")}
 <h2>{head}</h2>
+<div class="stats">{"".join(stats)}</div>
 <div class="tbl"><table><thead><tr>{th}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>
 <p class="note">{esc(L("indoor_note"))}</p>''')
 

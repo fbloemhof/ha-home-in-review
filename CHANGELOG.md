@@ -16,6 +16,8 @@
 - On narrow screens the sidebar menu button sits in the report's own top bar instead of floating over the text.
 - The AI summary gets verified, pre-computed statements to phrase (no own calculations, causes or judgements).
 - One battery is described in the singular.
+- Indoors: temperature, humidity and CO₂ compared with the same month last year (or the 12-month average), and
+  per room the difference in degrees.
 
 **Fixed**
 - The "add your own figure" form was empty (a required statistic field has no initial value in the frontend).
