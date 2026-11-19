@@ -133,7 +133,9 @@ def test_collect_and_render_offline():
     assert round(e["consumption"], 6) == round(hours * (1.0 - 0.2 + 0.5), 6)
     assert round(e["cost_import"], 4) == round(hours * 0.3, 4)
     assert round(e["total_cost"], 4) == round(hours * (0.3 - 0.02) + 10, 4)
-    assert doc["devices"]["items"][0]["name"] == "Fridge"
+    dev = doc["devices"]["items"][0]
+    assert dev["name"] == "Fridge"
+    assert round(dev["value"], 4) == round(hours * 0.1 * 0.3, 4)  # house imports every hour: import price
     assert "weather" not in doc  # no location
     assert doc["indoor_sources"]["excluded_areas"] == ["Achtertuin"] and doc["indoor_sources"]["excluded_auto"]
     docs = {"2026-02": doc}
@@ -141,3 +143,22 @@ def test_collect_and_render_offline():
         html = R.render_month("2026-02", docs, lang=lang, home_name="Test")
         assert "<svg" in html and ("February" in html or "Februari" in html)
     assert "Februar" in R.render_index(docs, "en")
+
+
+def test_device_valued_at_export_price_in_export_hours():
+    src = FakeSource()
+    orig = src.statistics
+
+    async def exporting(ids, start, end, period, units, types):
+        out = await orig(ids, start, end, period, units, types)
+        n = len(next(iter(out.values())))
+        # more export (2 kWh/h at 0.05) than import (1 kWh/h)
+        if "sensor.exp" in out:
+            out["sensor.exp"] = [{"start": r["start"], "sum": 2.0 * k} for k, r in enumerate(out["sensor.exp"])]
+            out["sensor.exp_compensation"] = [{"start": r["start"], "sum": 0.1 * k} for k, r in enumerate(out["sensor.exp"])]
+        return out if n else out
+
+    src.statistics = exporting
+    doc = asyncio.run(C.Collector(src).collect(2026, 2))
+    dev = doc["devices"]["items"][0]
+    assert round(dev["value"], 4) == round(28 * 24 * 0.1 * 0.05, 4)

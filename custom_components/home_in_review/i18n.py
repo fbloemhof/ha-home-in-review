@@ -52,7 +52,7 @@ TEXTS: dict[str, dict[str, object]] = {
         # devices
         "h_devices": "<em>{name}</em> was the biggest user, with {share} of the total.",
         "untracked": "Not measured separately", "others": "Other ({n})", "device": "Device", "value": "Value",
-        "share": "Share", "dev_note": "Value = the device's hourly use times the grid price in that hour. Devices without readings this month are left out: {names}.",
+        "share": "Share", "dev_note": "Value = what the use cost per hour: the import price, or the export compensation that was missed in hours when the house returned more than it used. Devices without readings this month are left out: {names}.",
         "partial": "readings incomplete",
         # rhythm
         "h_rhythm": "The house was busiest around <em>{hour}</em>.",
@@ -132,7 +132,7 @@ TEXTS: dict[str, dict[str, object]] = {
         "charged": "Geladen", "discharged": "Ontladen", "efficiency": "Rendement", "cycles": "cycli",
         "h_devices": "<em>{name}</em> gebruikte het meest: {share} van het totaal.",
         "untracked": "Niet apart gemeten", "others": "Overige ({n})", "device": "Apparaat", "value": "Waarde",
-        "share": "Aandeel", "dev_note": "Waarde = verbruik per uur maal de netprijs van dat uur. Apparaten zonder meting deze maand zijn weggelaten: {names}.",
+        "share": "Aandeel", "dev_note": "Waarde = wat het verbruik per uur kostte: de inkoopprijs, of de gemiste terugleververgoeding in uren dat het huis meer teruggaf dan het afnam. Apparaten zonder meting deze maand zijn weggelaten: {names}.",
         "partial": "meting onvolledig",
         "h_rhythm": "Het huis was het drukst rond <em>{hour}</em>.",
         "rhythm_note": "Gemiddeld vermogen per uur van de dag, alles inbegrepen.",

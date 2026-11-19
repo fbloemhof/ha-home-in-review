@@ -293,12 +293,17 @@ class Collector:
         t_cost = total(cost_imp, hours) if has_cost else None
         t_comp = total(comp_exp, hours) if has_comp else None
 
-        # Hourly grid price derived from the cost statistics; used to value device consumption.
+        # What a kWh used in each hour really cost, derived from the cost statistics; used to value devices.
+        # In an hour where the house returned more than it took from the grid, extra use costs the export
+        # compensation that was missed (when known); otherwise it costs the import price of that hour.
         price: dict[int, float] = {}
         if has_cost:
             for h in hours:
-                if imp.get(h, 0) > 0.05 and h in cost_imp:
-                    price[h] = cost_imp[h] / imp[h]
+                i, x = imp.get(h, 0), exp.get(h, 0)
+                if x > i and x > 0.05 and has_comp and h in comp_exp:
+                    price[h] = comp_exp[h] / x
+                elif i > 0.05 and h in cost_imp:
+                    price[h] = cost_imp[h] / i
 
         days: dict[str, dict[str, float]] = {}
         by_hour = [0.0] * 24

@@ -71,7 +71,8 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
 
 - **Energy** comes from the hourly long-term statistics of the sensors in your energy dashboard. Costs come
   from the cost statistics Home Assistant keeps for the energy dashboard. So with a dynamic tariff, every hour
-  is priced at that hour's price. Device "value" is the device's hourly use times the grid price of that hour.
+  is priced at that hour's price. A device's "value" is what its use cost per hour: the import price, or, in hours
+  when the house returned more than it took from the grid, the export compensation it missed.
 - **Glitches**: a meter step larger than the configured maximum per hour is skipped and mentioned in the report.
   A meter that resets (for example per charging session) is handled.
 - **Indoor climate**: all temperature, humidity and CO₂ sensors with long-term statistics that are assigned to
