@@ -82,7 +82,7 @@
               "outdoor_sensor": "Facoltativo. Qualsiasi sensore di temperatura con storico; sostituisce la temperatura modellata.",
               "use_open_meteo": "Archivio meteo gratuito per la tua zona (posizione arrotondata a ~10 km). Disattivato: solo i tuoi sensori, senza valori normali né soleggiamento.",
               "rain_sensor": "Facoltativo. Un sensore di precipitazione cumulativa (totale); sostituisce la pioggia modellata.",
-              "degree_day_base": "Facoltativo. I giorni più freddi contano come giorni di riscaldamento. Vuoto: 18 °C (65 °F).",
+              "degree_day_base": "Facoltativo. I giorni con temperatura media inferiore contano come giorni di riscaldamento. Vuoto: 18 °C (65 °F). Per confrontare con un altro servizio, usa lo stesso valore di quel servizio.",
               "degree_days_weighted": "Da novembre a febbraio ×1,1, marzo e ottobre ×1,0, da aprile a settembre ×0,8. Dopo una modifica, rigenera i mesi precedenti (backfill con sovrascrittura)."
             }
           },

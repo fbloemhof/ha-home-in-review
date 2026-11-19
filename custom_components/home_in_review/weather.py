@@ -77,7 +77,7 @@ async def normals(src, lat: float, lon: float, cache: dict) -> list[dict] | None
     return out
 
 
-# Dutch "gewogen graaddagen" (as Mindergas and gas suppliers use): November-February count more, April-September less.
+# Dutch "gewogen graaddagen", the usual weighting for comparing gas use: November-February count more, April-September less.
 NL_WEIGHTS = {1: 1.1, 2: 1.1, 3: 1.0, 4: 0.8, 5: 0.8, 6: 0.8, 7: 0.8, 8: 0.8, 9: 0.8, 10: 1.0, 11: 1.1, 12: 1.1}
 
 
