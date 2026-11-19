@@ -1090,6 +1090,9 @@ _more = {
 }
 for _l, (_up, _down, _runs, _pm) in _more.items():
     TEXTS[_l].update({"h_custom_more": _up, "h_custom_less": _down, "unit_runs": _runs, "per_month_short": _pm})
+# abbreviation for hours ("u" for uur in Dutch, "h" elsewhere)
+for _l in TEXTS:
+    TEXTS[_l]["unit_hours"] = "u" if _l == "nl" else "h"
 
 # Gas: heating versus hot water and cooking (0.3.2)
 _gas = {

@@ -781,8 +781,8 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         if wx.get("sun_h"):
             c = ""
             if g(wx, "normal", "sun_h"):
-                c = f'<div class="c">{esc(L("vs_normal"))} {L.num(wx["normal"]["sun_h"])} h</div>'
-            stats.append(f'<div class="stat"><div class="l">{esc(L("sun_hours"))}</div><div class="v">{L.num(wx["sun_h"])}<small>h</small></div>{c}</div>')
+                c = f'<div class="c">{esc(L("vs_normal"))} {L.num(wx["normal"]["sun_h"])} {esc(L("unit_hours"))}</div>'
+            stats.append(f'<div class="stat"><div class="l">{esc(L("sun_hours"))}</div><div class="v">{L.num(wx["sun_h"])}<small>{esc(L("unit_hours"))}</small></div>{c}</div>')
         tr = trend(L, P.series13(_get(lambda x: x["energy"]["solar"])), L("trend_solar"), lambda v: kwh(v))
         P.add("solar", L("s_solar"), "sun", f'''{P.kicker(L("s_solar"), "sun")}
 <div class="split"><div><h2>{head}</h2><div class="hero" style="margin-top:22px">{L.num(sol)}<small>kWh</small></div></div>
@@ -1093,6 +1093,8 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         for t in tiles:
             nd = t["decimals"]
             unit = {"days_above": L("unit_days"), "runs_above": L("unit_runs")}.get(t["type"], t["unit"])
+            if t["type"] == "hours_above" or unit == "h":
+                unit = L("unit_hours")
             fmt = lambda v, nd=nd, unit=unit: f"{L.num(v, nd)} {unit}".strip()  # noqa: E731
             fn = _get(lambda x, sid=t["statistic"], typ=t["type"], name=t["name"]: next(
                 (c["value"] for c in x["custom"] if c["statistic"] == sid and c["type"] == typ and c["name"] == name), None))
@@ -1438,7 +1440,7 @@ def render_year(key: str, docs: dict[str, dict], lang: str = "en", home_name: st
                          + (f'<div class="c">{esc(L("vs_normal"))} {L.num(prn)} mm</div>' if prn else "") + "</div>")
         sun = tot(months, _get(lambda x: x["weather"]["sun_h"]))
         if sun:
-            stats.append(P.stat(L("sun_hours"), f"{L.num(sun)} h"))
+            stats.append(P.stat(L("sun_hours"), f'{L.num(sun)} {L("unit_hours")}'))
         frost = tot(months, _get(lambda x: x["weather"]["frost_days"]))
         if frost is not None:
             stats.append(P.stat(L("frost_days"), L.num(frost)))

@@ -374,3 +374,8 @@ def test_split_unit():
     assert split_unit("12 m³") == "12<small>m³</small>"
     assert split_unit("1 234") == "1 234"  # a thousands separator is not a unit
     assert split_unit("€ 12,30") == "€ 12,30"
+
+
+def test_hours_unit_translated():
+    assert Lang("nl")("unit_hours") == "u"
+    assert Lang("en")("unit_hours") == "h"
