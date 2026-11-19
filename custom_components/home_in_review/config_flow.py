@@ -35,6 +35,8 @@ from .const import (
     CONF_FIXED_DAILY,
     CONF_FIXED_MONTHLY,
     CONF_GAS_BASE,
+    CONF_GAS_CH,
+    CONF_GAS_DHW,
     CONF_HP_DEVICES,
     CONF_HP_HEAT,
     CONF_MAX_HOURLY_KWH,
@@ -101,7 +103,8 @@ def _suggest(value: Any) -> dict:
 # Settings form: one form with collapsible sections; key -> fields in that section.
 SECTIONS = {
     "general": [CONF_NOTIFY, CONF_REPORT_DAY, CONF_REPORT_TIME, CONF_YEAR_START, CONF_THEME, CONF_ADMIN_ONLY],
-    "energy": [CONF_FIXED_DAILY, CONF_FIXED_MONTHLY, CONF_MAX_HOURLY_KWH, CONF_GAS_BASE, CONF_HP_DEVICES, CONF_HP_HEAT],
+    "energy": [CONF_FIXED_DAILY, CONF_FIXED_MONTHLY, CONF_MAX_HOURLY_KWH, CONF_GAS_BASE, CONF_GAS_DHW, CONF_GAS_CH,
+               CONF_HP_DEVICES, CONF_HP_HEAT],
     "climate": [CONF_EXCLUDED_AREAS, CONF_OUTDOOR_SENSOR, CONF_RAIN_SENSOR, CONF_USE_OPEN_METEO, CONF_DD_BASE, CONF_DD_WEIGHTED],
     "car": [CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS, CONF_EVCC_URL, CONF_TM_URL, CONF_TM_TOKEN, CONF_TM_HOME],
     "ai": [CONF_AI_TASK, CONF_AI_INSTRUCTIONS],
@@ -184,6 +187,10 @@ class HomeInReviewOptionsFlow(OptionsFlow):
                 selector.NumberSelectorConfig(min=1, max=1000, step=1, mode=BOX, unit_of_measurement="kWh")),
             vol.Optional(CONF_GAS_BASE, description=_suggest(o.get(CONF_GAS_BASE))): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=0, max=1000, step="any", mode=BOX)),
+            vol.Optional(CONF_GAS_DHW, description=_suggest(o.get(CONF_GAS_DHW))): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="binary_sensor")),
+            vol.Optional(CONF_GAS_CH, description=_suggest(o.get(CONF_GAS_CH))): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain=["binary_sensor", "climate"])),
             vol.Optional(CONF_HP_DEVICES, description=_suggest(_as_list(o.get(CONF_HP_DEVICES)))): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", device_class="energy", multiple=True)),
             vol.Optional(CONF_HP_HEAT, description=_suggest(_as_list(o.get(CONF_HP_HEAT)))): selector.EntitySelector(

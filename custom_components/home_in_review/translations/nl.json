@@ -56,7 +56,9 @@
               "max_hourly_kwh": "Grootst mogelijke netafname per uur",
               "heat_pump_devices": "Stroom van de warmtepomp",
               "heat_pump_heat_sensor": "Door de warmtepomp geleverde warmte",
-              "gas_base_per_day": "Gas voor warm water en koken per dag"
+              "gas_base_per_day": "Gas voor warm water en koken per dag",
+              "gas_hot_water_active": "Ketel: warm water actief",
+              "gas_heating_active": "Ketel: verwarming actief"
             },
             "data_description": {
               "fixed_costs_daily": "Optioneel, inclusief btw: vaste leveringskosten en netbeheer min een vaste korting per dag (mag negatief zijn).",
@@ -64,7 +66,9 @@
               "max_hourly_kwh": "Sprongen in de meterstand boven deze waarde per uur gelden als storing. Ongeveer je aansluiting: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
               "heat_pump_devices": "Elk merk: een of meer energiesensoren (de eigen integratie van de warmtepomp, een kWh-meter of slimme stekker, bijv. compressor en backupheater). Voegt een warmtepompdia toe met stroom per graaddag.",
               "heat_pump_heat_sensor": "Optioneel: energiesensoren voor de geleverde warmte (veel merken melden verwarming en tapwater apart; kies dan beide). Voegt de COP toe.",
-              "gas_base_per_day": "Optioneel, in je gaseenheid (bijv. 0,4 m³). Splitst gas in verwarming en de rest. Leeg: per maand geschat uit hoe het gasverbruik de graaddagen volgt."
+              "gas_base_per_day": "Optioneel, in je gaseenheid (bijv. 0,4 m³). Splitst gas in verwarming en de rest. Leeg: per maand geschat uit hoe het gasverbruik de graaddagen volgt.",
+              "gas_hot_water_active": "Optioneel: de warmwaterstatus van de ketel (bijv. OpenTherm). Hiermee en/of met de verwarmingsstatus wordt gas per uur verdeeld op basis van wat de ketel deed, in plaats van geschat uit het weer. Een sensor telt de uren op; het werkt vanaf de eerste volle maand na het instellen.",
+              "gas_heating_active": "Optioneel: de cv-status van de ketel (binary sensor), of een thermostaat (telt als verwarming zolang die 'verwarmen' meldt)."
             }
           },
           "climate": {
@@ -183,6 +187,16 @@
         "night": "Nacht",
         "mono": "Zwart-wit",
         "ha": "Home Assistant (volgt je Home Assistant-thema)"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "hot_water_time": {
+        "name": "Ketel warm water aan-tijd"
+      },
+      "heating_time": {
+        "name": "Ketel verwarming aan-tijd"
       }
     }
   },

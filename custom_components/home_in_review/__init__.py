@@ -18,9 +18,11 @@ import voluptuous as vol
 from homeassistant.components import frontend, panel_custom
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.event import async_track_time_change
 from homeassistant.helpers.start import async_at_started
 from homeassistant.util import dt as dt_util
@@ -32,6 +34,8 @@ from .const import (
     CONF_AI_INSTRUCTIONS,
     CONF_AI_TASK,
     CONF_BACKFILL_MONTHS,
+    CONF_GAS_CH,
+    CONF_GAS_DHW,
     CONF_NOTIFY,
     CONF_REPORT_DAY,
     CONF_REPORT_TIME,
@@ -51,6 +55,7 @@ from .views import YM, ReportView
 
 # Bump when the collector's output changes, so existing reports are re-made after an update.
 COLLECTOR_VERSION = 5
+PLATFORMS = [Platform.SENSOR]
 PRESENTATION_OPTIONS = {"notify_services", "report_day", "report_time", "default_theme", "admin_only",
                         "year_start_month", "backfill_months", "backfilled"}
 
@@ -79,6 +84,15 @@ class HomeInReview:
         """Entry data and options, validated (see options.py)."""
         return sanitize({**self.entry.data, **self.entry.options})
 
+    def boiler_stats(self) -> dict[str, str]:
+        """Statistic ids of this entry's on-time sensors for the boiler (see sensor.py), when set up."""
+        reg = er.async_get(self.hass)
+        out = {}
+        for short, key, conf in (("dhw", "hot_water_time", CONF_GAS_DHW), ("ch", "heating_time", CONF_GAS_CH)):
+            if self.options.get(conf) and (eid := reg.async_get_entity_id("sensor", DOMAIN, f"{self.entry.entry_id}_{key}")):
+                out[short] = eid
+        return out
+
     def fingerprint(self) -> str:
         """What a report depends on besides the data: the collector version and the options that change figures.
         Presentation-only options (notifications, schedule, theme, access, year start) are left out. AI settings count:
@@ -96,7 +110,8 @@ class HomeInReview:
         ym = f"{year:04d}-{month:02d}"
         async with self.lock:
             previous = self.store.docs.get(ym)
-            doc = await Collector(self.source, self.options, self.store.cache).collect(year, month)
+            doc = await Collector(self.source, {**self.options, "_boiler": self.boiler_stats()},
+                                  self.store.cache).collect(year, month)
             doc["meta"] = {"fingerprint": self.fingerprint(), "collector": COLLECTOR_VERSION}
             await self._story(ym, doc, previous)
             await self.store.async_save(ym, doc)
@@ -280,6 +295,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     rt = HomeInReview(hass, entry)
     await rt.store.async_load()
     entry.runtime_data = rt
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     t = dt.time.fromisoformat(str(rt.options.get(CONF_REPORT_TIME, DEFAULT_REPORT_TIME)))
     entry.async_on_unload(async_track_time_change(hass, rt.scheduled, hour=t.hour, minute=t.minute, second=t.second))
@@ -320,6 +336,8 @@ async def _reload(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    if not await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
+        return False
     rt: HomeInReview = entry.runtime_data
     if rt.backfill_task and not rt.backfill_task.done():
         rt.backfill_task.cancel()

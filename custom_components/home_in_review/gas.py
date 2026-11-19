@@ -53,3 +53,33 @@ def _result(total: float, base: float | None, base_per_day: float | None, source
         out.update({"hot_water": base, "heating": heating, "base_per_day": base_per_day,
                     "heating_per_degree_day": heating / dd_total if dd_total > 1 and heating > 0 else None})
     return out
+
+
+def split_measured(gas_hours: dict[int, float], dhw: dict[int, float] | None, ch: dict[int, float] | None,
+                   degree_days: float | None = None) -> dict | None:
+    """Split gas per hour from the boiler's own status: the hours (0-1) it was making hot water (``dhw``) and heating
+    the house (``ch``), as recorded by the integration's on-time sensors. Per hour:
+
+    - both known: by on-time; an hour with gas but neither active is hot water and cooking (e.g. a gas hob);
+    - only hot water known: hours with hot water go to hot water, the rest to heating;
+    - only heating known: hours with heating go to heating, the rest to hot water and cooking.
+    """
+    if dhw is None and ch is None:
+        return None
+    hot = heat = 0.0
+    for h, g in gas_hours.items():
+        if g <= 0:
+            continue
+        d = (dhw or {}).get(h, 0.0) if dhw is not None else None
+        c = (ch or {}).get(h, 0.0) if ch is not None else None
+        if d is not None and c is not None:
+            share = d / (d + c) if d + c > 0 else 1.0
+        elif d is not None:
+            share = 1.0 if d > 0 else 0.0
+        else:
+            share = 0.0 if c > 0 else 1.0
+        hot += g * share
+        heat += g * (1 - share)
+    days = max(1.0, len(gas_hours) / 24)
+    return {"base_source": "boiler", "hot_water": hot, "heating": heat, "base_per_day": hot / days,
+            "heating_per_degree_day": heat / degree_days if degree_days and degree_days > 1 and heat > 0 else None}

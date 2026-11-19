@@ -399,3 +399,44 @@ def test_rate_peaks_variants():
     assert X.rate_peaks({"stat": "p", "inverted": True}, rows) == ({3600: 2.0}, {3600: 1.5})
     assert X.rate_peaks({"from": "a", "to": "b"}, rows) == ({3600: 3.0}, {3600: 0.7})
     assert X.rate_peaks(None, rows) == ({}, {})
+
+
+def test_gas_split_measured():
+    from hir import gas
+    hours = {0: 1.0, 3600: 2.0, 7200: 0.5, 10800: 0.2}
+    dhw = {0: 0.5, 7200: 0.25}
+    ch = {3600: 1.0, 7200: 0.25}
+    r = gas.split_measured(hours, dhw, ch, degree_days=10)
+    # hour 0 hot water only, hour 1 heating only, hour 2 half/half, hour 3 neither (cooking) -> hot water
+    assert r["base_source"] == "boiler"
+    assert abs(r["hot_water"] - (1.0 + 0.25 + 0.2)) < 1e-9 and abs(r["heating"] - (2.0 + 0.25)) < 1e-9
+    assert abs(r["heating_per_degree_day"] - 0.225) < 1e-9
+    only_dhw = gas.split_measured(hours, dhw, None)
+    assert abs(only_dhw["hot_water"] - 1.5) < 1e-9 and abs(only_dhw["heating"] - 2.2) < 1e-9
+    only_ch = gas.split_measured(hours, None, ch)
+    assert abs(only_ch["heating"] - 2.5) < 1e-9 and abs(only_ch["hot_water"] - 1.2) < 1e-9
+    assert gas.split_measured(hours, None, None) is None
+
+
+def test_collector_uses_boiler_on_time():
+    src = FakeSource()
+    src.prefs["energy_sources"].append({"type": "gas", "stat_energy_from": "sensor.gas"})
+    orig = src.statistics
+
+    async def more(ids, start, end, period, units, types):
+        out = await orig(ids, start, end, period, units, types)
+        first = int(start.timestamp())
+        n = int((end - start).total_seconds() // 3600)
+        # gas 0.2 m³ an hour; every hour 15 minutes hot water and 30 minutes heating -> one third hot water
+        for sid, per in (("sensor.gas", 0.2), ("sensor.dhw_time", 0.25), ("sensor.ch_time", 0.5)):
+            if sid in ids:
+                out[sid] = [{"start": first + k * 3600, "sum": per * k} for k in range(n)]
+        return out
+
+    src.statistics = more
+    doc = asyncio.run(C.Collector(src, {"_boiler": {"dhw": "sensor.dhw_time", "ch": "sensor.ch_time"}}).collect(2026, 2))
+    g = doc["gas"]
+    assert g["base_source"] == "boiler"
+    assert abs(g["hot_water"] - g["amount"] / 3) < 1e-6 and abs(g["heating"] - g["amount"] * 2 / 3) < 1e-6
+    html = R.render_month("2026-02", {"2026-02": doc}, "nl", None, 1)
+    assert "Gemeten: per uur verdeeld" in html

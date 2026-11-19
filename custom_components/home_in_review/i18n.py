@@ -1322,3 +1322,6 @@ for _l, _v in _cost_one.items():
 _summed = {'en': 'upper bound, {n} inverters added up', 'nl': 'bovengrens, {n} omvormers opgeteld', 'de': 'Obergrenze, {n} Wechselrichter addiert', 'fr': 'borne haute, {n} onduleurs additionnés', 'es': 'límite superior, {n} inversores sumados', 'it': 'limite superiore, {n} inverter sommati'}
 for _l, _v in _summed.items():
     TEXTS[_l]["peak_summed"] = _v
+_boiler_note = {'en': "Measured: split per hour from the boiler's own status (hot water or heating), about {base} a day for hot water and cooking.", 'nl': 'Gemeten: per uur verdeeld op basis van de status van de ketel (warm water of verwarming), ongeveer {base} per dag voor warm water en koken.', 'de': 'Gemessen: stündlich nach dem eigenen Status des Kessels aufgeteilt (Warmwasser oder Heizung), etwa {base} pro Tag für Warmwasser und Kochen.', 'fr': "Mesuré : réparti heure par heure selon l'état de la chaudière (eau chaude ou chauffage), environ {base} par jour pour l'eau chaude et la cuisson.", 'es': 'Medido: repartido por horas según el estado de la caldera (agua caliente o calefacción), unos {base} al día para agua caliente y cocina.', 'it': 'Misurato: ripartito ora per ora secondo lo stato della caldaia (acqua calda o riscaldamento), circa {base} al giorno per acqua calda e cucina.'}
+for _l, _v in _boiler_note.items():
+    TEXTS[_l]["gas_note_boiler"] = _v

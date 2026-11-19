@@ -187,3 +187,39 @@ async def test_ai_summary_reused_when_figures_unchanged(recorder_mock, hass: Hom
     changed = {**DOC, "energy": {**DOC["energy"], "consumption": 99.0}}
     await rt._story("2026-10", changed, previous=first)
     assert len(calls) == 2                                              # figures changed: written again
+
+
+async def test_boiler_on_time_sensors(recorder_mock, hass: HomeAssistant, freezer) -> None:
+    """The on-time sensors add up the hours the boiler status was active, survive option changes, and are
+    handed to the collector."""
+    from homeassistant.helpers import entity_registry as er
+
+    freezer.move_to("2026-11-19 10:00:00+00:00")
+    hass.states.async_set("binary_sensor.boiler_dhw", "off")
+    hass.states.async_set("climate.thermostat", "heat", {"hvac_action": "idle"})
+    entry = await setup_entry(hass, {"gas_hot_water_active": "binary_sensor.boiler_dhw",
+                                     "gas_heating_active": "climate.thermostat"})
+    reg = er.async_get(hass)
+    dhw = reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_hot_water_time")
+    ch = reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_heating_time")
+    assert dhw and ch
+    assert entry.runtime_data.boiler_stats() == {"dhw": dhw, "ch": ch}
+
+    hass.states.async_set("binary_sensor.boiler_dhw", "on")
+    hass.states.async_set("climate.thermostat", "heat", {"hvac_action": "heating"})
+    await hass.async_block_till_done()
+    freezer.tick(1800)  # half an hour
+    hass.states.async_set("binary_sensor.boiler_dhw", "off")
+    await hass.async_block_till_done()
+    assert abs(float(hass.states.get(dhw).state) - 0.5) < 0.01
+    freezer.tick(1800)  # heating keeps running: an hour in total
+    hass.states.async_set("climate.thermostat", "heat", {"hvac_action": "idle"})
+    await hass.async_block_till_done()
+    assert abs(float(hass.states.get(ch).state) - 1.0) < 0.01
+    assert hass.states.get(dhw).attributes["state_class"] == "total_increasing"
+
+    # Clearing an option removes its sensor.
+    hass.config_entries.async_update_entry(entry, options={"gas_hot_water_active": "binary_sensor.boiler_dhw"})
+    await hass.async_block_till_done()
+    assert reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_heating_time") is None
+    assert hass.states.get(dhw) is not None

@@ -56,7 +56,9 @@
               "max_hourly_kwh": "Consumo de red máximo plausible por hora",
               "heat_pump_devices": "Electricidad de la bomba de calor",
               "heat_pump_heat_sensor": "Calor entregado por la bomba de calor",
-              "gas_base_per_day": "Gas para agua caliente y cocina por día"
+              "gas_base_per_day": "Gas para agua caliente y cocina por día",
+              "gas_hot_water_active": "Caldera: agua caliente activa",
+              "gas_heating_active": "Caldera: calefacción activa"
             },
             "data_description": {
               "fixed_costs_daily": "Opcional, con impuestos: término fijo y peajes menos una bonificación fija diaria (puede ser negativo).",
@@ -64,7 +66,9 @@
               "max_hourly_kwh": "Los saltos del contador por encima de este valor por hora se consideran errores. Aproximadamente tu acometida: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
               "heat_pump_devices": "Cualquier marca: uno o varios sensores de energía (la integración de la propia bomba, un contador o un enchufe inteligente, p. ej. compresor y resistencia de apoyo). Añade una diapositiva de la bomba de calor con electricidad por grado-día.",
               "heat_pump_heat_sensor": "Opcional: sensores de energía del calor entregado (muchas marcas separan calefacción y agua caliente; elige ambos). Añade el COP.",
-              "gas_base_per_day": "Opcional, en tu unidad de gas (p. ej. 0,4 m³). Separa el gas en calefacción y el resto. Vacío: se estima cada mes según cómo sigue el consumo a los grados-día."
+              "gas_base_per_day": "Opcional, en tu unidad de gas (p. ej. 0,4 m³). Separa el gas en calefacción y el resto. Vacío: se estima cada mes según cómo sigue el consumo a los grados-día.",
+              "gas_hot_water_active": "Opcional: el estado de agua caliente de la caldera (p. ej. OpenTherm). Con este y/o el estado de calefacción, el gas se reparte por horas según lo que hacía la caldera, en lugar de estimarse a partir del tiempo. Un sensor suma las horas; funciona desde el primer mes completo tras configurarlo.",
+              "gas_heating_active": "Opcional: el estado de calefacción de la caldera (sensor binario), o un termostato (cuenta como calefacción mientras indique que calienta)."
             }
           },
           "climate": {
@@ -183,6 +187,16 @@
         "night": "Noche",
         "mono": "Blanco y negro",
         "ha": "Home Assistant (sigue tu tema de Home Assistant)"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "hot_water_time": {
+        "name": "Tiempo de agua caliente de la caldera"
+      },
+      "heating_time": {
+        "name": "Tiempo de calefacción de la caldera"
       }
     }
   },

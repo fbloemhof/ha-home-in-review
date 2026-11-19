@@ -101,6 +101,10 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
     connection; 3 × 25 A is about 17 kWh). For a heat pump of any brand: one or more energy sensors for its
     electricity (its own integration, a kWh meter or a smart plug; for example compressor and backup heater)
     and, optionally, sensors for the heat it delivers (often heating and hot water separately), which adds the COP.
+    For a gas boiler: optionally its hot-water and heating status (e.g. from OpenTherm Gateway or ESPHome OpenTherm,
+    or a thermostat that reports when it heats). The integration then adds up the hours in two sensors of its own
+    and splits gas per hour into hot water and heating, measured instead of estimated from the weather, from the
+    first full month after setting it up.
   - **Indoor climate and weather**: areas that are not indoors, an outdoor temperature sensor, a rain gauge, and
     whether to use Open-Meteo at all.
   - **Car**: for any brand, each car's odometer sensor and your charger's energy sensor. Richer sources are used

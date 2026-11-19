@@ -23,6 +23,8 @@ from .const import (
     CONF_FIXED_DAILY,
     CONF_FIXED_MONTHLY,
     CONF_GAS_BASE,
+    CONF_GAS_CH,
+    CONF_GAS_DHW,
     CONF_HP_DEVICES,
     CONF_HP_HEAT,
     CONF_MAX_HOURLY_KWH,
@@ -88,7 +90,7 @@ def sanitize(raw: dict) -> dict:
     if raw.get(CONF_EXCLUDED_AREAS) is not None:
         o[CONF_EXCLUDED_AREAS] = [x for x in raw[CONF_EXCLUDED_AREAS] if isinstance(x, str)] if isinstance(
             raw[CONF_EXCLUDED_AREAS], list) else []
-    for k in (CONF_OUTDOOR_SENSOR, CONF_RAIN_SENSOR, CONF_AI_TASK):
+    for k in (CONF_OUTDOOR_SENSOR, CONF_RAIN_SENSOR, CONF_AI_TASK, CONF_GAS_DHW, CONF_GAS_CH):
         if _entity(raw.get(k)):
             o[k] = raw[k]
     for k in (CONF_HP_DEVICES, CONF_HP_HEAT, CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS):

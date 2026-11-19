@@ -192,6 +192,7 @@ class Collector:
         self.avg_price: float | None = None
         self.mean_price: float | None = None
         self.battery_hours: list[tuple[dict[int, float], dict[int, float]]] = []
+        self.gas_hours: dict[int, float] = {}
         self.src = source
         self.opt = options or {}
         self.cache = cache if cache is not None else {}
@@ -231,6 +232,7 @@ class Collector:
         await self._weather(doc, cfg, start, end, hours, tz, metric)
         await self._indoor(doc, start, end, hours, metric)
         self._gas_heating(doc, metric)
+        await self._gas_boiler(doc, start, end, hours)
         self._totals(doc)
         cap = float(self.opt.get("max_hourly_kwh") or DEFAULT_MAX_HOURLY_KWH)
         await extras.heat_pump(self, doc, start, end, hours, cap)
@@ -412,6 +414,23 @@ class Collector:
         if res:
             g.update(res)
 
+    async def _gas_boiler(self, doc: dict, start, end, hours) -> None:
+        """Replace the estimated gas split by a measured one when the boiler's hot-water/heating on-time sensors
+        (sensor.py) cover the whole month; otherwise the estimate stays."""
+        g, boiler = doc.get("gas"), self.opt.get("_boiler") or {}
+        if not g or not boiler or not getattr(self, "gas_hours", None):
+            return
+        rows = await self._sums(set(boiler.values()), start, end, {"duration": "h"})
+        series: dict[str, dict[int, float] | None] = {"dhw": None, "ch": None}
+        for short, sid in boiler.items():
+            fs = first_start(rows.get(sid, []))
+            if fs is None or fs > hours[0] + PARTIAL_GRACE_S:
+                return  # not recorded for the whole month yet
+            series[short] = hourly_deltas(rows[sid], hours, 1.05)[0]
+        res = gas.split_measured(self.gas_hours, series["dhw"], series["ch"], g.get("degree_days"))
+        if res:
+            g.update(res)
+
     @staticmethod
     def _totals(doc: dict) -> None:
         """Total energy cost = electricity (bought - sold) + gas + fixed costs. Water is shown separately."""
@@ -496,6 +515,8 @@ class Collector:
         for h, v in days.items():
             k = dt.datetime.fromtimestamp(h, tz).strftime("%Y-%m-%d")
             per_day[k] = per_day.get(k, 0.0) + v
+        if kind == "gas":
+            self.gas_hours = days  # gas per hour, for the split from the boiler's own status
         doc[kind] = {"amount": amount, "unit": unit, "cost": cost, "per_day": amount / max(1, len(hours) / 24),
                      "daily": [{"d": k, "v": per_day[k]} for k in sorted(per_day)]}
 

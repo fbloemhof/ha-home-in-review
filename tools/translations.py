@@ -500,6 +500,24 @@ _en["data_description"]["gas_base_per_day"] = t(
     "Optioneel, in je gaseenheid (bijv. 0,4 m³). Splitst gas in verwarming en de rest. Leeg: per maand geschat uit hoe het gasverbruik de graaddagen volgt.",
     "Optional, in Ihrer Gaseinheit (z. B. 0,4 m³). Teilt Gas in Heizung und Rest. Leer: pro Monat geschätzt aus dem Verlauf gegenüber den Gradtagen.",
     "Facultatif, dans votre unité de gaz (p. ex. 0,4 m³). Sépare le gaz entre chauffage et reste. Vide : estimé chaque mois selon le lien avec les degrés-jours.")
+_en["data"]["gas_hot_water_active"] = t("Boiler: hot water active", "Ketel: warm water actief",
+                                        "Kessel: Warmwasser aktiv", "Chaudière : eau chaude active")
+_en["data_description"]["gas_hot_water_active"] = t(
+    "Optional: the boiler's hot-water status (e.g. OpenTherm). With this and/or the heating status, gas is split per hour from what the boiler was doing instead of being estimated from the weather. A sensor adds up the hours; it works from the first full month after setting it up.",
+    "Optioneel: de warmwaterstatus van de ketel (bijv. OpenTherm). Hiermee en/of met de verwarmingsstatus wordt gas per uur verdeeld op basis van wat de ketel deed, in plaats van geschat uit het weer. Een sensor telt de uren op; het werkt vanaf de eerste volle maand na het instellen.",
+    "Optional: der Warmwasserstatus des Kessels (z. B. OpenTherm). Damit und/oder mit dem Heizstatus wird Gas stündlich nach dem tatsächlichen Betrieb aufgeteilt statt aus dem Wetter geschätzt. Ein Sensor summiert die Stunden; es gilt ab dem ersten vollen Monat nach der Einrichtung.",
+    "Facultatif : l'état eau chaude de la chaudière (p. ex. OpenTherm). Avec celui-ci et/ou l'état chauffage, le gaz est réparti heure par heure selon ce que faisait la chaudière, au lieu d'être estimé d'après la météo. Un capteur additionne les heures ; cela s'applique à partir du premier mois complet après la configuration.")
+_en["data"]["gas_heating_active"] = t("Boiler: heating active", "Ketel: verwarming actief",
+                                      "Kessel: Heizung aktiv", "Chaudière : chauffage actif")
+_en["data_description"]["gas_heating_active"] = t(
+    "Optional: the boiler's central-heating status (binary sensor), or a thermostat (counts as heating while it reports heating).",
+    "Optioneel: de cv-status van de ketel (binary sensor), of een thermostaat (telt als verwarming zolang die 'verwarmen' meldt).",
+    "Optional: der Heizstatus des Kessels (Binärsensor) oder ein Thermostat (zählt als Heizen, solange es „heizt“ meldet).",
+    "Facultatif : l'état chauffage de la chaudière (capteur binaire), ou un thermostat (compte comme chauffage tant qu'il indique « chauffe »).")
+ENTITY = {"hot_water_time": t("Boiler hot water on-time", "Ketel warm water aan-tijd", "Kessel Warmwasser-Laufzeit",
+                              "Durée eau chaude chaudière"),
+          "heating_time": t("Boiler heating on-time", "Ketel verwarming aan-tijd", "Kessel Heizungs-Laufzeit",
+                            "Durée chauffage chaudière")}
 CONFIG["user"]["data_description"]["backfill_months"] = t(
     "Earlier months are generated in the background from long-term statistics. The suggestion covers all of last year and this year so far, so both year reviews start complete. Use 0 to skip.",
     "Eerdere maanden worden op de achtergrond gemaakt uit de langetermijnstatistieken. Het voorstel dekt heel vorig jaar en dit jaar tot nu toe, zodat beide jaaroverzichten compleet beginnen. Gebruik 0 om over te slaan.",
@@ -604,6 +622,7 @@ for lang in LANGS:
             "tile_type": {"options": {k: v[lang] for k, v in TILE.items()}},
             "theme": {"options": {k: v[lang] for k, v in THEME_NAMES.items()}},
         },
+        "entity": {"sensor": {k: {"name": v[lang]} for k, v in ENTITY.items()}},
         "services": {k: {"name": v["name"][lang], "description": v["description"][lang],
                          "fields": {f: {"name": n[lang], "description": d[lang]} for f, (n, d) in v["fields"].items()}}
                      for k, v in SERVICES.items()},

@@ -7,6 +7,11 @@
   cost), cycles from the state of charge, days full, and the highest charge and discharge power. Per battery in a
   table when there are several. No new settings: the power and state-of-charge sensors from the energy dashboard
   are used (#4).
+- Gas: split into hot water and heating from the boiler's own status (#2). Choose its hot-water and/or heating
+  status (a binary sensor such as OpenTherm's, or a thermostat) in the options; two sensors of the integration add
+  up the hours, and from the first full month after that, gas is split per hour from what the boiler was doing
+  instead of being estimated from the weather. The split is now also shown without weather data when it is
+  measured.
 - Peak power: the solar peak (solar slide) and the highest grid import and export (rhythm slide), from the power
   sensors in the energy dashboard.
 - Reports are re-made once after the update to add these figures.

@@ -56,7 +56,9 @@
               "max_hourly_kwh": "Größter plausibler Netzbezug pro Stunde",
               "heat_pump_devices": "Strom der Wärmepumpe",
               "heat_pump_heat_sensor": "Von der Wärmepumpe gelieferte Wärme",
-              "gas_base_per_day": "Gas für Warmwasser und Kochen pro Tag"
+              "gas_base_per_day": "Gas für Warmwasser und Kochen pro Tag",
+              "gas_hot_water_active": "Kessel: Warmwasser aktiv",
+              "gas_heating_active": "Kessel: Heizung aktiv"
             },
             "data_description": {
               "fixed_costs_daily": "Optional, inkl. Steuern: Grundgebühr und Netzentgelte abzüglich einer festen Gutschrift pro Tag (darf negativ sein).",
@@ -64,7 +66,9 @@
               "max_hourly_kwh": "Zählersprünge darüber gelten als Störung. Etwa Ihr Anschluss: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
               "heat_pump_devices": "Jede Marke: ein oder mehrere Energiesensoren (Integration der Wärmepumpe, Zähler oder Steckdose, z. B. Verdichter und Heizstab). Fügt eine Wärmepumpen-Folie hinzu.",
               "heat_pump_heat_sensor": "Optional: Energiesensoren für die gelieferte Wärme (oft getrennt für Heizung und Warmwasser; beide wählen). Ergänzt den COP.",
-              "gas_base_per_day": "Optional, in Ihrer Gaseinheit (z. B. 0,4 m³). Teilt Gas in Heizung und Rest. Leer: pro Monat geschätzt aus dem Verlauf gegenüber den Gradtagen."
+              "gas_base_per_day": "Optional, in Ihrer Gaseinheit (z. B. 0,4 m³). Teilt Gas in Heizung und Rest. Leer: pro Monat geschätzt aus dem Verlauf gegenüber den Gradtagen.",
+              "gas_hot_water_active": "Optional: der Warmwasserstatus des Kessels (z. B. OpenTherm). Damit und/oder mit dem Heizstatus wird Gas stündlich nach dem tatsächlichen Betrieb aufgeteilt statt aus dem Wetter geschätzt. Ein Sensor summiert die Stunden; es gilt ab dem ersten vollen Monat nach der Einrichtung.",
+              "gas_heating_active": "Optional: der Heizstatus des Kessels (Binärsensor) oder ein Thermostat (zählt als Heizen, solange es „heizt“ meldet)."
             }
           },
           "climate": {
@@ -183,6 +187,16 @@
         "night": "Nacht",
         "mono": "Schwarz-weiß",
         "ha": "Home Assistant (folgt Ihrem Home-Assistant-Design)"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "hot_water_time": {
+        "name": "Kessel Warmwasser-Laufzeit"
+      },
+      "heating_time": {
+        "name": "Kessel Heizungs-Laufzeit"
       }
     }
   },
