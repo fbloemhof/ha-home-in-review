@@ -119,6 +119,9 @@
           "tiles": "Figures to remove"
         }
       }
+    },
+    "error": {
+      "statistic_required": "Choose a statistic."
     }
   },
   "selector": {

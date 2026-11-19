@@ -119,6 +119,9 @@
           "tiles": "Te verwijderen cijfers"
         }
       }
+    },
+    "error": {
+      "statistic_required": "Kies een statistiek."
     }
   },
   "selector": {

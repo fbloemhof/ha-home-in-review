@@ -119,6 +119,9 @@
           "tiles": "Chiffres à supprimer"
         }
       }
+    },
+    "error": {
+      "statistic_required": "Choisissez une statistique."
     }
   },
   "selector": {

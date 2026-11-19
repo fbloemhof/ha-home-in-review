@@ -445,7 +445,8 @@ for lang in LANGS:
     steps = {k: pick(v, lang) for k, v in STEPS.items()}
     doc = {
         "config": {"abort": pick(CONFIG["abort"], lang), "step": {"user": pick(CONFIG["user"], lang)}},
-        "options": {"step": steps},
+        "options": {"step": steps, "error": {"statistic_required": t(
+            "Choose a statistic.", "Kies een statistiek.", "Wählen Sie eine Statistik.", "Choisissez une statistique.")[lang]}},
         "selector": {
             "month": {"options": {str(i + 1): m for i, m in enumerate(MONTHS[lang])}},
             "tile_type": {"options": {k: v[lang] for k, v in TILE.items()}},

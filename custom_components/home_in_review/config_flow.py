@@ -196,7 +196,12 @@ class HomeInReviewOptionsFlow(OptionsFlow):
 
     # ------------------------------------------------------------------ custom tiles
     async def async_step_tile_add(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        if user_input is not None:
+        # The statistic field is optional in the schema because the frontend can't build initial data for a
+        # required statistic selector (the form stays empty); it is checked here instead.
+        errors: dict[str, str] = {}
+        if user_input is not None and not user_input.get("statistic"):
+            errors["statistic"] = "statistic_required"
+        elif user_input is not None:
             tile = {"name": user_input["name"], "statistic": user_input["statistic"], "type": user_input["type"],
                     "unit": user_input.get("unit") or "", "decimals": int(user_input.get("decimals", 0))}
             if user_input.get("threshold") is not None:
@@ -205,15 +210,16 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             o[CONF_TILES] = [*o.get(CONF_TILES, []), tile]
             return self.async_create_entry(data=o)
         return self.async_show_form(step_id="tile_add", data_schema=vol.Schema({
-            vol.Required("name"): selector.TextSelector(),
-            vol.Required("statistic"): selector.StatisticSelector(selector.StatisticSelectorConfig()),
+            vol.Required("name", default=(user_input or {}).get("name", "")): selector.TextSelector(),
+            vol.Optional("statistic", description=_suggest((user_input or {}).get("statistic"))): selector.StatisticSelector(
+                selector.StatisticSelectorConfig()),
             vol.Required("type", default="sum"): selector.SelectSelector(
                 selector.SelectSelectorConfig(options=list(TILE_TYPES), translation_key="tile_type")),
             vol.Optional("threshold"): selector.NumberSelector(selector.NumberSelectorConfig(step="any", mode=BOX)),
             vol.Optional("unit"): selector.TextSelector(),
             vol.Optional("decimals", default=0): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=0, max=3, step=1, mode=BOX)),
-        }))
+        }), errors=errors)
 
     async def async_step_tile_remove(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         tiles = self.config_entry.options.get(CONF_TILES, [])

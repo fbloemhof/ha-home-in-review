@@ -119,6 +119,9 @@
           "tiles": "Zu entfernende Kennzahlen"
         }
       }
+    },
+    "error": {
+      "statistic_required": "Wählen Sie eine Statistik."
     }
   },
   "selector": {
