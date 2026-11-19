@@ -59,17 +59,26 @@ French, Spanish and Italian so far) and your unit system and currency.
 
 ## Installation
 
-Home in Review is not in the default HACS / Marketplace list yet. Add it as a custom repository:
+[![Open your Home Assistant instance and show Home in Review in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=fbloemhof&repository=ha-home-in-review&category=integration)
 
-1. In Home Assistant open **HACS** (Marketplace) → ⋮ → **Custom repositories**.
-2. Add `https://github.com/fbloemhof/ha-home-in-review` with type **Integration**.
-3. Install **Home in Review** and restart Home Assistant.
-4. Go to **Settings → Devices & services → Add integration → Home in Review**.
+1. Click the button above (Home Assistant 2026.11 or newer) and install **Home in Review**, then restart Home Assistant.
+2. Add the integration:
+
+   [![Open your Home Assistant instance and start setting up Home in Review.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=home_in_review)
 
 On setup it generates the last 12 months from your long-term statistics in the background, so you can browse a
 year of reports right away. After that, a new report is made on the 1st of every month at 07:00.
 
+<details>
+<summary>Without the button, or with HACS on an older Home Assistant</summary>
+
+1. Open **HACS** (or **Settings → Marketplace**) → ⋮ → **Custom repositories**.
+2. Add `https://github.com/fbloemhof/ha-home-in-review` with type **Integration**.
+3. Install **Home in Review** and restart Home Assistant.
+4. Go to **Settings → Devices & services → Add integration → Home in Review**.
+
 Manual install: copy `custom_components/home_in_review` into your `config/custom_components` folder and restart.
+</details>
 
 ## Options
 
