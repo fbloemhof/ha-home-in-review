@@ -14,6 +14,7 @@
   average price), use per 100 km, all with comparisons.
 - Typography and colours: Fraunces and Inter ship with the integration (nothing loaded from elsewhere); the night
   theme uses a navy and amber palette. New option **Default theme**.
+- Click a bar in any month chart (the 13-month trends and the year review) to open that month.
 
 **Fixed**
 - The night and black-and-white themes were overridden by the dark theme on devices set to dark mode.

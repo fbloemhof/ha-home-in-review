@@ -190,6 +190,8 @@ ul.src{margin:0;padding-left:1.1em;color:var(--ink2);font-size:14.5px}
 #tip{position:fixed;pointer-events:none;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:8px;
   padding:6px 10px;font-size:13px;box-shadow:0 6px 24px rgba(0,0,0,.12);opacity:0;transition:opacity .1s;z-index:9;max-width:280px}
 .hit{fill:transparent}
+.hit[data-go]{cursor:pointer}
+.hit[data-go]:hover{fill:color-mix(in srgb,var(--ink) 7%,transparent)}
 .idx{display:grid;gap:0;max-width:900px}
 .idx a{display:grid;grid-template-columns:1fr auto auto;gap:24px;align-items:baseline;text-decoration:none;padding:14px 0;border-bottom:1px solid var(--line)}
 .idx a b{font-family:var(--serif);font-size:clamp(22px,2.6vw,30px);font-weight:500}
@@ -225,7 +227,7 @@ def theme_head(default: str = "auto") -> str:
 
 JS = r"""
 window.hirGo=f=>{if(window.parent!==window)parent.postMessage({homeInReview:f},location.origin);else location.href='./'+f+'.html'};
-document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[data-go]');if(!a)return;e.preventDefault();hirGo(a.dataset.go)});
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-go]');if(!a)return;e.preventDefault();hirGo(a.dataset.go)});
 (()=>{const b=document.querySelector('.hmenu');if(!b||window.parent===window)return;const set=v=>{b.hidden=!v};
  set(/(^|[#&])menu\b/.test(location.hash));addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&'hirNarrow' in e.data)set(!!e.data.hirNarrow)});
  b.onclick=()=>parent.postMessage({homeInReview:'menu'},location.origin)})();
@@ -319,7 +321,9 @@ def trend(L: Lang, series: list[tuple[str, float | None]], cap: str, fmt: Callab
                 ty = y - 5 if v >= 0 else y0 - 5
                 out.append(f'<text x="{x + bw / 2:.1f}" y="{ty:.1f}" class="vl" text-anchor="middle">{fmt(v)}</text>')
         tipv = fmt(v) if v is not None else L("no_data")
-        out.append(f'<rect class="hit" x="{x:.1f}" y="0" width="{bw:.1f}" height="{H}" data-tip="{esc(L.month_short(m))} {ym[:4]}: {esc(tipv)}"/>')
+        # Bars of other months with a report open that month; the current month (the accent bar) has no link.
+        go = f' data-go="{ym}"' if v is not None and not last else ""
+        out.append(f'<rect class="hit" x="{x:.1f}" y="0" width="{bw:.1f}" height="{H}"{go} data-tip="{esc(L.month_short(m))} {ym[:4]}: {esc(tipv)}"/>')
         lab = L.month_short(m)[0].upper() + (("’" + ym[2:4]) if (first or last) else "")
         out.append(f'<text x="{x + bw / 2:.1f}" y="{H - 3}" class="ax" text-anchor="middle"{" font-weight=\"600\"" if (first or last) else ""}>{lab}</text>')
     out.append("</svg></div>")
@@ -1252,7 +1256,8 @@ def month_bars(L: Lang, months: list[str], cur: list[float | None], prev: list[f
         tip = f'{L.month(int(ym[5:]))} {ym[:4]}: {fmt(c) if c is not None else L("no_data")}'
         if p is not None:
             tip += f' · {L("last_year")} {fmt(p)}'
-        out.append(f'<rect class="hit" x="{x:.1f}" y="0" width="{bw:.1f}" height="{H}" data-tip="{esc(tip)}"/>')
+        go = f' data-go="{ym}"' if c is not None else ""  # a bar of the year opens that month
+        out.append(f'<rect class="hit" x="{x:.1f}" y="0" width="{bw:.1f}" height="{H}"{go} data-tip="{esc(tip)}"/>')
         out.append(f'<text x="{x + bw / 2:.1f}" y="{H - 6}" class="ax" text-anchor="middle">{esc(L.month_short(int(ym[5:])))}</text>')
     out.append(f'<line x1="{pl}" x2="{W}" y1="{y0:.1f}" y2="{y0:.1f}" stroke="var(--ink2)" stroke-width="1"/></svg>')
     return "".join(out)

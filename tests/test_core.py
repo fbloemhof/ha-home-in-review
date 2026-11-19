@@ -332,3 +332,11 @@ def test_year_status():
     nl = Lang("nl")
     assert R.year_note(nl, "2025-01", docs) == "2 van 12 maanden"
     assert R.year_note(nl, "2026-01", docs) == "10 van 12 maanden tot nu toe"
+
+
+def test_trend_bars_link_to_months():
+    docs = _year_docs()
+    html = R.render_month("2026-05", docs, "en", None, 1)
+    assert 'data-go="2026-04"' in html and 'data-go="2026-01"' in html   # earlier months are links
+    year = R.render_year("2026-01", docs, "en", None, 1)
+    assert 'data-go="2026-07"' in year                                      # year bars open the month
