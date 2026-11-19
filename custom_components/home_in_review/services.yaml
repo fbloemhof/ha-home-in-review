@@ -1,0 +1,19 @@
+generate:
+  fields:
+    month:
+      example: "2026-10"
+      selector:
+        text:
+    notify:
+      default: false
+      selector:
+        boolean:
+backfill:
+  fields:
+    months:
+      default: 12
+      selector:
+        number:
+          min: 1
+          max: 120
+          mode: box

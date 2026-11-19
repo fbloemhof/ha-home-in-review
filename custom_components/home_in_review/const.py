@@ -1,0 +1,35 @@
+"""Constants for Home in Review."""
+
+DOMAIN = "home_in_review"
+NAME = "Home in Review"
+SCHEMA_VERSION = 1
+
+# Options
+CONF_NOTIFY = "notify_services"
+CONF_REPORT_DAY = "report_day"
+CONF_REPORT_TIME = "report_time"
+CONF_EXCLUDED_AREAS = "excluded_areas"
+CONF_OUTDOOR_SENSOR = "outdoor_sensor"
+CONF_FIXED_DAILY = "fixed_costs_daily"
+CONF_FIXED_MONTHLY = "fixed_costs_monthly"
+CONF_MAX_HOURLY_KWH = "max_hourly_kwh"
+CONF_BACKFILL_MONTHS = "backfill_months"
+
+DEFAULT_REPORT_DAY = 1
+DEFAULT_REPORT_TIME = "07:00:00"
+DEFAULT_MAX_HOURLY_KWH = 50.0
+DEFAULT_BACKFILL_MONTHS = 12
+
+# Storage: one JSON document per month in <config>/home_in_review/
+STORAGE_DIR = "home_in_review"
+
+URL_BASE = "/api/home_in_review"
+PANEL_URL = "home-in-review"
+STATIC_URL = "/home_in_review_static"
+
+# Area names (lower-case, substring match) that are suggested as "not indoor" by default.
+OUTDOOR_AREA_HINTS = (
+    "garden", "tuin", "outside", "outdoor", "buiten", "balcony", "balkon", "terrace", "terras",
+    "patio", "yard", "garage", "shed", "schuur", "berging", "carport", "driveway", "oprit",
+    "garten", "jardin", "jardín", "giardino", "außen", "aussen", "exterieur", "extérieur",
+)

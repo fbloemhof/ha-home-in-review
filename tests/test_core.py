@@ -1,0 +1,135 @@
+import asyncio
+from zoneinfo import ZoneInfo
+
+from hir import collector as C
+from hir import render as R
+from hir.i18n import Lang
+
+TZ = ZoneInfo("Europe/Amsterdam")
+
+
+def test_month_hours_across_dst():
+    a, b = C.month_bounds(2026, 10, TZ)
+    assert len(C.hour_starts(a, b)) == 31 * 24 + 1  # October has the extra DST hour
+    a, b = C.month_bounds(2026, 3, TZ)
+    assert len(C.hour_starts(a, b)) == 31 * 24 - 1
+
+
+def test_hourly_deltas_gap_glitch_and_reset():
+    h0 = 1_000_000_000 - 1_000_000_000 % 3600
+    hours = [h0 + i * 3600 for i in range(6)]
+    rows = [{"start": h0 - 3600, "sum": 10.0}, {"start": h0, "sum": 11.0},
+            # h0+1h missing: the gap goes to the next hour
+            {"start": h0 + 7200, "sum": 13.0},
+            {"start": h0 + 10800, "sum": 9013.0},   # glitch
+            {"start": h0 + 14400, "sum": 9012.0},   # negative step
+            {"start": h0 + 18000, "sum": 9013.5}]
+    d, glitches = C.hourly_deltas(rows, hours, cap=50)
+    assert d[h0] == 1.0
+    assert d[h0 + 7200] == 2.0
+    assert d[h0 + 10800] == 0.0 and glitches == [h0 + 10800]
+    assert d[h0 + 14400] == 0.0
+    assert d[h0 + 18000] == 1.5
+
+
+def test_parse_prefs_old_and_new_grid_format():
+    new = {"energy_sources": [
+        {"type": "grid", "stat_energy_from": "sensor.t1_in", "stat_energy_to": "sensor.t1_out",
+         "entity_energy_price": "sensor.price", "entity_energy_price_export": "sensor.price", "stat_cost": None},
+        {"type": "solar", "stat_energy_from": "sensor.pv"},
+        {"type": "battery", "stat_energy_from": "sensor.b_out", "stat_energy_to": "sensor.b_in", "name": "B"},
+        {"type": "water", "stat_energy_from": "sensor.water", "number_energy_price": 1.3}],
+        "device_consumption": [{"stat_consumption": "sensor.dev", "name": "Dev", "included_in_stat": "sensor.parent"}]}
+    p = C.parse_energy_prefs(new)
+    assert p["imp"] == [{"stat": "sensor.t1_in", "cost": "sensor.t1_in_cost"}]
+    assert p["exp"] == [{"stat": "sensor.t1_out", "cost": "sensor.t1_out_compensation"}]
+    assert p["battery"][0]["charge"] == "sensor.b_in"
+    assert p["water"][0]["cost"] == "sensor.water_cost"
+    assert p["devices"][0]["parent"] == "sensor.parent"
+    old = {"energy_sources": [{"type": "grid",
+                               "flow_from": [{"stat_energy_from": "sensor.a", "stat_cost": "sensor.a_eur"}],
+                               "flow_to": [{"stat_energy_to": "sensor.b"}]}]}
+    p = C.parse_energy_prefs(old)
+    assert p["imp"] == [{"stat": "sensor.a", "cost": "sensor.a_eur"}]
+    assert p["exp"] == [{"stat": "sensor.b", "cost": None}]
+
+
+def test_prefer_room_sensors():
+    s = [
+        {"entity_id": "t_room", "device_class": "temperature", "device_id": "climate", "area_id": "hall"},
+        {"entity_id": "h_room", "device_class": "humidity", "device_id": "climate", "area_id": "hall"},
+        {"entity_id": "t_pipe", "device_class": "temperature", "device_id": "pipes", "area_id": "hall"},
+        {"entity_id": "t_motion", "device_class": "temperature", "device_id": "motion", "area_id": "toilet"},
+        {"entity_id": "t_co2", "device_class": "temperature", "device_id": "mhz19", "area_id": "closet"},
+        {"entity_id": "c_co2", "device_class": "carbon_dioxide", "device_id": "mhz19", "area_id": "closet"},
+    ]
+    kept = {x["entity_id"] for x in C.prefer_room_sensors(s)}
+    assert kept == {"t_room", "h_room", "t_motion", "c_co2"}
+
+
+def test_outdoor_names():
+    assert C.is_outdoor_name("Achtertuin") and C.is_outdoor_name("Back garden") and not C.is_outdoor_name("Kitchen")
+
+
+def test_number_formatting():
+    nl, en = Lang("nl"), Lang("en", "USD")
+    assert nl.num(1234.5, 1) == "1.234,5"
+    assert en.num(1234.5, 1) == "1,234.5"
+    assert nl.money(-12.3, 2) == "−€ 12,30"
+    assert en.money(12.3, 2) == "$12.30"
+    assert Lang("xx").code == "en"
+
+
+class FakeSource:
+    """Two hours of a tiny house: 1 kWh import per hour at 0.30, solar 0.5 kWh."""
+
+    def __init__(self):
+        self.prefs = {"energy_sources": [
+            {"type": "grid", "stat_energy_from": "sensor.imp", "stat_energy_to": "sensor.exp",
+             "entity_energy_price": "sensor.p", "entity_energy_price_export": "sensor.p"},
+            {"type": "solar", "stat_energy_from": "sensor.pv"}],
+            "device_consumption": [{"stat_consumption": "sensor.dev", "name": "Fridge"}]}
+
+    async def config(self):
+        return {"time_zone": "Europe/Amsterdam", "latitude": None, "longitude": None, "currency": "EUR",
+                "unit_system": "metric", "language": "en"}
+
+    async def energy_prefs(self):
+        return self.prefs
+
+    async def statistics_meta(self, ids):
+        return {}
+
+    async def statistics(self, ids, start, end, period, units, types):
+        out = {}
+        first = int(start.timestamp())
+        n = int((end - start).total_seconds() // 3600)
+        per_hour = {"sensor.imp": 1.0, "sensor.imp_cost": 0.3, "sensor.exp": 0.2, "sensor.exp_compensation": 0.02,
+                    "sensor.pv": 0.5, "sensor.dev": 0.1}
+        for i in ids:
+            if i in per_hour:
+                out[i] = [{"start": first + k * 3600, "sum": per_hour[i] * k} for k in range(n)]
+        return out
+
+    async def climate_sensors(self):
+        return []
+
+    async def fetch_json(self, url):
+        raise OSError("offline")
+
+
+def test_collect_and_render_offline():
+    doc = asyncio.run(C.Collector(FakeSource(), {"fixed_costs_monthly": 10}).collect(2026, 2))
+    e = doc["energy"]
+    hours = 28 * 24
+    assert round(e["import"], 6) == hours * 1.0
+    assert round(e["consumption"], 6) == round(hours * (1.0 - 0.2 + 0.5), 6)
+    assert round(e["cost_import"], 4) == round(hours * 0.3, 4)
+    assert round(e["total_cost"], 4) == round(hours * (0.3 - 0.02) + 10, 4)
+    assert doc["devices"]["items"][0]["name"] == "Fridge"
+    assert "weather" not in doc  # no location
+    docs = {"2026-02": doc}
+    for lang in ("en", "nl"):
+        html = R.render_month("2026-02", docs, lang=lang, home_name="Test")
+        assert "<svg" in html and ("February" in html or "Februari" in html)
+    assert "Februar" in R.render_index(docs, "en")

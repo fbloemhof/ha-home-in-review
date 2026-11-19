@@ -1,0 +1,15 @@
+{
+  "domain": "home_in_review",
+  "name": "Home in Review",
+  "after_dependencies": ["energy"],
+  "codeowners": ["@fbloemhof"],
+  "config_flow": true,
+  "dependencies": ["frontend", "http", "panel_custom", "recorder"],
+  "documentation": "https://github.com/fbloemhof/ha-home-in-review",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/fbloemhof/ha-home-in-review/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.1.0"
+}

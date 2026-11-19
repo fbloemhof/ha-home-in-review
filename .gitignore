@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+# Development output contains real household data: never commit it.
+dev/out/

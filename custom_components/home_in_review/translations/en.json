@@ -1,0 +1,62 @@
+{
+  "config": {
+    "abort": {
+      "single_instance_allowed": "Home in Review is already set up."
+    },
+    "step": {
+      "user": {
+        "title": "Home in Review",
+        "description": "A monthly report of your home, made from your energy dashboard, local weather and indoor sensors. Reports appear in the sidebar.",
+        "data": {
+          "backfill_months": "Months to generate from history"
+        },
+        "data_description": {
+          "backfill_months": "Earlier months are generated in the background from long-term statistics, so you have a full year right away. Use 0 to skip."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Home in Review options",
+        "data": {
+          "notify_services": "Notify when a report is ready",
+          "report_day": "Day of the month",
+          "report_time": "Time",
+          "excluded_areas": "Areas that are not indoors",
+          "outdoor_sensor": "Outdoor temperature sensor",
+          "fixed_costs_daily": "Fixed energy costs per day",
+          "fixed_costs_monthly": "Fixed energy costs per month",
+          "max_hourly_kwh": "Largest plausible use per hour"
+        },
+        "data_description": {
+          "notify_services": "The notification links to the report.",
+          "report_day": "The report for the previous month is made on this day.",
+          "excluded_areas": "Sensors in these areas are left out of the indoor climate. Garden, garage and similar areas are suggested.",
+          "outdoor_sensor": "Optional. Without it, outdoor temperature comes from Open-Meteo for your area.",
+          "fixed_costs_daily": "Optional, including tax: standing charges and grid fees. Use a negative monthly amount for a fixed tax credit.",
+          "fixed_costs_monthly": "Optional, including tax.",
+          "max_hourly_kwh": "Meter jumps above this (per hour) are treated as glitches and skipped."
+        }
+      }
+    }
+  },
+  "services": {
+    "generate": {
+      "name": "Generate report",
+      "description": "Collects (or re-collects) the report for one month.",
+      "fields": {
+        "month": {"name": "Month", "description": "As YYYY-MM. Defaults to last month."},
+        "notify": {"name": "Notify", "description": "Send the configured notifications."}
+      }
+    },
+    "backfill": {
+      "name": "Backfill reports",
+      "description": "Generates missing reports for earlier months in the background.",
+      "fields": {
+        "months": {"name": "Months", "description": "How many months to look back."}
+      }
+    }
+  }
+}
