@@ -20,11 +20,11 @@ from aiohttp import web
 from homeassistant.components import frontend, panel_custom
 from homeassistant.components.http import HomeAssistantView, StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_time_change
+from homeassistant.helpers.start import async_at_started
 from homeassistant.util import dt as dt_util
 
 from . import render, story
@@ -288,7 +288,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             module_url=f"{STATIC_URL}/panel.js?v={await hass.async_add_executor_job(_version)}", require_admin=False, config={})
 
     @callback
-    def started(_=None) -> None:
+    def started(_hass: HomeAssistant | None = None) -> None:
         # The initial backfill is marked done only when it finished, so a restart halfway resumes it
         # (months that already exist are skipped).
         if not entry.data.get("backfilled") and entry.data.get(CONF_BACKFILL_MONTHS, DEFAULT_BACKFILL_MONTHS):
@@ -296,10 +296,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         else:
             entry.async_create_background_task(hass, rt.catch_up(), "home_in_review_catch_up")
 
-    if hass.is_running:
-        started()
-    else:
-        entry.async_on_unload(hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, started))
+    # Runs now when Home Assistant is already up, otherwise once it has started; safe to cancel on unload.
+    entry.async_on_unload(async_at_started(hass, started))
     return True
 
 
