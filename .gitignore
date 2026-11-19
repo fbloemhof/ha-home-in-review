@@ -2,7 +2,6 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .ruff_cache/
-# Development output contains real household data: never commit it.
-dev/out/
-dev/demo/
+# Local development tools and their output (real household data, paths of this machine): never commit.
+dev/
 docs/brand/compare.png
