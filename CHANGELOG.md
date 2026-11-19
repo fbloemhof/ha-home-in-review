@@ -25,6 +25,9 @@
   the headline names the figure that changed most.
 - Removing own figures uses a checkbox list.
 
+**Fixed**
+- After an update the browser could log "home-in-review-panel has already been used" (panel loaded twice).
+
 **Development**
 - Tests inside a real (test) Home Assistant: config flow, setup and unload, report access with and without login,
   signed links, administrators only, address checks in the options, and escaping of names.

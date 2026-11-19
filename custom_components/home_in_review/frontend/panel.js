@@ -52,4 +52,5 @@ class HomeInReviewPanel extends HTMLElement {
     }
   }
 }
-customElements.define("home-in-review-panel", HomeInReviewPanel);
+// After an update the browser can load a new panel.js while the old element is still registered.
+if (!customElements.get("home-in-review-panel")) customElements.define("home-in-review-panel", HomeInReviewPanel);
