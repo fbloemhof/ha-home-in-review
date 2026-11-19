@@ -119,7 +119,8 @@ def instructions(ym: str, docs: dict[str, dict], lang: str, extra: str | None = 
         f"{language} for the people who live there: two short paragraphs, at most 100 words in total, plain text "
         "without headings, lists or emoji. Pick the three or four most notable observations. Use only what is stated "
         "below, with the same numbers (rounded is fine) and the same direction (more/less, paid/earned, warmer/colder). "
-        "Do not calculate anything yourself, do not add causes, intentions or advice.\n\nObservations:\n- "
+        "Do not calculate anything yourself, do not add causes, intentions, advice, praise or judgement; keep a calm, "
+        "neutral tone.\n\nObservations:\n- "
         + "\n- ".join(observations(ym, docs))
     )
     if extra:
