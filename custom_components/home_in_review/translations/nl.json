@@ -66,12 +66,14 @@
             "data": {
               "excluded_areas": "Ruimtes die niet binnen zijn",
               "outdoor_sensor": "Buitentemperatuursensor",
-              "use_open_meteo": "Open-Meteo gebruiken voor het weer"
+              "use_open_meteo": "Open-Meteo gebruiken voor het weer",
+              "rain_sensor": "Regenmeter"
             },
             "data_description": {
               "excluded_areas": "Sensoren in deze ruimtes tellen niet mee voor het binnenklimaat. Leeg = alles meetellen.",
               "outdoor_sensor": "Optioneel. Elke temperatuursensor met historie; vervangt de modeltemperatuur.",
-              "use_open_meteo": "Gratis weerarchief voor jouw omgeving (locatie afgerond op ~10 km). Uit: alleen je eigen sensor, zonder normalen, neerslag of zon."
+              "use_open_meteo": "Gratis weerarchief voor jouw omgeving (locatie afgerond op ~10 km). Uit: alleen je eigen sensoren, zonder normalen of zon.",
+              "rain_sensor": "Optioneel. Een neerslagsensor die optelt (totaal); vervangt de neerslag uit het model."
             }
           },
           "car": {
@@ -81,12 +83,14 @@
               "car_chargers": "Energie van de laadpaal",
               "teslamate_grafana_url": "Grafana-URL",
               "teslamate_grafana_token": "Serviceaccount-token",
-              "teslamate_home_geofence": "Naam van je thuis-geofence"
+              "teslamate_home_geofence": "Naam van je thuis-geofence",
+              "evcc_url": "evcc-URL"
             },
             "data_description": {
-              "teslamate_home_geofence": "Om laden thuis te tellen. Leeg: een geofence met de naam Home of Thuis."
+              "teslamate_home_geofence": "Om laden thuis te tellen. Leeg: een geofence met de naam Home of Thuis.",
+              "evcc_url": "Optioneel, bijv. http://192.168.1.10:7070. Voegt laadsessies, kosten en zonne-aandeel per auto toe."
             },
-            "description": "Elke auto: kies de kilometerteller (uit de integratie van je auto) en de energiesensor van je laadpaal. Met TeslaMate krijg je meer (ritten, thuis en elders laden, Wh/km): vul de URL van de bijbehorende Grafana in en de token van een serviceaccount met de rol Viewer."
+            "description": "Elke auto: kies de kilometerteller (uit de integratie van je auto) en de energiesensor van je laadpaal. Rijkere bronnen gaan voor als ze zijn ingevuld: TeslaMate (ritten, Wh/km; Grafana-URL en token van een Viewer-serviceaccount) en evcc (laadsessies, kosten, zonne-aandeel)."
           },
           "ai": {
             "name": "AI-samenvatting",
@@ -108,7 +112,7 @@
           "name": "Naam",
           "statistic": "Statistiek",
           "type": "Berekening",
-          "threshold": "Drempel (voor uren boven)",
+          "threshold": "Drempel (voor uren of dagen boven)",
           "unit": "Eenheid",
           "decimals": "Decimalen"
         }
@@ -147,7 +151,8 @@
         "mean": "Gemiddelde",
         "max": "Hoogste",
         "min": "Laagste",
-        "hours_above": "Uren boven drempel"
+        "hours_above": "Uren boven drempel",
+        "days_above": "Dagen boven drempel"
       }
     }
   },

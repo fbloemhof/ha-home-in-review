@@ -181,30 +181,93 @@ async def teslamate(col, doc: dict, start: dt.datetime, end: dt.datetime) -> Non
                       "charged": sum(x["charged"] for x in out), "source": "teslamate"}
 
 
+# ============================================================================ evcc
+async def evcc(col, doc: dict, start: dt.datetime, end: dt.datetime) -> None:
+    """Charging sessions from evcc (any charger and car evcc supports): energy, cost, solar share, per vehicle."""
+    url = (col.opt.get("evcc_url") or "").rstrip("/")
+    if not url:
+        return
+    try:
+        res = await col.src.fetch_json(f"{url}/api/sessions?month={start.month}&year={start.year}")
+    except Exception as err:  # unreachable evcc must not break the report
+        _LOGGER.warning("evcc request failed: %s", err)
+        doc["notes"].append("evcc_unavailable")
+        return
+    sessions = res.get("result", []) if isinstance(res, dict) else (res or [])
+    t0, t1 = start.timestamp(), end.timestamp()
+    cars: dict[str, dict] = {}
+    for x in sessions:
+        try:
+            created = dt.datetime.fromisoformat(str(x.get("created")).replace("Z", "+00:00")).timestamp()
+        except ValueError:
+            continue
+        if not t0 <= created < t1:
+            continue
+        kwh = float(x.get("chargedEnergy") or 0)
+        if kwh <= 0:
+            continue
+        c = cars.setdefault(x.get("vehicle") or x.get("loadpoint") or "?", {
+            "sessions": 0, "charged": 0.0, "cost": 0.0, "has_cost": False, "solar": 0.0, "has_solar": False, "odo": []})
+        c["sessions"] += 1
+        c["charged"] += kwh
+        if x.get("price") is not None:
+            c["cost"] += float(x["price"])
+            c["has_cost"] = True
+        if x.get("solarPercentage") is not None:
+            c["solar"] += kwh * float(x["solarPercentage"]) / 100
+            c["has_solar"] = True
+        if x.get("odometer"):
+            c["odo"].append(float(x["odometer"]))
+    if not cars:
+        return
+    out = []
+    for name, c in cars.items():
+        km = (max(c["odo"]) - min(c["odo"])) if len(c["odo"]) >= 2 else None
+        out.append({"name": name, "sessions": c["sessions"], "charged": c["charged"],
+                    "cost": c["cost"] if c["has_cost"] else None,
+                    "solar_share": c["solar"] / c["charged"] if c["has_solar"] and c["charged"] else None,
+                    "km": km or 0.0, "km_known": km is not None})
+    out.sort(key=lambda c: -c["charged"])
+    charged = sum(c["charged"] for c in out)
+    costs = [c["cost"] for c in out if c["cost"] is not None]
+    solar = [c["solar_share"] * c["charged"] for c in out if c["solar_share"] is not None]
+    doc["car"] = {"cars": out, "km": sum(c["km"] for c in out), "drives": None, "charged": charged,
+                  "charged_home": charged, "cost": sum(costs) if costs else None,
+                  "avg_price": sum(costs) / charged if costs and charged else None,
+                  "solar_share": sum(solar) / charged if solar and charged else None,
+                  "sessions": sum(c["sessions"] for c in out), "source": "evcc"}
+
+
 # ============================================================================ custom tiles
-TILE_TYPES = ("sum", "mean", "max", "min", "hours_above")
+TILE_TYPES = ("sum", "mean", "max", "min", "hours_above", "days_above")
+MEAN_TYPES = {"mean": "mean", "hours_above": "mean", "days_above": "mean", "max": "max", "min": "min"}
 
 
 async def custom_tiles(col, doc: dict, start, end, hours) -> None:
-    """User-defined figures from any statistic: total increase, average, extremes or hours above a threshold."""
+    """User-defined figures from any statistic: total increase, average, extremes, or the hours / days in which
+    the hourly average was above a threshold (e.g. days the wood stove burned)."""
+    from zoneinfo import ZoneInfo
+
     from .collector import hourly_deltas, total
 
     tiles = col.opt.get("custom_tiles") or []
     if not tiles:
         return
-    ids = {t["statistic"] for t in tiles if t.get("statistic")}
+    tz = ZoneInfo(doc["period"]["time_zone"])
     sums = await col._sums({t["statistic"] for t in tiles if t.get("type") == "sum"}, start, end, {})
-    means = await col.src.statistics({i for i in ids if any(t["statistic"] == i and t.get("type") != "sum" for t in tiles)},
-                                     start, end, "hour", {}, {"mean", "min", "max"}) if ids else {}
+    mean_ids = {t["statistic"] for t in tiles if t.get("statistic") and t.get("type") != "sum"}
+    means = await col.src.statistics(mean_ids, start, end, "hour", {}, {"mean", "min", "max"}) if mean_ids else {}
     out = []
     for t in tiles:
         sid, typ = t.get("statistic"), t.get("type", "sum")
         value = None
         if typ == "sum" and sums.get(sid):
             value = total(hourly_deltas(sums[sid], hours, None)[0], hours)
-        else:
-            rows = means.get(sid) or []
-            vals = [r[c] for r in rows for c in ([{"mean": "mean", "hours_above": "mean"}.get(typ, typ)]) if r.get(c) is not None]
+        elif typ != "sum":
+            col_name = MEAN_TYPES.get(typ, "mean")
+            rows = [r for r in (means.get(sid) or []) if r.get(col_name) is not None]
+            vals = [r[col_name] for r in rows]
+            thr = float(t.get("threshold") or 0)
             if vals:
                 if typ == "mean":
                     value = sum(vals) / len(vals)
@@ -213,8 +276,11 @@ async def custom_tiles(col, doc: dict, start, end, hours) -> None:
                 elif typ == "min":
                     value = min(vals)
                 elif typ == "hours_above":
-                    value = float(sum(1 for v in vals if v > float(t.get("threshold") or 0)))
+                    value = float(sum(1 for v in vals if v > thr))
+                elif typ == "days_above":
+                    value = float(len({dt.datetime.fromtimestamp(r["start"], tz).date() for r in rows if r[col_name] > thr}))
+        unit = {"hours_above": "h", "days_above": "days"}.get(typ, t.get("unit") or "")
         out.append({"name": t.get("name") or sid, "statistic": sid, "type": typ, "value": value,
-                    "unit": "h" if typ == "hours_above" else (t.get("unit") or ""), "decimals": int(t.get("decimals", 0))})
+                    "unit": unit, "decimals": int(t.get("decimals", 0))})
     if any(x["value"] is not None for x in out):
         doc["custom"] = out

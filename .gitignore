@@ -5,3 +5,4 @@ __pycache__/
 # Development output contains real household data: never commit it.
 dev/out/
 dev/demo/
+docs/brand/compare.png

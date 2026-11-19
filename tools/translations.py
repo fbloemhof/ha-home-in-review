@@ -1,6 +1,9 @@
 """Generate translations/*.json and strings.json for the config/options flow and actions (single source of truth)."""
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 OUT = Path(__file__).resolve().parent.parent / "custom_components" / "home_in_review"
 LANGS = ("en", "nl", "de", "fr")
@@ -22,6 +25,7 @@ TILE = {
     "max": t("Highest", "Hoogste", "Höchstwert", "Maximum"),
     "min": t("Lowest", "Laagste", "Tiefstwert", "Minimum"),
     "hours_above": t("Hours above threshold", "Uren boven drempel", "Stunden über Schwelle", "Heures au-dessus du seuil"),
+    "days_above": t("Days above threshold", "Dagen boven drempel", "Tage über Schwelle", "Jours au-dessus du seuil"),
 }
 
 STEPS = {'init': {'title': {'en': 'Home in Review options',
@@ -385,10 +389,10 @@ STEPS = {'init': {'title': {'en': 'Home in Review options',
               'data': {'name': {'en': 'Name', 'nl': 'Naam', 'de': 'Name', 'fr': 'Nom'},
                        'statistic': {'en': 'Statistic', 'nl': 'Statistiek', 'de': 'Statistik', 'fr': 'Statistique'},
                        'type': {'en': 'Calculation', 'nl': 'Berekening', 'de': 'Berechnung', 'fr': 'Calcul'},
-                       'threshold': {'en': 'Threshold (for hours above)',
-                                     'nl': 'Drempel (voor uren boven)',
-                                     'de': 'Schwelle (für Stunden über)',
-                                     'fr': 'Seuil (pour heures au-dessus)'},
+                       'threshold': {'en': 'Threshold (for hours or days above)',
+                                     'nl': 'Drempel (voor uren of dagen boven)',
+                                     'de': 'Schwelle (für Stunden oder Tage über)',
+                                     'fr': 'Seuil (pour heures ou jours au-dessus)'},
                        'unit': {'en': 'Unit', 'nl': 'Eenheid', 'de': 'Einheit', 'fr': 'Unité'},
                        'decimals': {'en': 'Decimals',
                                     'nl': 'Decimalen',
@@ -433,11 +437,67 @@ SERVICES = {
 }
 
 
+# ---- additions in 0.3 -------------------------------------------------------------------------------------------
+_cl = STEPS["settings"]["sections"]["climate"]
+_cl["data"]["rain_sensor"] = t("Rain gauge", "Regenmeter", "Regenmesser", "Pluviomètre")
+_cl["data_description"]["rain_sensor"] = t(
+    "Optional. A precipitation sensor that counts up (total); replaces the modelled rainfall.",
+    "Optioneel. Een neerslagsensor die optelt (totaal); vervangt de neerslag uit het model.",
+    "Optional. Ein aufsummierender Niederschlagssensor; ersetzt den modellierten Niederschlag.",
+    "Facultatif. Un capteur de précipitations cumulées ; remplace la pluie modélisée.")
+_car = STEPS["settings"]["sections"]["car"]
+_car["data"]["evcc_url"] = t("evcc URL", "evcc-URL", "evcc-URL", "URL d'evcc")
+_car.setdefault("data_description", {})["evcc_url"] = t(
+    "Optional, e.g. http://192.168.1.10:7070. Adds charging sessions, cost and solar share per vehicle.",
+    "Optioneel, bijv. http://192.168.1.10:7070. Voegt laadsessies, kosten en zonne-aandeel per auto toe.",
+    "Optional, z. B. http://192.168.1.10:7070. Ergänzt Ladevorgänge, Kosten und Solaranteil pro Fahrzeug.",
+    "Facultatif, p. ex. http://192.168.1.10:7070. Ajoute les sessions de recharge, le coût et la part solaire par véhicule.")
+_car["description"] = t(
+    "Any car: choose its odometer (from the car's own integration) and your charger's energy sensor. Richer sources, "
+    "used first when filled in: TeslaMate (trips, Wh/km; Grafana URL and a token of a Viewer service account) and evcc "
+    "(charging sessions, cost, solar share).",
+    "Elke auto: kies de kilometerteller (uit de integratie van je auto) en de energiesensor van je laadpaal. Rijkere "
+    "bronnen gaan voor als ze zijn ingevuld: TeslaMate (ritten, Wh/km; Grafana-URL en token van een Viewer-serviceaccount) "
+    "en evcc (laadsessies, kosten, zonne-aandeel).",
+    "Jedes Auto: Kilometerzähler (aus der Integration des Autos) und Energiesensor der Ladestation wählen. Reichere "
+    "Quellen haben Vorrang: TeslaMate (Fahrten, Wh/km; Grafana-URL und Token eines Viewer-Dienstkontos) und evcc "
+    "(Ladevorgänge, Kosten, Solaranteil).",
+    "Toute voiture : compteur kilométrique (intégration de la voiture) et capteur d'énergie de la borne. Sources plus "
+    "riches, prioritaires si renseignées : TeslaMate (trajets, Wh/km ; URL de Grafana et jeton Viewer) et evcc "
+    "(sessions, coût, part solaire).")
+
+
+_cl["data_description"]["use_open_meteo"] = t(
+    "Free weather archive for your area (location rounded to ~10 km). Off: only your own sensors, without normals or sunshine.",
+    "Gratis weerarchief voor jouw omgeving (locatie afgerond op ~10 km). Uit: alleen je eigen sensoren, zonder normalen of zon.",
+    "Kostenloses Wetterarchiv für Ihre Gegend (Standort auf ~10 km gerundet). Aus: nur Ihre eigenen Sensoren, ohne Normalwerte und Sonne.",
+    "Archive météo gratuite pour votre région (position arrondie à ~10 km). Désactivé : seulement vos capteurs, sans normales ni soleil.")
+
+
+def _strings(node):
+    if isinstance(node, dict):
+        for v in node.values():
+            yield from _strings(v)
+    elif isinstance(node, str):
+        yield node
+
+
 def pick(node, lang):
     if isinstance(node, dict) and set(node) == set(LANGS):
         return node[lang]
     if isinstance(node, dict):
         return {k: pick(v, lang) for k, v in node.items()}
+    return node
+
+
+from translations_extra import EXTRA  # noqa: E402  (es/it: English text -> translation)
+
+
+def localize(node, table):
+    if isinstance(node, dict):
+        return {k: localize(v, table) for k, v in node.items()}
+    if isinstance(node, str):
+        return table.get(node, node)
     return node
 
 
@@ -459,4 +519,11 @@ for lang in LANGS:
     (OUT / "translations" / f"{lang}.json").write_text(text, encoding="utf-8")
     if lang == "en":
         (OUT / "strings.json").write_text(text, encoding="utf-8")
-print("written", ", ".join(LANGS))
+en_doc = json.loads((OUT / "translations" / "en.json").read_text(encoding="utf-8"))
+for lang, table in EXTRA.items():
+    missing = sorted({x for x in _strings(en_doc) if x not in table and x != "Home in Review"})
+    if missing:
+        print(f"{lang}: {len(missing)} untranslated:", missing[:5])
+    (OUT / "translations" / f"{lang}.json").write_text(
+        json.dumps(localize(en_doc, table), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+print("written", ", ".join([*LANGS, *EXTRA]))

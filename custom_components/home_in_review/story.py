@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from .render import prev_ym
 
-LANG_NAMES = {"en": "English", "nl": "Dutch", "de": "German", "fr": "French"}
+LANG_NAMES = {"en": "English", "nl": "Dutch", "de": "German", "fr": "French", "es": "Spanish", "it": "Italian"}
 
 
 def facts(doc: dict) -> dict:

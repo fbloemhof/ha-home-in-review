@@ -66,12 +66,14 @@
             "data": {
               "excluded_areas": "Bereiche, die nicht drinnen sind",
               "outdoor_sensor": "Außentemperatursensor",
-              "use_open_meteo": "Open-Meteo für das Wetter nutzen"
+              "use_open_meteo": "Open-Meteo für das Wetter nutzen",
+              "rain_sensor": "Regenmesser"
             },
             "data_description": {
               "excluded_areas": "Sensoren in diesen Bereichen zählen nicht zum Raumklima. Leer = alles zählen.",
               "outdoor_sensor": "Optional. Jeder Temperatursensor mit Verlauf; ersetzt die Modelltemperatur.",
-              "use_open_meteo": "Kostenloses Wetterarchiv für Ihre Gegend (Standort auf ~10 km gerundet). Aus: nur Ihr eigener Sensor."
+              "use_open_meteo": "Kostenloses Wetterarchiv für Ihre Gegend (Standort auf ~10 km gerundet). Aus: nur Ihre eigenen Sensoren, ohne Normalwerte und Sonne.",
+              "rain_sensor": "Optional. Ein aufsummierender Niederschlagssensor; ersetzt den modellierten Niederschlag."
             }
           },
           "car": {
@@ -81,12 +83,14 @@
               "car_chargers": "Energie der Ladestation",
               "teslamate_grafana_url": "Grafana-URL",
               "teslamate_grafana_token": "Dienstkonto-Token",
-              "teslamate_home_geofence": "Name Ihres Zuhause-Geofence"
+              "teslamate_home_geofence": "Name Ihres Zuhause-Geofence",
+              "evcc_url": "evcc-URL"
             },
             "data_description": {
-              "teslamate_home_geofence": "Um das Laden zu Hause zu zählen. Leer: ein Geofence namens Home oder Zuhause."
+              "teslamate_home_geofence": "Um das Laden zu Hause zu zählen. Leer: ein Geofence namens Home oder Zuhause.",
+              "evcc_url": "Optional, z. B. http://192.168.1.10:7070. Ergänzt Ladevorgänge, Kosten und Solaranteil pro Fahrzeug."
             },
-            "description": "Jedes Auto: wählen Sie den Kilometerzähler (aus der Integration Ihres Autos) und den Energiesensor Ihrer Ladestation. Mit TeslaMate erhalten Sie mehr: Grafana-URL und das Token eines Dienstkontos mit der Rolle Viewer eintragen."
+            "description": "Jedes Auto: Kilometerzähler (aus der Integration des Autos) und Energiesensor der Ladestation wählen. Reichere Quellen haben Vorrang: TeslaMate (Fahrten, Wh/km; Grafana-URL und Token eines Viewer-Dienstkontos) und evcc (Ladevorgänge, Kosten, Solaranteil)."
           },
           "ai": {
             "name": "KI-Zusammenfassung",
@@ -108,7 +112,7 @@
           "name": "Name",
           "statistic": "Statistik",
           "type": "Berechnung",
-          "threshold": "Schwelle (für Stunden über)",
+          "threshold": "Schwelle (für Stunden oder Tage über)",
           "unit": "Einheit",
           "decimals": "Nachkommastellen"
         }
@@ -147,7 +151,8 @@
         "mean": "Durchschnitt",
         "max": "Höchstwert",
         "min": "Tiefstwert",
-        "hours_above": "Stunden über Schwelle"
+        "hours_above": "Stunden über Schwelle",
+        "days_above": "Tage über Schwelle"
       }
     }
   },

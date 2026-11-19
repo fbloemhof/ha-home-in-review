@@ -209,7 +209,17 @@ class Collector:
         self._totals(doc)
         cap = float(self.opt.get("max_hourly_kwh") or DEFAULT_MAX_HOURLY_KWH)
         await extras.heat_pump(self, doc, start, end, hours, cap)
+        # Car sources, richest first: TeslaMate, evcc, then odometer + charger sensors.
         await extras.teslamate(self, doc, start, end)
+        if "car" not in doc:
+            await extras.evcc(self, doc, start, end)
+            if "car" in doc and self.opt.get("car_odometers") and not any(c["km_known"] for c in doc["car"]["cars"]):
+                # evcc rarely knows the odometer; take kilometres from the odometer sensors when configured.
+                sensors: dict = {"notes": [], "period": doc["period"]}
+                await extras.car_generic(self, sensors, start, end, hours, cap)
+                if sensors.get("car"):
+                    doc["car"]["km"] = sensors["car"]["km"]
+                    doc["car"]["odometer_cars"] = sensors["car"]["cars"]
         if "car" not in doc:
             await extras.car_generic(self, doc, start, end, hours, cap)
         await extras.custom_tiles(self, doc, start, end, hours)
@@ -465,9 +475,23 @@ class Collector:
                     if x and x["m"]:
                         day["mean"], day["min"], day["max"] = sum(x["m"]) / len(x["m"]), min(x["lo"] or x["m"]), max(x["hi"] or x["m"])
                 doc["notes"].append("outdoor_sensor")
+        # Optional rain gauge (a total_increasing precipitation sensor) replaces the modelled precipitation.
+        rain = self.opt.get("rain_sensor")
+        if rain:
+            rows = (await self._sums({rain}, start, end, {"distance": "mm"})).get(rain, [])
+            if rows and rows[0]["start"] <= start.timestamp() + PARTIAL_GRACE_S:
+                per_hour, _ = hourly_deltas(rows, hours, 150.0)  # more than 150 mm in an hour is a glitch
+                per_day: dict[str, float] = {}
+                for h, v in per_hour.items():
+                    k = dt.datetime.fromtimestamp(h, tz).strftime("%Y-%m-%d")
+                    per_day[k] = per_day.get(k, 0.0) + v
+                for day in daily:
+                    day["precip"] = per_day.get(day["d"], 0.0)
+                doc["notes"].append("rain_sensor")
         summary = weather.summarize(daily, normals, start.month, metric)
         if summary:
             summary["source"] = ("sensor" if "outdoor_sensor" in doc["notes"] else "open-meteo") + ("" if use_om else "-only")
+            summary["rain_source"] = "sensor" if "rain_sensor" in doc["notes"] else ("open-meteo" if use_om else None)
             doc["weather"] = summary
 
     # ------------------------------------------------------------------ indoor climate

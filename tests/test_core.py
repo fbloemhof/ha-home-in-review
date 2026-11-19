@@ -80,6 +80,7 @@ def test_number_formatting():
     assert en.num(1234.5, 1) == "1,234.5"
     assert nl.money(-12.3, 2) == "−€ 12,30"
     assert en.money(12.3, 2) == "$12.30"
+    assert Lang("de").money(12.3, 2) == "12,30 €" and Lang("it").money(-5, 0) == "−5 €"
     assert Lang("xx").code == "en"
 
 
@@ -182,7 +183,7 @@ def test_year_review_and_languages():
     assert R.year_keys(docs, 1) == ["2026-01"]
     assert R.year_keys(docs, 7) == ["2025-07", "2026-07"]
     assert R.year_label("2025-07") == "2025/26"
-    for lang in ("en", "nl", "de", "fr"):
+    for lang in ("en", "nl", "de", "fr", "es", "it"):
         html = R.render_year("2026-01", docs, lang, "Test", 1)
         assert "<svg" in html
         assert "{" not in html.split("</head>")[1].split("<script>")[0]  # no unformatted placeholders
@@ -248,3 +249,45 @@ def test_any_brand_heat_pump_car_and_single_battery():
     assert round(car["charged_home"]) == 28 * 24 * 0.25
     html = R.render_month("2026-02", {"2026-02": doc}, "nl", None, 1)
     assert "De batterij sloeg" in html and "De auto reed" in html and "COP" in html
+
+
+def test_days_above_rain_gauge_and_evcc():
+    src = FakeSource()
+    orig = src.statistics
+
+    async def more(ids, start, end, period, units, types):
+        out = await orig(ids, start, end, period, units, types)
+        first = int(start.timestamp())
+        n = int((end - start).total_seconds() // 3600)
+        if "sensor.stove" in ids:  # burning 19-23h on even days
+            out["sensor.stove"] = [{"start": first + k * 3600, "mean": 1.0 if (k // 24) % 2 == 0 and 19 <= k % 24 < 23 else 0.0}
+                                   for k in range(n)]
+        if "sensor.rain" in ids:  # 1 mm every 6 hours
+            out["sensor.rain"] = [{"start": first + k * 3600, "sum": (k // 6) * 1.0} for k in range(n)]
+        return out
+
+    sessions = [
+        {"created": "2026-02-03T20:00:00+01:00", "vehicle": "Car A", "chargedEnergy": 30, "price": 6.0, "solarPercentage": 0, "odometer": 10000},
+        {"created": "2026-02-10T12:00:00+01:00", "vehicle": "Car A", "chargedEnergy": 20, "price": 1.0, "solarPercentage": 100, "odometer": 10500},
+        {"created": "2026-03-01T12:00:00+01:00", "vehicle": "Car A", "chargedEnergy": 99},  # next month, ignored
+    ]
+
+    async def fetch(url):
+        if "/api/sessions" in url:
+            return {"result": sessions}  # older evcc wraps the list
+        raise OSError("offline")
+
+    src.statistics = more
+    src.fetch_json = fetch
+    opts = {"custom_tiles": [{"name": "Stove", "statistic": "sensor.stove", "type": "days_above", "threshold": 0.5}],
+            "rain_sensor": "sensor.rain", "evcc_url": "http://evcc.local:7070"}
+    doc = asyncio.run(C.Collector(src, opts).collect(2026, 2))
+    assert doc["custom"][0]["value"] == 14.0 and doc["custom"][0]["unit"] == "days"
+    car = doc["car"]
+    assert car["source"] == "evcc" and car["sessions"] == 2 and car["charged"] == 50
+    assert round(car["cost"], 2) == 7.0 and round(car["solar_share"], 2) == 0.4 and car["km"] == 500
+    html = R.render_month("2026-02", {"2026-02": doc}, "nl", None, 1)
+    import re
+    text = re.sub(r"<[^>]+>", "", html)
+    assert "zonnestroom" in text, re.findall(r"Er werd.{0,120}", text)
+    assert re.search(r"Stove\s*14\s*dagen", text), re.findall(r"Stove.{0,60}", text)

@@ -1,0 +1,189 @@
+{
+  "config": {
+    "abort": {
+      "single_instance_allowed": "Home in Review è già configurato."
+    },
+    "step": {
+      "user": {
+        "title": "Home in Review",
+        "description": "Un resoconto mensile della tua casa, creato dalla dashboard energia, dal meteo locale e dai sensori interni. I resoconti compaiono nella barra laterale.",
+        "data": {
+          "backfill_months": "Mesi da generare dallo storico"
+        },
+        "data_description": {
+          "backfill_months": "I mesi precedenti vengono generati in background dalle statistiche a lungo termine. Usa 0 per saltare."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni di Home in Review",
+        "menu_options": {
+          "settings": "Impostazioni",
+          "tile_add": "Aggiungi un dato personale",
+          "tile_remove": "Rimuovi dati personali"
+        }
+      },
+      "settings": {
+        "title": "Opzioni di Home in Review",
+        "description": "Apri una sezione per modificarla. Salvando la finestra si chiude.",
+        "sections": {
+          "general": {
+            "name": "Pianificazione e notifiche",
+            "data": {
+              "notify_services": "Notifica quando un resoconto è pronto",
+              "report_day": "Giorno del mese",
+              "report_time": "Ora",
+              "year_start_month": "Il riepilogo annuale inizia a"
+            },
+            "data_description": {
+              "notify_services": "La notifica apre il resoconto.",
+              "report_day": "In questo giorno viene creato il resoconto del mese precedente.",
+              "year_start_month": "Gennaio per l'anno solare; ad esempio luglio per una stagione di riscaldamento o il mese in cui inizia il contratto energetico."
+            }
+          },
+          "energy": {
+            "name": "Energia, costi e pompa di calore",
+            "data": {
+              "fixed_costs_daily": "Costi fissi dell'energia al giorno",
+              "fixed_costs_monthly": "Costi fissi dell'energia al mese",
+              "max_hourly_kwh": "Massimo prelievo plausibile dalla rete per ora",
+              "heat_pump_devices": "Elettricità della pompa di calore",
+              "heat_pump_heat_sensor": "Calore fornito dalla pompa di calore"
+            },
+            "data_description": {
+              "fixed_costs_daily": "Facoltativo, IVA inclusa: quota fissa e oneri di rete.",
+              "fixed_costs_monthly": "Facoltativo, IVA inclusa. Usa un importo negativo per uno sconto fisso.",
+              "max_hourly_kwh": "I salti del contatore oltre questo valore orario sono considerati errori. Circa il tuo allaccio: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
+              "heat_pump_devices": "Qualsiasi marca: uno o più sensori di energia (l'integrazione della pompa, un contatore o una presa smart, ad es. compressore e resistenza integrativa). Aggiunge una slide della pompa di calore con l'elettricità per grado giorno.",
+              "heat_pump_heat_sensor": "Facoltativo: sensori di energia del calore fornito (molte marche separano riscaldamento e acqua calda; scegli entrambi). Aggiunge il COP."
+            }
+          },
+          "climate": {
+            "name": "Clima interno e meteo",
+            "data": {
+              "excluded_areas": "Aree che non sono interne",
+              "outdoor_sensor": "Sensore di temperatura esterna",
+              "use_open_meteo": "Usa Open-Meteo per il meteo",
+              "rain_sensor": "Pluviometro"
+            },
+            "data_description": {
+              "excluded_areas": "I sensori in queste aree sono esclusi dal clima interno. Vuoto = conta tutto.",
+              "outdoor_sensor": "Facoltativo. Qualsiasi sensore di temperatura con storico; sostituisce la temperatura modellata.",
+              "use_open_meteo": "Archivio meteo gratuito per la tua zona (posizione arrotondata a ~10 km). Disattivato: solo i tuoi sensori, senza valori normali né soleggiamento.",
+              "rain_sensor": "Facoltativo. Un sensore di precipitazione cumulativa (totale); sostituisce la pioggia modellata."
+            }
+          },
+          "car": {
+            "name": "Auto",
+            "data": {
+              "car_odometers": "Contachilometri (uno per auto)",
+              "car_chargers": "Energia del caricatore",
+              "teslamate_grafana_url": "URL di Grafana",
+              "teslamate_grafana_token": "Token dell'account di servizio",
+              "teslamate_home_geofence": "Nome del tuo geofence di casa",
+              "evcc_url": "URL di evcc"
+            },
+            "data_description": {
+              "teslamate_home_geofence": "Serve a contare la ricarica a casa. Vuoto: un geofence chiamato Home (o la sua traduzione).",
+              "evcc_url": "Facoltativo, ad es. http://192.168.1.10:7070. Aggiunge sessioni di ricarica, costo e quota solare per veicolo."
+            },
+            "description": "Qualsiasi auto: scegli il contachilometri (dall'integrazione dell'auto) e il sensore di energia del caricatore. Fonti più ricche, usate per prime se compilate: TeslaMate (viaggi, Wh/km; URL di Grafana e token di un account di servizio Viewer) ed evcc (sessioni di ricarica, costo, quota solare)."
+          },
+          "ai": {
+            "name": "Riassunto con IA",
+            "data": {
+              "ai_task_entity": "Entità attività IA",
+              "ai_instructions": "Istruzioni aggiuntive"
+            },
+            "data_description": {
+              "ai_instructions": "Facoltativo, ad es. il tono o chi vive in casa."
+            },
+            "description": "Facoltativo: un breve riassunto scritto all'inizio di ogni resoconto, dalla tua entità attività IA. Vengono inviati solo i dati del resoconto."
+          }
+        }
+      },
+      "tile_add": {
+        "title": "Aggiungi un dato personale",
+        "description": "Mostrato in una slide «I tuoi dati», confrontato con i mesi precedenti.",
+        "data": {
+          "name": "Nome",
+          "statistic": "Statistica",
+          "type": "Calcolo",
+          "threshold": "Soglia (per ore o giorni sopra)",
+          "unit": "Unità",
+          "decimals": "Decimali"
+        }
+      },
+      "tile_remove": {
+        "title": "Rimuovi dati personali",
+        "data": {
+          "tiles": "Dati da rimuovere"
+        }
+      }
+    },
+    "error": {
+      "statistic_required": "Scegli una statistica."
+    }
+  },
+  "selector": {
+    "month": {
+      "options": {
+        "1": "gennaio",
+        "2": "febbraio",
+        "3": "marzo",
+        "4": "aprile",
+        "5": "maggio",
+        "6": "giugno",
+        "7": "luglio",
+        "8": "agosto",
+        "9": "settembre",
+        "10": "ottobre",
+        "11": "novembre",
+        "12": "dicembre"
+      }
+    },
+    "tile_type": {
+      "options": {
+        "sum": "Totale (aumento)",
+        "mean": "Media",
+        "max": "Massimo",
+        "min": "Minimo",
+        "hours_above": "Ore sopra la soglia",
+        "days_above": "Giorni sopra la soglia"
+      }
+    }
+  },
+  "services": {
+    "generate": {
+      "name": "Genera resoconto",
+      "description": "Genera (o rigenera) il resoconto di un mese.",
+      "fields": {
+        "month": {
+          "name": "Mese",
+          "description": "Nel formato AAAA-MM. Predefinito: il mese precedente."
+        },
+        "notify": {
+          "name": "Notifica",
+          "description": "Invia le notifiche configurate."
+        }
+      }
+    },
+    "backfill": {
+      "name": "Genera resoconti precedenti",
+      "description": "Genera in background i resoconti dei mesi precedenti.",
+      "fields": {
+        "months": {
+          "name": "Mesi",
+          "description": "Quanti mesi indietro."
+        },
+        "overwrite": {
+          "name": "Sovrascrivi",
+          "description": "Rigenera anche i mesi che hanno già un resoconto (dopo un aggiornamento o una modifica delle opzioni)."
+        }
+      }
+    }
+  }
+}

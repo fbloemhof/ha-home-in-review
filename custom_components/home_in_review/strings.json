@@ -66,12 +66,14 @@
             "data": {
               "excluded_areas": "Areas that are not indoors",
               "outdoor_sensor": "Outdoor temperature sensor",
-              "use_open_meteo": "Use Open-Meteo for weather"
+              "use_open_meteo": "Use Open-Meteo for weather",
+              "rain_sensor": "Rain gauge"
             },
             "data_description": {
               "excluded_areas": "Sensors in these areas are left out of the indoor climate. Empty = count everything.",
               "outdoor_sensor": "Optional. Any temperature sensor with history; replaces the modelled temperature.",
-              "use_open_meteo": "Free weather archive for your area (location rounded to ~10 km). Off: only your own sensor, without normals, rain or sunshine."
+              "use_open_meteo": "Free weather archive for your area (location rounded to ~10 km). Off: only your own sensors, without normals or sunshine.",
+              "rain_sensor": "Optional. A precipitation sensor that counts up (total); replaces the modelled rainfall."
             }
           },
           "car": {
@@ -81,12 +83,14 @@
               "car_chargers": "Charger energy",
               "teslamate_grafana_url": "Grafana URL",
               "teslamate_grafana_token": "Service account token",
-              "teslamate_home_geofence": "Name of your home geofence"
+              "teslamate_home_geofence": "Name of your home geofence",
+              "evcc_url": "evcc URL"
             },
             "data_description": {
-              "teslamate_home_geofence": "Used to count charging at home. Empty: a geofence called Home (or its translation)."
+              "teslamate_home_geofence": "Used to count charging at home. Empty: a geofence called Home (or its translation).",
+              "evcc_url": "Optional, e.g. http://192.168.1.10:7070. Adds charging sessions, cost and solar share per vehicle."
             },
-            "description": "Any car: choose its odometer sensor (from the car's own integration) and the energy sensor of your charger. With TeslaMate you get more (trips, charging at home and elsewhere, Wh/km): fill in its Grafana URL and the token of a Grafana service account with the Viewer role."
+            "description": "Any car: choose its odometer (from the car's own integration) and your charger's energy sensor. Richer sources, used first when filled in: TeslaMate (trips, Wh/km; Grafana URL and a token of a Viewer service account) and evcc (charging sessions, cost, solar share)."
           },
           "ai": {
             "name": "AI summary",
@@ -108,7 +112,7 @@
           "name": "Name",
           "statistic": "Statistic",
           "type": "Calculation",
-          "threshold": "Threshold (for hours above)",
+          "threshold": "Threshold (for hours or days above)",
           "unit": "Unit",
           "decimals": "Decimals"
         }
@@ -147,7 +151,8 @@
         "mean": "Average",
         "max": "Highest",
         "min": "Lowest",
-        "hours_above": "Hours above threshold"
+        "hours_above": "Hours above threshold",
+        "days_above": "Days above threshold"
       }
     }
   },

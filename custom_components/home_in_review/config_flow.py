@@ -26,6 +26,7 @@ from .const import (
     CONF_BACKFILL_MONTHS,
     CONF_CAR_CHARGERS,
     CONF_CAR_ODOMETERS,
+    CONF_EVCC_URL,
     CONF_EXCLUDED_AREAS,
     CONF_FIXED_DAILY,
     CONF_FIXED_MONTHLY,
@@ -34,6 +35,7 @@ from .const import (
     CONF_MAX_HOURLY_KWH,
     CONF_NOTIFY,
     CONF_OUTDOOR_SENSOR,
+    CONF_RAIN_SENSOR,
     CONF_REPORT_DAY,
     CONF_REPORT_TIME,
     CONF_TILES,
@@ -87,8 +89,8 @@ def _suggest(value: Any) -> dict:
 SECTIONS = {
     "general": [CONF_NOTIFY, CONF_REPORT_DAY, CONF_REPORT_TIME, CONF_YEAR_START],
     "energy": [CONF_FIXED_DAILY, CONF_FIXED_MONTHLY, CONF_MAX_HOURLY_KWH, CONF_HP_DEVICES, CONF_HP_HEAT],
-    "climate": [CONF_EXCLUDED_AREAS, CONF_OUTDOOR_SENSOR, CONF_USE_OPEN_METEO],
-    "car": [CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS, CONF_TM_URL, CONF_TM_TOKEN, CONF_TM_HOME],
+    "climate": [CONF_EXCLUDED_AREAS, CONF_OUTDOOR_SENSOR, CONF_RAIN_SENSOR, CONF_USE_OPEN_METEO],
+    "car": [CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS, CONF_EVCC_URL, CONF_TM_URL, CONF_TM_TOKEN, CONF_TM_HOME],
     "ai": [CONF_AI_TASK, CONF_AI_INSTRUCTIONS],
 }
 
@@ -158,6 +160,8 @@ class HomeInReviewOptionsFlow(OptionsFlow):
                 selector.AreaSelectorConfig(multiple=True)),
             vol.Optional(CONF_OUTDOOR_SENSOR, description=_suggest(o.get(CONF_OUTDOOR_SENSOR))): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", device_class="temperature")),
+            vol.Optional(CONF_RAIN_SENSOR, description=_suggest(o.get(CONF_RAIN_SENSOR))): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class="precipitation")),
             vol.Required(CONF_USE_OPEN_METEO, default=o.get(CONF_USE_OPEN_METEO, True)): selector.BooleanSelector(),
         })
         car = vol.Schema({
@@ -165,6 +169,8 @@ class HomeInReviewOptionsFlow(OptionsFlow):
                 selector.EntitySelectorConfig(domain="sensor", device_class="distance", multiple=True)),
             vol.Optional(CONF_CAR_CHARGERS, description=_suggest(o.get(CONF_CAR_CHARGERS))): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", device_class="energy", multiple=True)),
+            vol.Optional(CONF_EVCC_URL, description=_suggest(o.get(CONF_EVCC_URL))): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.URL)),
             vol.Optional(CONF_TM_URL, description=_suggest(o.get(CONF_TM_URL))): selector.TextSelector(
                 selector.TextSelectorConfig(type=selector.TextSelectorType.URL)),
             vol.Optional(CONF_TM_TOKEN, description=_suggest(o.get(CONF_TM_TOKEN))): selector.TextSelector(

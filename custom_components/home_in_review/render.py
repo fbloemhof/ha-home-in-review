@@ -693,6 +693,40 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         P.add("car", L("s_car"), "car", f'''{P.kicker(L("s_car"), "car")}
 <div class="head2"><h2>{head}</h2>{tr}</div><div class="stats">{"".join(stats)}</div>
 <p class="note">{esc(L("car_note_generic"))}</p>''')
+    elif car and car.get("source") == "evcc":
+        mi = tu == "°F"
+        dist = (lambda v: f"{L.num(v / 1.609344)} mi") if mi else (lambda v: f"{L.num(v)} km")  # noqa: E731
+        if car.get("solar_share") is not None:
+            head = L("h_evcc_solar", v=kwh(car["charged"]), n=car["sessions"], solar=L.pct(car["solar_share"]))
+        else:
+            head = L("h_evcc", v=kwh(car["charged"]), n=car["sessions"])
+        has_cost = any(c.get("cost") is not None for c in car["cars"])
+        has_solar = any(c.get("solar_share") is not None for c in car["cars"])
+        rows = ""
+        for c in car["cars"]:
+            km = c["km"] if c.get("km_known") else None
+            rows += (f'<tr><td>{esc(c["name"])}</td><td>{c["sessions"]}</td><td>{L.num(c["charged"])}</td>'
+                     + (f'<td>{L.pct(c["solar_share"]) if c.get("solar_share") is not None else "–"}</td>' if has_solar else "")
+                     + (f'<td>{L.money(c["cost"], 2) if c.get("cost") is not None else "–"}</td>' if has_cost else "")
+                     + f'<td>{dist(km) if km is not None else "–"}</td></tr>')
+        th = (f'<th></th><th>{esc(L("car_sessions"))}</th><th>kWh</th>' + (f'<th>{esc(L("solar"))}</th>' if has_solar else "")
+              + (f'<th>{esc(L("cost_short"))}</th>' if has_cost else "") + f'<th>{"mi" if mi else "km"}</th>')
+        stats = [P.stat(L("car_charged"), kwh(car["charged"]), car["charged"], _get(lambda x: x["car"]["charged"]))]
+        if car.get("cost") is not None:
+            stats.append(P.stat(L("cost_short"), L.money(car["cost"], 2), car["cost"], _get(lambda x: x["car"]["cost"]),
+                                lambda v: L.money(v, 2)))
+        if car.get("avg_price") is not None:
+            stats.append(P.stat(L("avg_price"), f'{L.money(car["avg_price"], 3)}/kWh'))
+        if car.get("km"):
+            stats.append(P.stat(L("trend_car"), dist(car["km"]), car["km"], _get(lambda x: x["car"]["km"]), dist))
+        if car.get("km") and car.get("charged"):
+            stats.append(P.stat(L("car_per_100_mi" if mi else "car_per_100"),
+                                f'{L.num(car["charged"] / car["km"] * 100 * (1.609344 if mi else 1), 1)} kWh'))
+        tr = trend(L, P.series13(_get(lambda x: x["car"]["charged"])), L("trend_charged"), lambda v: kwh(v))
+        P.add("car", L("s_car"), "car", f'''{P.kicker(L("s_car"), "car")}
+<div class="head2"><h2>{head}</h2>{tr}</div><div class="stats">{"".join(stats)}</div>
+<div class="tbl"><table><thead><tr>{th}</tr></thead><tbody>{rows}</tbody></table></div>
+<p class="note">{esc(L("car_note_evcc"))}</p>''')
     elif car:
         head = L("h_car", km=f'{L.num(car["km"])} km', n=car["drives"])
         rows = "".join(
@@ -749,6 +783,8 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
                   + (f'<span><i style="background:var(--hi)"></i>{esc(L("normal_line"))}</span>' if n is not None else ""))
         src_w = wx.get("source", "open-meteo")
         note = L({"sensor": "weather_note_sensor", "sensor-only": "weather_note_sensor_only"}.get(src_w, "weather_note"))
+        if wx.get("rain_source") == "sensor":
+            note += " " + L("weather_note_rain")
         P.add("weather", L("s_weather"), "cloud", f'''{P.kicker(L("s_weather"), "cloud")}
 <h2>{head}</h2>
 <div><div class="wide">{temp_chart(L, wx["daily"], n, tu)}</div><div class="narrow">{temp_chart(L, wx["daily"], n, tu, 420, 240, 14)}</div>
@@ -808,7 +844,8 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         for i, t in enumerate(d["custom"]):
             if t["value"] is None:
                 continue
-            unit = f' {t["unit"]}' if t["unit"] else ""
+            unit = L("unit_days") if t["type"] == "days_above" else t["unit"]
+            unit = f" {unit}" if unit else ""
             stats.append(P.stat(t["name"], f'{L.num(t["value"], t["decimals"])}{unit}', t["value"],
                                 _get(lambda x, i=i, sid=t["statistic"], typ=t["type"]: next(
                                     (c["value"] for c in x["custom"] if c["statistic"] == sid and c["type"] == typ), None)),

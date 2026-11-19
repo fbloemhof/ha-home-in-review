@@ -1,0 +1,189 @@
+{
+  "config": {
+    "abort": {
+      "single_instance_allowed": "Home in Review ya está configurado."
+    },
+    "step": {
+      "user": {
+        "title": "Home in Review",
+        "description": "Un informe mensual de tu hogar, creado a partir del panel de energía, el tiempo local y los sensores interiores. Los informes aparecen en la barra lateral.",
+        "data": {
+          "backfill_months": "Meses a generar del historial"
+        },
+        "data_description": {
+          "backfill_months": "Los meses anteriores se generan en segundo plano a partir de las estadísticas a largo plazo. Usa 0 para omitirlo."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de Home in Review",
+        "menu_options": {
+          "settings": "Ajustes",
+          "tile_add": "Añadir una cifra propia",
+          "tile_remove": "Quitar cifras propias"
+        }
+      },
+      "settings": {
+        "title": "Opciones de Home in Review",
+        "description": "Abre una sección para cambiarla. Al guardar se cierra esta ventana.",
+        "sections": {
+          "general": {
+            "name": "Programación y notificaciones",
+            "data": {
+              "notify_services": "Notificar cuando un informe esté listo",
+              "report_day": "Día del mes",
+              "report_time": "Hora",
+              "year_start_month": "El resumen anual empieza en"
+            },
+            "data_description": {
+              "notify_services": "La notificación abre el informe.",
+              "report_day": "Este día se crea el informe del mes anterior.",
+              "year_start_month": "Enero para un año natural; por ejemplo julio para una temporada de calefacción o el mes en que empieza tu contrato de energía."
+            }
+          },
+          "energy": {
+            "name": "Energía, costes y bomba de calor",
+            "data": {
+              "fixed_costs_daily": "Costes fijos de energía por día",
+              "fixed_costs_monthly": "Costes fijos de energía por mes",
+              "max_hourly_kwh": "Consumo de red máximo plausible por hora",
+              "heat_pump_devices": "Electricidad de la bomba de calor",
+              "heat_pump_heat_sensor": "Calor entregado por la bomba de calor"
+            },
+            "data_description": {
+              "fixed_costs_daily": "Opcional, con impuestos: término fijo y peajes de red.",
+              "fixed_costs_monthly": "Opcional, con impuestos. Usa un importe negativo para una bonificación fija.",
+              "max_hourly_kwh": "Los saltos del contador por encima de este valor por hora se consideran errores. Aproximadamente tu acometida: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
+              "heat_pump_devices": "Cualquier marca: uno o varios sensores de energía (la integración de la propia bomba, un contador o un enchufe inteligente, p. ej. compresor y resistencia de apoyo). Añade una diapositiva de la bomba de calor con electricidad por grado-día.",
+              "heat_pump_heat_sensor": "Opcional: sensores de energía del calor entregado (muchas marcas separan calefacción y agua caliente; elige ambos). Añade el COP."
+            }
+          },
+          "climate": {
+            "name": "Clima interior y tiempo",
+            "data": {
+              "excluded_areas": "Zonas que no son interiores",
+              "outdoor_sensor": "Sensor de temperatura exterior",
+              "use_open_meteo": "Usar Open-Meteo para el tiempo",
+              "rain_sensor": "Pluviómetro"
+            },
+            "data_description": {
+              "excluded_areas": "Los sensores de estas zonas no cuentan para el clima interior. Vacío = contar todo.",
+              "outdoor_sensor": "Opcional. Cualquier sensor de temperatura con historial; sustituye la temperatura modelada.",
+              "use_open_meteo": "Archivo meteorológico gratuito para tu zona (ubicación redondeada a ~10 km). Desactivado: solo tus propios sensores, sin valores normales ni horas de sol.",
+              "rain_sensor": "Opcional. Un sensor de precipitación acumulada (total); sustituye la lluvia modelada."
+            }
+          },
+          "car": {
+            "name": "Coche",
+            "data": {
+              "car_odometers": "Cuentakilómetros (uno por coche)",
+              "car_chargers": "Energía del cargador",
+              "teslamate_grafana_url": "URL de Grafana",
+              "teslamate_grafana_token": "Token de la cuenta de servicio",
+              "teslamate_home_geofence": "Nombre de tu geovalla de casa",
+              "evcc_url": "URL de evcc"
+            },
+            "data_description": {
+              "teslamate_home_geofence": "Para contar la carga en casa. Vacío: una geovalla llamada Home (o su traducción).",
+              "evcc_url": "Opcional, p. ej. http://192.168.1.10:7070. Añade sesiones de carga, coste y proporción solar por vehículo."
+            },
+            "description": "Cualquier coche: elige su cuentakilómetros (de la integración del coche) y el sensor de energía de tu cargador. Fuentes más completas, con prioridad si se rellenan: TeslaMate (trayectos, Wh/km; URL de Grafana y token de una cuenta de servicio Viewer) y evcc (sesiones de carga, coste, proporción solar)."
+          },
+          "ai": {
+            "name": "Resumen con IA",
+            "data": {
+              "ai_task_entity": "Entidad de tarea de IA",
+              "ai_instructions": "Instrucciones adicionales"
+            },
+            "data_description": {
+              "ai_instructions": "Opcional, p. ej. el tono o quién vive en la casa."
+            },
+            "description": "Opcional: un breve resumen escrito al inicio de cada informe, hecho por tu propia entidad de tarea de IA. Solo se envían las cifras del informe."
+          }
+        }
+      },
+      "tile_add": {
+        "title": "Añadir una cifra propia",
+        "description": "Se muestra en una diapositiva «Tus cifras», comparada con meses anteriores.",
+        "data": {
+          "name": "Nombre",
+          "statistic": "Estadística",
+          "type": "Cálculo",
+          "threshold": "Umbral (para horas o días por encima)",
+          "unit": "Unidad",
+          "decimals": "Decimales"
+        }
+      },
+      "tile_remove": {
+        "title": "Quitar cifras propias",
+        "data": {
+          "tiles": "Cifras a quitar"
+        }
+      }
+    },
+    "error": {
+      "statistic_required": "Elige una estadística."
+    }
+  },
+  "selector": {
+    "month": {
+      "options": {
+        "1": "enero",
+        "2": "febrero",
+        "3": "marzo",
+        "4": "abril",
+        "5": "mayo",
+        "6": "junio",
+        "7": "julio",
+        "8": "agosto",
+        "9": "septiembre",
+        "10": "octubre",
+        "11": "noviembre",
+        "12": "diciembre"
+      }
+    },
+    "tile_type": {
+      "options": {
+        "sum": "Total (aumento)",
+        "mean": "Media",
+        "max": "Máximo",
+        "min": "Mínimo",
+        "hours_above": "Horas por encima del umbral",
+        "days_above": "Días por encima del umbral"
+      }
+    }
+  },
+  "services": {
+    "generate": {
+      "name": "Generar informe",
+      "description": "Genera (o vuelve a generar) el informe de un mes.",
+      "fields": {
+        "month": {
+          "name": "Mes",
+          "description": "Como AAAA-MM. Por defecto, el mes anterior."
+        },
+        "notify": {
+          "name": "Notificar",
+          "description": "Enviar las notificaciones configuradas."
+        }
+      }
+    },
+    "backfill": {
+      "name": "Generar informes anteriores",
+      "description": "Genera informes de meses anteriores en segundo plano.",
+      "fields": {
+        "months": {
+          "name": "Meses",
+          "description": "Cuántos meses hacia atrás."
+        },
+        "overwrite": {
+          "name": "Sobrescribir",
+          "description": "Vuelve a generar también los meses que ya tienen informe (tras una actualización o un cambio de opciones)."
+        }
+      }
+    }
+  }
+}

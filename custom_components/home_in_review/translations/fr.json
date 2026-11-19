@@ -66,12 +66,14 @@
             "data": {
               "excluded_areas": "Pièces qui ne sont pas à l'intérieur",
               "outdoor_sensor": "Capteur de température extérieure",
-              "use_open_meteo": "Utiliser Open-Meteo pour la météo"
+              "use_open_meteo": "Utiliser Open-Meteo pour la météo",
+              "rain_sensor": "Pluviomètre"
             },
             "data_description": {
               "excluded_areas": "Les capteurs de ces pièces sont exclus. Vide = tout compter.",
               "outdoor_sensor": "Facultatif. Tout capteur avec historique ; remplace la température modélisée.",
-              "use_open_meteo": "Archive météo gratuite pour votre région (position arrondie à ~10 km). Désactivé : seulement votre capteur."
+              "use_open_meteo": "Archive météo gratuite pour votre région (position arrondie à ~10 km). Désactivé : seulement vos capteurs, sans normales ni soleil.",
+              "rain_sensor": "Facultatif. Un capteur de précipitations cumulées ; remplace la pluie modélisée."
             }
           },
           "car": {
@@ -81,12 +83,14 @@
               "car_chargers": "Énergie de la borne",
               "teslamate_grafana_url": "URL de Grafana",
               "teslamate_grafana_token": "Jeton du compte de service",
-              "teslamate_home_geofence": "Nom de votre geofence domicile"
+              "teslamate_home_geofence": "Nom de votre geofence domicile",
+              "evcc_url": "URL d'evcc"
             },
             "data_description": {
-              "teslamate_home_geofence": "Pour compter la recharge à domicile. Vide : un geofence nommé Home ou Maison."
+              "teslamate_home_geofence": "Pour compter la recharge à domicile. Vide : un geofence nommé Home ou Maison.",
+              "evcc_url": "Facultatif, p. ex. http://192.168.1.10:7070. Ajoute les sessions de recharge, le coût et la part solaire par véhicule."
             },
-            "description": "Toute voiture : choisissez le compteur kilométrique (de l'intégration de la voiture) et le capteur d'énergie de votre borne. Avec TeslaMate vous obtenez plus : URL de Grafana et jeton d'un compte de service Viewer."
+            "description": "Toute voiture : compteur kilométrique (intégration de la voiture) et capteur d'énergie de la borne. Sources plus riches, prioritaires si renseignées : TeslaMate (trajets, Wh/km ; URL de Grafana et jeton Viewer) et evcc (sessions, coût, part solaire)."
           },
           "ai": {
             "name": "Résumé IA",
@@ -108,7 +112,7 @@
           "name": "Nom",
           "statistic": "Statistique",
           "type": "Calcul",
-          "threshold": "Seuil (pour heures au-dessus)",
+          "threshold": "Seuil (pour heures ou jours au-dessus)",
           "unit": "Unité",
           "decimals": "Décimales"
         }
@@ -147,7 +151,8 @@
         "mean": "Moyenne",
         "max": "Maximum",
         "min": "Minimum",
-        "hours_above": "Heures au-dessus du seuil"
+        "hours_above": "Heures au-dessus du seuil",
+        "days_above": "Jours au-dessus du seuil"
       }
     }
   },
