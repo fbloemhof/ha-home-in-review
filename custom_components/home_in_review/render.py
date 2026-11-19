@@ -226,8 +226,15 @@ def theme_head(default: str = "auto") -> str:
             f"if(!t)t='{default}';if(t&&t!=='auto')r.dataset.theme=t;}})()</script>")
 
 JS = r"""
-window.hirGo=f=>{if(window.parent!==window)parent.postMessage({homeInReview:f},location.origin);else location.href='./'+f+'.html'};
-document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-go]');if(!a)return;e.preventDefault();hirGo(a.dataset.go)});
+window.hirSlide=()=>{let b='',best=1e9;document.querySelectorAll('.slide').forEach(x=>{const d=Math.abs(x.getBoundingClientRect().top);if(d<best){best=d;b=x.id}});return b};
+/* Go to another report. ``s`` is the slide to open there (the same topic), '' for the top. */
+window.hirGo=(f,s)=>{if(s===undefined)s=f==='index'?'':hirSlide();
+ if(window.parent!==window)parent.postMessage({homeInReview:f,slide:s},location.origin);else location.href='./'+f+'.html'+(s?'#s='+s:'')};
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-go]');if(!a)return;e.preventDefault();
+ const sl=a.closest('.slide');hirGo(a.dataset.go,a.closest('.mfoot')?'':(sl&&!sl.classList.contains('cover')?sl.id:undefined))});
+/* Opened for a given topic: start at that slide. */
+(()=>{const m=/(?:^|[#&])s=([a-z]+)/.exec(location.hash);if(!m)return;const el=document.getElementById(m[1]);
+ if(el)window.scrollTo({top:el.offsetTop,behavior:'instant'})})();
 (()=>{const b=document.querySelector('.hmenu');if(!b||window.parent===window)return;const set=v=>{b.hidden=!v};
  set(/(^|[#&])menu\b/.test(location.hash));addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&'hirNarrow' in e.data)set(!!e.data.hirNarrow)});
  b.onclick=()=>parent.postMessage({homeInReview:'menu'},location.origin)})();

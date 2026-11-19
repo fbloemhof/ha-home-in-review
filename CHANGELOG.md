@@ -18,6 +18,8 @@
   (Nov–Feb ×1.1, Mar/Oct ×1.0, Apr–Sep ×0.8), as Mindergas uses, so gas per degree day can be compared. The weather
   slide states which definition is used.
 - Click a bar in any month chart (the 13-month trends and the year review) to open that month.
+- Switching month (month menu, ‹ ›, the [ and ] keys or a chart bar) keeps you at the same topic instead of
+  jumping back to the top.
 
 **Fixed**
 - The night and black-and-white themes were overridden by the dark theme on devices set to dark mode.

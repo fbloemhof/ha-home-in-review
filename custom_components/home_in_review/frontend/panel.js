@@ -23,8 +23,10 @@ class HomeInReviewPanel extends HTMLElement {
       if (target === "menu") {
         this.dispatchEvent(new Event("hass-toggle-menu", { bubbles: true, composed: true }));
       } else if (typeof target === "string" && /^(index|(year-)?\d{4}-\d{2})$/.test(target)) {
+        // The report says which slide (topic) was in view, so the next report opens at the same topic.
+        const slide = typeof e.data.slide === "string" && /^[a-z]+$/.test(e.data.slide) ? e.data.slide : "";
         history.pushState(null, "", `/${this._base()}/${target === "index" ? "" : target}`);
-        this._show(target);
+        this._show(target, slide);
       }
     });
     requestAnimationFrame(() => this._fromRoute());
@@ -37,12 +39,13 @@ class HomeInReviewPanel extends HTMLElement {
     this._show(/^(year-)?\d{4}-\d{2}$/.test(p) ? p : "index");
   }
 
-  async _show(target) {
+  async _show(target, slide = "") {
     if (target === this._current) return;
     this._current = target;
     try {
       const r = await this._hass.callWS({ type: "auth/sign_path", path: `/api/home_in_review/report/${target}`, expires: 3600 });
-      this._frame.src = r.path + (this._narrow ? "#menu" : "");
+      const hash = [this._narrow ? "menu" : "", slide ? `s=${slide}` : ""].filter(Boolean).join("&");
+      this._frame.src = r.path + (hash ? `#${hash}` : "");
     } catch (err) {
       const p = document.createElement("p");
       p.style.cssText = "font:16px system-ui;padding:24px";
