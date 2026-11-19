@@ -214,7 +214,8 @@ def test_custom_tiles_and_story_facts():
     f = story.facts(doc)
     assert f["electricity_used_kwh"] == round(28 * 24 * 1.3)
     text = story.instructions("2026-02", {"2026-02": doc}, "nl")
-    assert "Dutch" in text and "never invent" in text
+    assert "Dutch" in text and "Do not calculate" in text
+    assert "Energy costs: the household paid" in text
 
 
 def test_any_brand_heat_pump_car_and_single_battery():
