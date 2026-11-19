@@ -110,8 +110,10 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
   - **AI summary**: an AI Task entity (OpenAI, Anthropic, Google or a local model set up in Home Assistant) and
     optional extra instructions. The integration computes the comparisons itself and hands the model plain,
     verified statements to phrase; the text is labelled as written by AI.
-- **Add your own figure**: any statistic as a total, average, highest, lowest, or the hours or days in which it
-  was above a threshold (for example the days the wood stove burned).
+- **Add your own figure**: any statistic as a total, average, highest, lowest, the hours or days in which it
+  was above a threshold (for example the days the wood stove burned), or the number of runs (dishwasher, washing
+  machine). See [Your own figures](docs/own-figures.md) for examples, including how to count on/off things like a
+  TV, which have no statistics of their own.
 - **Remove your own figures**.
 
 ## Actions

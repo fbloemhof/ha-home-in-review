@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**Docs**
+- New page [Your own figures](docs/own-figures.md): the calculations, appliance runs, and a helper sensor for
+  on/off things.
+
 **Changed**
 - The theme choice at the bottom of a report is now a small menu. Its first item, "default", shows the theme
   set in the options and forgets the viewer's own choice, so a later change of that option applies again.
