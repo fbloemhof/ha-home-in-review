@@ -539,10 +539,10 @@ _cl["data_description"]["degree_day_base"] = t(
 _cl["data"]["degree_days_weighted"] = t("Weighted degree days (Dutch method)", "Gewogen graaddagen (Nederlandse methode)",
                                         "Gewichtete Gradtage (niederländische Methode)", "Degrés-jours pondérés (méthode néerlandaise)")
 _cl["data_description"]["degree_days_weighted"] = t(
-    "November to February count ×1.1, March and October ×1.0, April to September ×0.8: the weighting commonly used in the Netherlands to compare gas use. After changing this or the threshold, re-make earlier months (backfill with overwrite) to keep comparisons fair.",
-    "November t/m februari tellen ×1,1, maart en oktober ×1,0, april t/m september ×0,8: de weging die in Nederland gebruikelijk is om gasverbruik te vergelijken. Maak na het wijzigen van dit of de stookgrens eerdere maanden opnieuw (backfill met overschrijven), zodat vergelijkingen kloppen.",
-    "November bis Februar zählen ×1,1, März und Oktober ×1,0, April bis September ×0,8. Nach einer Änderung frühere Monate neu erstellen (Rückfüllung mit Überschreiben).",
-    "Novembre à février ×1,1, mars et octobre ×1,0, avril à septembre ×0,8. Après un changement, régénérez les mois précédents (rattrapage avec écrasement).")
+    "November to February count ×1.1, March and October ×1.0, April to September ×0.8: the weighting commonly used in the Netherlands to compare gas use. Earlier months are updated automatically.",
+    "November t/m februari tellen ×1,1, maart en oktober ×1,0, april t/m september ×0,8: de weging die in Nederland gebruikelijk is om gasverbruik te vergelijken. Eerdere maanden worden automatisch bijgewerkt.",
+    "November bis Februar zählen ×1,1, März und Oktober ×1,0, April bis September ×0,8. Frühere Monate werden automatisch aktualisiert.",
+    "Novembre à février ×1,1, mars et octobre ×1,0, avril à septembre ×0,8. Les mois précédents sont mis à jour automatiquement.")
 ERRORS = {
     "statistic_required": t("Choose a statistic.", "Kies een statistiek.", "Wählen Sie eine Statistik.", "Choisissez une statistique."),
     "invalid_url": t("Enter a valid http:// or https:// address without query or fragment.",

@@ -83,7 +83,7 @@
               "use_open_meteo": "Gratis weerarchief voor jouw omgeving (locatie afgerond op ~10 km). Uit: alleen je eigen sensoren, zonder normalen of zon.",
               "rain_sensor": "Optioneel. Een neerslagsensor die optelt (totaal); vervangt de neerslag uit het model.",
               "degree_day_base": "Optioneel. Dagen met een gemiddelde temperatuur onder deze waarde tellen als stookdag. Leeg: 18 °C. Vergelijk je met een andere dienst, gebruik dan dezelfde waarde als die dienst.",
-              "degree_days_weighted": "November t/m februari tellen ×1,1, maart en oktober ×1,0, april t/m september ×0,8: de weging die in Nederland gebruikelijk is om gasverbruik te vergelijken. Maak na het wijzigen van dit of de stookgrens eerdere maanden opnieuw (backfill met overschrijven), zodat vergelijkingen kloppen."
+              "degree_days_weighted": "November t/m februari tellen ×1,1, maart en oktober ×1,0, april t/m september ×0,8: de weging die in Nederland gebruikelijk is om gasverbruik te vergelijken. Eerdere maanden worden automatisch bijgewerkt."
             }
           },
           "car": {

@@ -83,7 +83,7 @@
               "use_open_meteo": "Archivo meteorológico gratuito para tu zona (ubicación redondeada a ~10 km). Desactivado: solo tus propios sensores, sin valores normales ni horas de sol.",
               "rain_sensor": "Opcional. Un sensor de precipitación acumulada (total); sustituye la lluvia modelada.",
               "degree_day_base": "Opcional. Los días con una temperatura media inferior cuentan como días de calefacción. Vacío: 18 °C (65 °F). Para comparar con otro servicio, usa el mismo valor que ese servicio.",
-              "degree_days_weighted": "Noviembre a febrero ×1,1, marzo y octubre ×1,0, abril a septiembre ×0,8. Tras un cambio, vuelve a generar los meses anteriores (backfill con sobrescribir)."
+              "degree_days_weighted": "Noviembre a febrero ×1,1, marzo y octubre ×1,0, abril a septiembre ×0,8. Los meses anteriores se actualizan automáticamente."
             }
           },
           "car": {

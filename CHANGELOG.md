@@ -3,6 +3,9 @@
 ## 0.4.0 (not released yet)
 
 **New**
+- Reports update themselves: each report remembers the version and the settings it was made with. After an update
+  or a change of settings, outdated months are re-made in the background (newest first). AI summaries are only
+  written again when the figures behind them changed. No more manual backfill with overwrite.
 - Electricity: each day's use stacked by source (grid, solar used directly, battery), with what was returned to
   the grid below; solar and battery also as figures.
 - Costs: water is on the bill ("energy + water"); a negative fixed amount (e.g. a daily tax credit) is shown as a

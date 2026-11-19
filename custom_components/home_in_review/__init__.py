@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import datetime as dt
+import hashlib
 import json
 import logging
 from pathlib import Path
@@ -48,6 +49,11 @@ from .options import sanitize
 from .store import ReportStore
 from .views import YM, ReportView
 
+# Bump when the collector's output changes, so existing reports are re-made after an update.
+COLLECTOR_VERSION = 4
+PRESENTATION_OPTIONS = {"notify_services", "report_day", "report_time", "default_theme", "admin_only",
+                        "year_start_month", "backfill_months", "backfilled"}
+
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 FRONTEND = Path(__file__).parent / "frontend"
@@ -73,21 +79,52 @@ class HomeInReview:
         """Entry data and options, validated (see options.py)."""
         return sanitize({**self.entry.data, **self.entry.options})
 
+    def fingerprint(self) -> str:
+        """What a report depends on besides the data: the collector version and the options that change figures.
+        Presentation-only options (notifications, schedule, theme, access, year start) are left out. AI settings count:
+        unchanged summaries are reused (see _story), so this costs no extra AI calls."""
+        relevant = {k: v for k, v in sorted(self.options.items()) if k not in PRESENTATION_OPTIONS}
+        raw = json.dumps({"collector": COLLECTOR_VERSION, "options": relevant}, sort_keys=True, default=str)
+        return hashlib.sha256(raw.encode()).hexdigest()[:16]
+
+    def stale_months(self) -> list[str]:
+        fp = self.fingerprint()
+        return sorted((ym for ym, d in self.store.docs.items() if (d.get("meta") or {}).get("fingerprint") != fp),
+                      reverse=True)
+
     async def generate(self, year: int, month: int) -> dict:
         ym = f"{year:04d}-{month:02d}"
         async with self.lock:
+            previous = self.store.docs.get(ym)
             doc = await Collector(self.source, self.options, self.store.cache).collect(year, month)
-            await self._story(ym, doc)
+            doc["meta"] = {"fingerprint": self.fingerprint(), "collector": COLLECTOR_VERSION}
+            await self._story(ym, doc, previous)
             await self.store.async_save(ym, doc)
             return doc
 
-    async def _story(self, ym: str, doc: dict) -> None:
-        """Optional AI-written summary through the user's own AI Task entity."""
+    async def refresh(self, months: list[str]) -> None:
+        """Re-make reports made by an older version or with other settings, newest first, one at a time."""
+        _LOGGER.info("Updating %s report(s) for a new version or changed settings", len(months))
+        for ym in months:
+            try:
+                await self.generate(int(ym[:4]), int(ym[5:]))
+            except Exception:  # keep going; one bad month must not stop the rest
+                _LOGGER.exception("Could not update %s", ym)
+            await asyncio.sleep(1)
+
+    async def _story(self, ym: str, doc: dict, previous: dict | None = None) -> None:
+        """Optional AI-written summary through the user's own AI Task entity. When the figures it is written from
+        are unchanged (same prompt), the earlier text is kept instead of asking the AI again."""
         entity = self.options.get(CONF_AI_TASK)
         if not entity:
             return
         docs = {**self.store.docs, ym: doc}
         prompt = story.instructions(ym, docs, self.hass.config.language, self.options.get(CONF_AI_INSTRUCTIONS))
+        digest = hashlib.sha256(f"{entity}\n{prompt}".encode()).hexdigest()[:16]
+        old = (previous or {}).get("story") or {}
+        if old.get("text") and old.get("hash") == digest:
+            doc["story"] = old
+            return
         try:
             text = await self.source.ai_generate(entity, prompt)
         except HomeAssistantError as err:  # the AI service refused or is unavailable
@@ -97,7 +134,7 @@ class HomeInReview:
             _LOGGER.exception("AI summary for %s failed", ym)
             return
         if isinstance(text, str) and text.strip():
-            doc["story"] = {"text": text.strip(), "entity": entity}
+            doc["story"] = {"text": text.strip(), "entity": entity, "hash": digest}
 
     async def backfill(self, months: int, overwrite: bool = False) -> None:
         first = await first_month(self.source)
@@ -265,6 +302,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             rt.start_backfill(int(entry.data.get(CONF_BACKFILL_MONTHS, DEFAULT_BACKFILL_MONTHS)), initial=True)
         else:
             entry.async_create_background_task(hass, rt.catch_up(), "home_in_review_catch_up")
+        # After an update or a change of settings: bring the existing reports up to date in the background.
+        if stale := rt.stale_months():
+            entry.async_create_background_task(hass, rt.refresh(stale), "home_in_review_refresh")
 
     # Runs now when Home Assistant is already up, otherwise once it has started; safe to cancel on unload.
     entry.async_on_unload(async_at_started(hass, started))

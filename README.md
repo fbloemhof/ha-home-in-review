@@ -116,7 +116,7 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
 ## Actions
 
 - `home_in_review.generate`: (re)make the report for one month (`month: "2026-10"`, default: last month), optionally with notifications.
-- `home_in_review.backfill`: make missing reports for earlier months (`overwrite: true` re-makes existing ones, e.g. after an update).
+- `home_in_review.backfill`: make missing reports for earlier months (`overwrite: true` re-makes existing ones; normally not needed, reports update themselves).
 
 ## How it works
 
@@ -147,7 +147,9 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
 - **Year review** is put together from the monthly reports; a running year is shown as "so far" and compared
   with the same months a year earlier.
 - Reports are stored as JSON in `config/home_in_review/` and rendered when you open them, so improvements to
-  the layout also apply to older months.
+  the layout also apply to older months. Each report remembers the version and settings it was made with; after
+  an update or a change of settings the outdated months are re-made in the background. AI summaries are only
+  written again when the figures behind them changed.
 
 ## Privacy and security
 

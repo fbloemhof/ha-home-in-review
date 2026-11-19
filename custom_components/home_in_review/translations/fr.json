@@ -83,7 +83,7 @@
               "use_open_meteo": "Archive météo gratuite pour votre région (position arrondie à ~10 km). Désactivé : seulement vos capteurs, sans normales ni soleil.",
               "rain_sensor": "Facultatif. Un capteur de précipitations cumulées ; remplace la pluie modélisée.",
               "degree_day_base": "Facultatif. Les jours plus froids comptent comme jours de chauffe. Vide : 18 °C (65 °F).",
-              "degree_days_weighted": "Novembre à février ×1,1, mars et octobre ×1,0, avril à septembre ×0,8. Après un changement, régénérez les mois précédents (rattrapage avec écrasement)."
+              "degree_days_weighted": "Novembre à février ×1,1, mars et octobre ×1,0, avril à septembre ×0,8. Les mois précédents sont mis à jour automatiquement."
             }
           },
           "car": {

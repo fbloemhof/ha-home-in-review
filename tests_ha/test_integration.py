@@ -148,3 +148,42 @@ def test_default_backfill_covers_last_year() -> None:
 
     assert default_backfill_months(dt.date(2026, 11, 19)) == 22   # Jan 2025 .. Oct 2026
     assert default_backfill_months(dt.date(2026, 1, 5)) == 12     # all of 2025
+
+
+async def test_stale_reports_are_refreshed(recorder_mock, hass: HomeAssistant) -> None:
+    """A report made by an older version (no fingerprint) is re-made in the background after setup."""
+    import json
+    from pathlib import Path
+
+    store = Path(hass.config.path("home_in_review"))
+    await hass.async_add_executor_job(lambda: store.mkdir(exist_ok=True))
+    old = {**DOC, "period": {**DOC["period"], "year": 2026, "month": 9}}
+    await hass.async_add_executor_job((store / "2026-09.json").write_text, json.dumps(old))
+    entry = MockConfigEntry(domain=DOMAIN, data={"backfill_months": 0, "backfilled": True})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    rt = entry.runtime_data
+    assert rt.store.docs["2026-09"]["meta"]["fingerprint"] == rt.fingerprint()
+    assert rt.stale_months() == []
+
+
+async def test_ai_summary_reused_when_figures_unchanged(recorder_mock, hass: HomeAssistant) -> None:
+    entry = await setup_entry(hass, {"ai_task_entity": "ai_task.test"})
+    rt = entry.runtime_data
+    calls = []
+
+    async def fake_ai(entity, prompt):
+        calls.append(prompt)
+        return "A calm month."
+
+    rt.source.ai_generate = fake_ai
+    first = {**DOC}
+    await rt._story("2026-10", first)
+    assert first["story"]["text"] == "A calm month." and len(calls) == 1
+    second = {**DOC}
+    await rt._story("2026-10", second, previous=first)
+    assert second["story"] == first["story"] and len(calls) == 1      # same figures: no new AI call
+    changed = {**DOC, "energy": {**DOC["energy"], "consumption": 99.0}}
+    await rt._story("2026-10", changed, previous=first)
+    assert len(calls) == 2                                              # figures changed: written again
