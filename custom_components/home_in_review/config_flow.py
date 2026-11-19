@@ -75,7 +75,7 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             vol.Optional(CONF_OUTDOOR_SENSOR, description={"suggested_value": o.get(CONF_OUTDOOR_SENSOR)}): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", device_class="temperature")),
             vol.Optional(CONF_FIXED_DAILY, description={"suggested_value": o.get(CONF_FIXED_DAILY)}): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=0, max=100, step=0.0001, mode=selector.NumberSelectorMode.BOX)),
+                selector.NumberSelectorConfig(min=0, max=100, step="any", mode=selector.NumberSelectorMode.BOX)),
             vol.Optional(CONF_FIXED_MONTHLY, description={"suggested_value": o.get(CONF_FIXED_MONTHLY)}): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=-1000, max=10000, step=0.01, mode=selector.NumberSelectorMode.BOX)),
             vol.Required(CONF_MAX_HOURLY_KWH, default=o.get(CONF_MAX_HOURLY_KWH, DEFAULT_MAX_HOURLY_KWH)): selector.NumberSelector(

@@ -104,6 +104,7 @@ class HomeInReview:
         self.source = HassSource(hass)
         self.lock = asyncio.Lock()
         self.backfill_task: asyncio.Task | None = None
+        self.loaded_options = dict(entry.options)
 
     @property
     def options(self) -> dict:
@@ -138,11 +139,16 @@ class HomeInReview:
                 y, m = y - 1, 12
         _LOGGER.info("Backfill finished: %s month(s) generated", done)
 
-    def start_backfill(self, months: int) -> None:
+    def start_backfill(self, months: int, initial: bool = False) -> None:
         if self.backfill_task and not self.backfill_task.done():
             raise HomeAssistantError("A backfill is already running")
-        self.backfill_task = self.entry.async_create_background_task(
-            self.hass, self.backfill(months), "home_in_review_backfill")
+
+        async def run() -> None:
+            await self.backfill(months)
+            if initial:
+                self.hass.config_entries.async_update_entry(self.entry, data={**self.entry.data, "backfilled": True})
+
+        self.backfill_task = self.entry.async_create_background_task(self.hass, run(), "home_in_review_backfill")
 
     async def scheduled(self, now: dt.datetime) -> None:
         if now.day != int(self.options.get(CONF_REPORT_DAY, DEFAULT_REPORT_DAY)):
@@ -245,13 +251,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await panel_custom.async_register_panel(
             hass, frontend_url_path=PANEL_URL, webcomponent_name="home-in-review-panel",
             sidebar_title="Home in Review", sidebar_icon="mdi:home-analytics",
-            module_url=f"{STATIC_URL}/panel.js?v={_version()}", require_admin=False, config={})
+            module_url=f"{STATIC_URL}/panel.js?v={await hass.async_add_executor_job(_version)}", require_admin=False, config={})
 
     @callback
     def started(_=None) -> None:
+        # The initial backfill is marked done only when it finished, so a restart halfway resumes it
+        # (months that already exist are skipped).
         if not entry.data.get("backfilled") and entry.data.get(CONF_BACKFILL_MONTHS, DEFAULT_BACKFILL_MONTHS):
-            hass.config_entries.async_update_entry(entry, data={**entry.data, "backfilled": True})
-            rt.start_backfill(int(entry.data.get(CONF_BACKFILL_MONTHS, DEFAULT_BACKFILL_MONTHS)))
+            rt.start_backfill(int(entry.data.get(CONF_BACKFILL_MONTHS, DEFAULT_BACKFILL_MONTHS)), initial=True)
         else:
             entry.async_create_background_task(hass, rt.catch_up(), "home_in_review_catch_up")
 
@@ -263,7 +270,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def _reload(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    await hass.config_entries.async_reload(entry.entry_id)
+    # Only option changes need a reload; entry.data also changes when the initial backfill is marked done,
+    # and reloading then would cancel running work.
+    rt: HomeInReview = entry.runtime_data
+    if dict(entry.options) != rt.loaded_options:
+        await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
