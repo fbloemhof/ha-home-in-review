@@ -1,0 +1,44 @@
+name: Something is wrong
+description: A figure, slide, setting or page that doesn't work or doesn't look right
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing! Please don't paste tokens, addresses or other personal data. Screenshots are welcome; crop or blur what you'd rather not share.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: input
+    id: ha
+    attributes:
+      label: Home Assistant version
+      placeholder: "2026.11.2"
+    validations:
+      required: true
+  - type: input
+    id: hir
+    attributes:
+      label: Home in Review version
+      placeholder: "0.3.0"
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: Language, unit system and currency
+      placeholder: "Dutch, metric, EUR"
+  - type: textarea
+    id: energy
+    attributes:
+      label: What is in your energy dashboard?
+      description: e.g. grid with 2 tariffs, solar, 1 battery, gas, water, 12 devices
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log lines
+      description: Settings → System → Logs, search for home_in_review
+      render: text
