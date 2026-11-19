@@ -3,7 +3,8 @@
 Names of devices, rooms and cars become generic; every number is scaled by a fixed random factor per series, so
 the demo looks realistic without showing a real household's figures.
 
-    python dev/demo.py   -> dev/demo/*.html (English) from dev/out/*.json
+    python dev/demo.py [source dir]   -> dev/demo/*.html (English) from dev/out/*.json (or the given directory,
+                                         e.g. /config/home_in_review for the reports Home Assistant made)
 """
 from __future__ import annotations
 
@@ -23,7 +24,7 @@ render = importlib.import_module("hir.render")
 render.FONT_BASE = (ROOT / "custom_components" / "home_in_review" / "frontend" / "fonts").as_uri()
 gas = importlib.import_module("hir.gas")
 
-SRC = Path(__file__).resolve().parent / "out"
+SRC = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parent / "out"
 OUT = Path(__file__).resolve().parent / "demo"
 DEVICES = ["Electric car", "Heat pump", "Water heater", "Dishwasher", "Kettle tap", "Home office", "TV and media",
            "Tumble dryer", "Washing machine", "Office 2", "3D printer", "Display cabinet", "Reading lamp", "Heat cable",
@@ -33,6 +34,18 @@ ROOMS = ["Utility room", "Hallway", "Office", "Kitchen", "Toilet", "Living room"
 STORY = ("A calm, slightly cooler month than last year. The house used about the same electricity, but the solar panels "
          "delivered less as autumn set in, so more came from the grid.\n"
          "The heat pump started its season and did so efficiently, helped by mild days in the first half of the month.")
+
+
+def scale_tree(node, prefix: str, f, skip: frozenset | set = frozenset()) -> None:
+    """Multiply every number in a (nested) section by a demo factor per field name (booleans and years untouched)."""
+    items = node.items() if isinstance(node, dict) else enumerate(node)
+    for k, v in list(items):
+        if isinstance(v, bool) or k in skip:
+            continue
+        if isinstance(v, (int, float)):
+            node[k] = v * f(f"{prefix}{k}") if not (isinstance(v, int) and k in ("year", "month")) else v
+        elif isinstance(v, (dict, list)):
+            scale_tree(v, f"{prefix}{k}." if isinstance(k, str) else prefix, f, skip)
 
 
 def main() -> None:
@@ -68,19 +81,37 @@ def main() -> None:
         for k in ("tracked", "untracked"):
             if d.get("devices"):
                 d["devices"][k] *= f("e")
-        for i, b in enumerate((d.get("batteries") or {}).get("units", [])):
+        bat = d.get("batteries") or {}
+        money_keys = ("value", "charge_cost", "discharge_value")
+        for x in [bat, *bat.get("units", [])]:
+            for k in ("charge", "discharge", *money_keys):
+                if isinstance(x.get(k), (int, float)):
+                    x[k] *= f("e")
+            for k in ("cycles", "max_charge_kw", "max_discharge_kw"):
+                if isinstance(x.get(k), (int, float)):
+                    x[k] *= f("bp")
+        for i, b in enumerate(bat.get("units", [])):
             b["name"] = f"Battery {i + 1}"
+        for k in ("grid_peak", "grid_peak_export", "solar_peak", "peak"):
+            if isinstance(e.get(k), dict) and isinstance(e[k].get("kw"), (int, float)):
+                e[k]["kw"] *= f("e")
         if d.get("heat_pump"):
             d["heat_pump"]["devices"] = ["Heat pump", "Backup heater"]
             for k in ("electricity", "heat"):
                 if isinstance(d["heat_pump"].get(k), (int, float)):
                     d["heat_pump"][k] *= f("hp")
+            # costs and per-degree-day figures: a factor of their own per field
+            scale_tree(d["heat_pump"], "hp.", f, skip={"electricity", "heat", "cop"})
         if d.get("car"):
             for c in d["car"]["cars"]:
                 c["name"] = "Family car"
-                for k in ("km", "charged", "charged_home"):
-                    c[k] *= f("car")
-            d["car"]["km"] = sum(c["km"] for c in d["car"]["cars"])
+            # every number of the car (trips, kWh, cost, prices, use) gets a factor of its own per field, so no real
+            # figure is shown; the same field gets the same factor in every month, so trends stay realistic
+            scale_tree(d["car"], "car.", f)
+            d["car"]["km"] = sum(c.get("km") or 0 for c in d["car"]["cars"]) or d["car"].get("km")
+        for k in ("water_cost", "fixed_costs", "avg_import_price"):
+            if isinstance(e.get(k), (int, float)):
+                e[k] *= f(f"cost.{k}")
         for a in (d.get("indoor") or {}).get("areas", []):
             a["name"] = room_names.setdefault(a["area_id"], ROOMS[len(room_names) % len(ROOMS)])
             a["floor"] = {"Beneden": "Ground floor", "Boven": "First floor"}.get(a.get("floor"), a.get("floor"))
