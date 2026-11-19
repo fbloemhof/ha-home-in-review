@@ -321,3 +321,14 @@ def test_gas_split():
     flat = gas.split([3.0] * 30, [8.0] * 30)            # no spread: no reliable split
     assert flat["base_source"] == "unknown" and "heating" not in flat and flat["per_degree_day"] == 3 / 8
     assert gas.split([], []) is None
+
+
+def test_year_status():
+    docs = {f"2025-{m:02d}": {} for m in (11, 12)} | {f"2026-{m:02d}": {} for m in range(1, 11)}
+    assert R.year_status("2025-01", docs) == "incomplete"   # over, but only Nov and Dec
+    assert R.year_status("2026-01", docs) == "running"      # Jan-Oct, the year isn't over yet
+    full = {f"2025-{m:02d}": {} for m in range(1, 13)}
+    assert R.year_status("2025-01", full) == "complete"
+    nl = Lang("nl")
+    assert R.year_note(nl, "2025-01", docs) == "2 van 12 maanden"
+    assert R.year_note(nl, "2026-01", docs) == "10 van 12 maanden tot nu toe"

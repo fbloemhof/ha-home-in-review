@@ -11,7 +11,7 @@
           "backfill_months": "Monate aus dem Verlauf erstellen"
         },
         "data_description": {
-          "backfill_months": "Frühere Monate werden im Hintergrund aus Langzeitstatistiken erstellt. 0 zum Überspringen."
+          "backfill_months": "Frühere Monate werden im Hintergrund aus Langzeitstatistiken erstellt. Der Vorschlag umfasst das ganze letzte Jahr und dieses Jahr bisher, damit beide Jahresrückblicke vollständig sind. 0 zum Überspringen."
         }
       }
     }
@@ -191,7 +191,7 @@
       "fields": {
         "months": {
           "name": "Monate",
-          "description": "Wie viele Monate zurück."
+          "description": "Wie viele Monate zurück. Standard: bis zum Beginn des letzten Jahres (gemäß Startmonat des Jahresrückblicks)."
         },
         "overwrite": {
           "name": "Überschreiben",

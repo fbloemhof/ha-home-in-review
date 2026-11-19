@@ -500,6 +500,16 @@ _en["data_description"]["gas_base_per_day"] = t(
     "Optioneel, in je gaseenheid (bijv. 0,4 m³). Splitst gas in verwarming en de rest. Leeg: per maand geschat uit hoe het gasverbruik de graaddagen volgt.",
     "Optional, in Ihrer Gaseinheit (z. B. 0,4 m³). Teilt Gas in Heizung und Rest. Leer: pro Monat geschätzt aus dem Verlauf gegenüber den Gradtagen.",
     "Facultatif, dans votre unité de gaz (p. ex. 0,4 m³). Sépare le gaz entre chauffage et reste. Vide : estimé chaque mois selon le lien avec les degrés-jours.")
+CONFIG["user"]["data_description"]["backfill_months"] = t(
+    "Earlier months are generated in the background from long-term statistics. The suggestion covers all of last year and this year so far, so both year reviews start complete. Use 0 to skip.",
+    "Eerdere maanden worden op de achtergrond gemaakt uit de langetermijnstatistieken. Het voorstel dekt heel vorig jaar en dit jaar tot nu toe, zodat beide jaaroverzichten compleet beginnen. Gebruik 0 om over te slaan.",
+    "Frühere Monate werden im Hintergrund aus Langzeitstatistiken erstellt. Der Vorschlag umfasst das ganze letzte Jahr und dieses Jahr bisher, damit beide Jahresrückblicke vollständig sind. 0 zum Überspringen.",
+    "Les mois précédents sont générés en arrière-plan. La suggestion couvre toute l'année dernière et cette année jusqu'ici, pour que les deux bilans annuels soient complets. 0 pour ignorer.")
+SERVICES["backfill"]["fields"]["months"] = (t("Months", "Maanden", "Monate", "Mois"), t(
+    "How many months to look back. Default: back to the start of last year (in your year review's months).",
+    "Hoeveel maanden terug. Standaard: tot het begin van vorig jaar (volgens de startmaand van je jaaroverzicht).",
+    "Wie viele Monate zurück. Standard: bis zum Beginn des letzten Jahres (gemäß Startmonat des Jahresrückblicks).",
+    "Combien de mois en arrière. Par défaut : jusqu'au début de l'année dernière (selon le mois de début du bilan annuel)."))
 ERRORS = {
     "statistic_required": t("Choose a statistic.", "Kies een statistiek.", "Wählen Sie eine Statistik.", "Choisissez une statistique."),
     "invalid_url": t("Enter a valid http:// or https:// address without query or fragment.",

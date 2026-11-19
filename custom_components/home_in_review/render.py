@@ -1080,7 +1080,7 @@ def render_index(docs: dict[str, dict], lang: str = "en", home_name: str | None 
         for k in reversed(keys):
             ms = [m for m in year_months(k) if m in docs]
             use = sum((docs[m].get("energy") or {}).get("consumption") or 0 for m in ms)
-            note = "" if len(ms) == 12 else L("year_partial", n=len(ms))
+            note = year_note(L, k, docs)
             rows.append(f'<a href="#" data-go="year-{k}"><b>{esc(year_label(k))}</b><span>{esc(note)}</span><span>{L.num(use)} kWh</span></a>')
     for ym in sorted(docs, reverse=True):
         d = docs[ym]
@@ -1120,6 +1120,21 @@ def year_months(key: str) -> list[str]:
         if m > 12:
             y, m = y + 1, 1
     return out
+
+
+def year_status(key: str, docs: dict[str, dict]) -> str:
+    """"complete", "running" (the year isn't over yet) or "incomplete" (over, but months are missing)."""
+    months = year_months(key)
+    have = sum(1 for m in months if m in docs)
+    if have == 12:
+        return "complete"
+    return "running" if docs and months[-1] > max(docs) else "incomplete"
+
+
+def year_note(L: Lang, key: str, docs: dict[str, dict]) -> str:
+    st = year_status(key, docs)
+    n = sum(1 for m in year_months(key) if m in docs)
+    return "" if st == "complete" else L("year_partial" if st == "running" else "year_incomplete", n=n)
 
 
 def year_label(key: str) -> str:
@@ -1227,7 +1242,7 @@ def render_year(key: str, docs: dict[str, dict], lang: str = "en", home_name: st
         figs.append(f'<div>{icon("sun")}<b>{kwh(sol)}</b><span>{esc(L("from_sun"))}</span></div>')
     if temps:
         figs.append(f'<div>{icon("thermo")}<b>{L.num(sum(temps) / len(temps), 1)}{tu}</b><span>{esc(L("outside"))}</span></div>')
-    sub = L("year_sub") if complete else L("year_partial", n=len(have))
+    sub = L("year_sub") if complete else year_note(L, key, docs)
     P.add("cover", L("year_title"), "house", f'''
 <div class="top"><span>{esc(L("title"))} · {esc(L("year_title"))}</span><span>{esc(home_name or "")}</span></div>
 <h1>{esc(label)}<span>{esc(sub)}</span></h1>

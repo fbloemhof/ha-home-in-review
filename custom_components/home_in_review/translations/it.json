@@ -11,7 +11,7 @@
           "backfill_months": "Mesi da generare dallo storico"
         },
         "data_description": {
-          "backfill_months": "I mesi precedenti vengono generati in background dalle statistiche a lungo termine. Usa 0 per saltare."
+          "backfill_months": "I mesi precedenti vengono generati in background dalle statistiche a lungo termine. Il suggerimento copre tutto l'anno scorso e quest'anno finora, così entrambi i riepiloghi annuali partono completi. Usa 0 per saltare."
         }
       }
     }
@@ -191,7 +191,7 @@
       "fields": {
         "months": {
           "name": "Mesi",
-          "description": "Quanti mesi indietro."
+          "description": "Quanti mesi indietro. Predefinito: fino all'inizio dell'anno scorso (secondo il mese di inizio del riepilogo annuale)."
         },
         "overwrite": {
           "name": "Sovrascrivi",

@@ -11,7 +11,7 @@
           "backfill_months": "Mois à générer depuis l'historique"
         },
         "data_description": {
-          "backfill_months": "Les mois précédents sont générés en arrière-plan. 0 pour ignorer."
+          "backfill_months": "Les mois précédents sont générés en arrière-plan. La suggestion couvre toute l'année dernière et cette année jusqu'ici, pour que les deux bilans annuels soient complets. 0 pour ignorer."
         }
       }
     }
@@ -191,7 +191,7 @@
       "fields": {
         "months": {
           "name": "Mois",
-          "description": "Combien de mois en arrière."
+          "description": "Combien de mois en arrière. Par défaut : jusqu'au début de l'année dernière (selon le mois de début du bilan annuel)."
         },
         "overwrite": {
           "name": "Écraser",

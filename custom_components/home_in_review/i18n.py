@@ -1134,6 +1134,11 @@ for _l, (_h, _heat, _hw, _sc, _opt, _est, _sum, _unk) in _gas.items():
     TEXTS[_l].update({"h_gas_split": _h, "gas_heating": _heat, "gas_hot_water": _hw, "gas_scatter": _sc,
                       "gas_note_option": _opt, "gas_note_estimate": _est, "gas_note_summer": _sum, "gas_note_unknown": _unk})
 
+# A past year with missing months (0.3.3)
+for _l, _t in {"en": "{n} of 12 months", "nl": "{n} van 12 maanden", "de": "{n} von 12 Monaten",
+               "fr": "{n} mois sur 12", "es": "{n} de 12 meses", "it": "{n} mesi su 12"}.items():
+    TEXTS[_l]["year_incomplete"] = _t
+
 CURRENCY_SYMBOLS = {"EUR": "€", "USD": "$", "GBP": "£", "JPY": "¥", "CHF": "CHF", "SEK": "kr", "NOK": "kr", "DKK": "kr",
                     "AUD": "A$", "CAD": "C$", "NZD": "NZ$", "PLN": "zł", "CZK": "Kč", "INR": "₹"}
 

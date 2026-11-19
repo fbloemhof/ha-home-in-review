@@ -11,7 +11,7 @@
           "backfill_months": "Meses a generar del historial"
         },
         "data_description": {
-          "backfill_months": "Los meses anteriores se generan en segundo plano a partir de las estadísticas a largo plazo. Usa 0 para omitirlo."
+          "backfill_months": "Los meses anteriores se generan en segundo plano a partir de las estadísticas a largo plazo. La sugerencia cubre todo el año pasado y este año hasta ahora, para que ambos resúmenes anuales empiecen completos. Usa 0 para omitirlo."
         }
       }
     }
@@ -191,7 +191,7 @@
       "fields": {
         "months": {
           "name": "Meses",
-          "description": "Cuántos meses hacia atrás."
+          "description": "Cuántos meses hacia atrás. Por defecto: hasta el inicio del año pasado (según el mes de inicio del resumen anual)."
         },
         "overwrite": {
           "name": "Sobrescribir",

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.3
+
+**Changed**
+- The first backfill now covers all of last year plus this year so far (e.g. 22 months in November), so both year
+  reviews start complete instead of two half years. The `backfill` action uses the same default when you leave
+  out `months`.
+- A past year with missing months reads "2 of 12 months" instead of "… so far"; only the running year says "so far".
+
 ## 0.3.2
 
 **New**

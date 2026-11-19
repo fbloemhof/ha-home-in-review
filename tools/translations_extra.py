@@ -185,4 +185,13 @@ IT.update({
     "Optional, in your gas unit (e.g. 0.4 m³). Splits gas into heating and the rest. Empty: estimated per month from how gas use follows the degree days.": "Facoltativo, nella tua unità del gas (ad es. 0,4 m³). Divide il gas tra riscaldamento e resto. Vuoto: stimato ogni mese da come il consumo segue i gradi giorno.",
 })
 
+ES.update({
+    "Earlier months are generated in the background from long-term statistics. The suggestion covers all of last year and this year so far, so both year reviews start complete. Use 0 to skip.": "Los meses anteriores se generan en segundo plano a partir de las estadísticas a largo plazo. La sugerencia cubre todo el año pasado y este año hasta ahora, para que ambos resúmenes anuales empiecen completos. Usa 0 para omitirlo.",
+    "How many months to look back. Default: back to the start of last year (in your year review's months).": "Cuántos meses hacia atrás. Por defecto: hasta el inicio del año pasado (según el mes de inicio del resumen anual).",
+})
+IT.update({
+    "Earlier months are generated in the background from long-term statistics. The suggestion covers all of last year and this year so far, so both year reviews start complete. Use 0 to skip.": "I mesi precedenti vengono generati in background dalle statistiche a lungo termine. Il suggerimento copre tutto l'anno scorso e quest'anno finora, così entrambi i riepiloghi annuali partono completi. Usa 0 per saltare.",
+    "How many months to look back. Default: back to the start of last year (in your year review's months).": "Quanti mesi indietro. Predefinito: fino all'inizio dell'anno scorso (secondo il mese di inizio del riepilogo annuale).",
+})
+
 EXTRA = {"es": ES, "it": IT}

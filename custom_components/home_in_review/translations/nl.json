@@ -11,7 +11,7 @@
           "backfill_months": "Aantal maanden uit de historie maken"
         },
         "data_description": {
-          "backfill_months": "Eerdere maanden worden op de achtergrond gemaakt uit de langetermijnstatistieken. Gebruik 0 om over te slaan."
+          "backfill_months": "Eerdere maanden worden op de achtergrond gemaakt uit de langetermijnstatistieken. Het voorstel dekt heel vorig jaar en dit jaar tot nu toe, zodat beide jaaroverzichten compleet beginnen. Gebruik 0 om over te slaan."
         }
       }
     }
@@ -191,7 +191,7 @@
       "fields": {
         "months": {
           "name": "Maanden",
-          "description": "Hoeveel maanden terug."
+          "description": "Hoeveel maanden terug. Standaard: tot het begin van vorig jaar (volgens de startmaand van je jaaroverzicht)."
         },
         "overwrite": {
           "name": "Overschrijven",

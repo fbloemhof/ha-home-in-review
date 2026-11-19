@@ -139,3 +139,12 @@ async def test_unload_removes_panel(recorder_mock, hass: HomeAssistant) -> None:
     assert await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
     assert PANEL_URL not in hass.data[frontend.DATA_PANELS]
+
+
+def test_default_backfill_covers_last_year() -> None:
+    import datetime as dt
+
+    from custom_components.home_in_review.config_flow import default_backfill_months
+
+    assert default_backfill_months(dt.date(2026, 11, 19)) == 22   # Jan 2025 .. Oct 2026
+    assert default_backfill_months(dt.date(2026, 1, 5)) == 12     # all of 2025

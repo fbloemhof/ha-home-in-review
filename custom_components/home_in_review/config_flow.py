@@ -4,6 +4,7 @@ Options are grouped in a menu; every group edits a working copy that is stored w
 """
 from __future__ import annotations
 
+import datetime as dt
 from typing import Any
 
 import voluptuous as vol
@@ -46,7 +47,6 @@ from .const import (
     CONF_TM_URL,
     CONF_USE_OPEN_METEO,
     CONF_YEAR_START,
-    DEFAULT_BACKFILL_MONTHS,
     DEFAULT_MAX_HOURLY_KWH,
     DEFAULT_REPORT_DAY,
     DEFAULT_REPORT_TIME,
@@ -69,7 +69,7 @@ class HomeInReviewConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             return self.async_create_entry(title=NAME, data={CONF_BACKFILL_MONTHS: int(user_input[CONF_BACKFILL_MONTHS])})
         return self.async_show_form(step_id="user", data_schema=vol.Schema({
-            vol.Required(CONF_BACKFILL_MONTHS, default=DEFAULT_BACKFILL_MONTHS): selector.NumberSelector(
+            vol.Required(CONF_BACKFILL_MONTHS, default=default_backfill_months()): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=0, max=60, step=1, mode=BOX)),
         }))
 
@@ -77,6 +77,12 @@ class HomeInReviewConfigFlow(ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
         return HomeInReviewOptionsFlow()
+
+
+def default_backfill_months(today: dt.date | None = None) -> int:
+    """All of last year plus this year so far (calendar years), so the year reviews start complete."""
+    today = today or dt.date.today()
+    return 12 + today.month - 1
 
 
 def _as_list(value: Any) -> list[str] | None:

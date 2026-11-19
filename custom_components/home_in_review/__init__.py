@@ -216,14 +216,18 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         return {"month": f"{y:04d}-{m:02d}", "sections": doc.get("sections", [])}
 
     async def svc_backfill(call: ServiceCall) -> None:
-        _runtime(hass).start_backfill(int(call.data.get("months", DEFAULT_BACKFILL_MONTHS)),
-                                      overwrite=bool(call.data.get("overwrite")))
+        rt = _runtime(hass)
+        months = call.data.get("months")
+        if months is None:  # default: back to the start of last year's report year, so both year reviews are complete
+            start = int(rt.options.get(CONF_YEAR_START, 1))
+            months = 12 + (dt_util.now().month - start) % 12
+        rt.start_backfill(int(months), overwrite=bool(call.data.get("overwrite")))
 
     hass.services.async_register(DOMAIN, "generate", svc_generate, vol.Schema({
         vol.Optional("month"): cv.string, vol.Optional("notify", default=False): cv.boolean}),
         supports_response=SupportsResponse.OPTIONAL)
     hass.services.async_register(DOMAIN, "backfill", svc_backfill, vol.Schema({
-        vol.Optional("months", default=DEFAULT_BACKFILL_MONTHS): vol.All(vol.Coerce(int), vol.Range(1, 120)),
+        vol.Optional("months"): vol.All(vol.Coerce(int), vol.Range(1, 120)),
         vol.Optional("overwrite", default=False): cv.boolean}))
     return True
 

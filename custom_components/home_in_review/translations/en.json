@@ -11,7 +11,7 @@
           "backfill_months": "Months to generate from history"
         },
         "data_description": {
-          "backfill_months": "Earlier months are generated in the background from long-term statistics. Use 0 to skip."
+          "backfill_months": "Earlier months are generated in the background from long-term statistics. The suggestion covers all of last year and this year so far, so both year reviews start complete. Use 0 to skip."
         }
       }
     }
@@ -191,7 +191,7 @@
       "fields": {
         "months": {
           "name": "Months",
-          "description": "How many months to look back."
+          "description": "How many months to look back. Default: back to the start of last year (in your year review's months)."
         },
         "overwrite": {
           "name": "Overwrite",

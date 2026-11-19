@@ -11,7 +11,7 @@ generate:
 backfill:
   fields:
     months:
-      default: 12
+      example: 22
       selector:
         number:
           min: 1
