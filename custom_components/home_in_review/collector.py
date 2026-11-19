@@ -531,6 +531,11 @@ class Collector:
                                     bool(self.opt.get("degree_days_weighted")))
         if summary:
             summary["source"] = ("sensor" if "outdoor_sensor" in doc["notes"] else "open-meteo") + ("" if use_om else "-only")
+            # Where the weather is for, so a reader can check it: the coarse Open-Meteo location and/or the sensor.
+            if use_om and lat is not None and lon is not None:
+                summary["location"] = {"lat": weather.coarse(lat), "lon": weather.coarse(lon)}
+            if "outdoor_sensor" in doc["notes"] and sensor:
+                summary["sensor_name"] = (await self.src.names({sensor})).get(sensor, sensor)
             summary["rain_source"] = "sensor" if "rain_sensor" in doc["notes"] else ("open-meteo" if use_om else None)
             doc["weather"] = summary
 

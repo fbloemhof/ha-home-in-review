@@ -353,3 +353,16 @@ def test_degree_day_options():
     assert weather.summarize(days, None, 10, True, dd_base=20)["degree_days"] == 31 * 8
     us = weather.summarize(days, None, 10, False)        # 12 °C = 53.6 °F, threshold 65 °F
     assert round(us["degree_days"], 6) == round(31 * (65 - 53.6), 6)
+
+
+def test_weather_note_says_where():
+    from hir import weather
+
+    days = [{"d": f"2026-02-{i:02d}", "mean": 4.0, "min": 1.0, "max": 7.0, "precip": 1, "sun_h": 2} for i in range(1, 29)]
+    doc = asyncio.run(C.Collector(FakeSource()).collect(2026, 2))
+    doc["weather"] = {**weather.summarize(days, None, 2, True), "source": "open-meteo", "location": {"lat": 52.1, "lon": 5.2}}
+    html = R.render_month("2026-02", {"2026-02": doc}, "nl", None, 1)
+    assert "omgeving van 52,1° N, 5,2° E" in html and "stookgrens 18 °C" in html
+    doc["weather"].update(source="sensor", sensor_name="Tuinsensor")
+    html = R.render_month("2026-02", {"2026-02": doc}, "nl", None, 1)
+    assert "Buitensensor: Tuinsensor." in html and "52,1° N" in html

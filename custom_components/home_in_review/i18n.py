@@ -1234,6 +1234,27 @@ for _l, (_plain, _w) in {
 }.items():
     TEXTS[_l].update({"dd_def": _plain, "dd_def_weighted": _w})
 
+# Where the weather is for (0.4.0)
+for _l, (_om, _se) in {
+    "en": ("Open-Meteo for the area around {where} (your Home Assistant location, rounded).", "Outdoor sensor: {name}."),
+    "nl": ("Open-Meteo voor de omgeving van {where} (de locatie van je Home Assistant, afgerond).", "Buitensensor: {name}."),
+    "de": ("Open-Meteo für die Umgebung von {where} (Standort Ihres Home Assistant, gerundet).", "Außensensor: {name}."),
+    "fr": ("Open-Meteo pour les environs de {where} (position de votre Home Assistant, arrondie).", "Capteur extérieur : {name}."),
+    "es": ("Open-Meteo para la zona de {where} (la ubicación de tu Home Assistant, redondeada).", "Sensor exterior: {name}."),
+    "it": ("Open-Meteo per la zona di {where} (la posizione del tuo Home Assistant, arrotondata).", "Sensore esterno: {name}."),
+}.items():
+    TEXTS[_l].update({"weather_where_om": _om, "weather_where_sensor": _se})
+
+for _l, _t in {
+    "en": "Weather from Open-Meteo (ERA5 reanalysis) for the area around {where}, your Home Assistant location rounded to about 10 km; normal = 1991–2020.",
+    "nl": "Weer van Open-Meteo (ERA5-heranalyse) voor de omgeving van {where}: de locatie van je Home Assistant, afgerond op ongeveer 10 km; normaal = 1991–2020.",
+    "de": "Wetter von Open-Meteo (ERA5-Reanalyse) für die Umgebung von {where}, Standort Ihres Home Assistant auf etwa 10 km gerundet; normal = 1991–2020.",
+    "fr": "Météo d'Open-Meteo (réanalyse ERA5) pour les environs de {where}, position de votre Home Assistant arrondie à environ 10 km ; normale = 1991–2020.",
+    "es": "Tiempo de Open-Meteo (reanálisis ERA5) para la zona de {where}, la ubicación de tu Home Assistant redondeada a unos 10 km; normal = 1991–2020.",
+    "it": "Meteo di Open-Meteo (rianalisi ERA5) per la zona di {where}, la posizione del tuo Home Assistant arrotondata a circa 10 km; normale = 1991–2020.",
+}.items():
+    TEXTS[_l]["weather_note_at"] = _t
+
 CURRENCY_SYMBOLS = {"EUR": "€", "USD": "$", "GBP": "£", "JPY": "¥", "CHF": "CHF", "SEK": "kr", "NOK": "kr", "DKK": "kr",
                     "AUD": "A$", "CAD": "C$", "NZD": "NZ$", "PLN": "zł", "CZK": "Kč", "INR": "₹"}
 

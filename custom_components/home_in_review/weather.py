@@ -18,8 +18,12 @@ DAILY = "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation
 NORMALS_VERSION = 1
 
 
-def _coarse(x: float) -> float:
+def coarse(x: float) -> float:
+    """The location as sent to Open-Meteo: rounded to 0.1° (about 10 km)."""
     return round(float(x), 1)
+
+
+_coarse = coarse
 
 
 def _rows(js: dict) -> list[dict]:

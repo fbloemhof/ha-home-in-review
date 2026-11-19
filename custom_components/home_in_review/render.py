@@ -964,8 +964,18 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         note = L({"sensor": "weather_note_sensor", "sensor-only": "weather_note_sensor_only"}.get(src_w, "weather_note"))
         if wx.get("rain_source") == "sensor":
             note += " " + L("weather_note_rain")
+        if wx.get("sensor_name"):
+            note += " " + L("weather_where_sensor", name=wx["sensor_name"])
+        if wx.get("location"):
+            la, lo = wx["location"]["lat"], wx["location"]["lon"]
+            where = f'{L.num(abs(la), 1)}° {"N" if la >= 0 else "S"}, {L.num(abs(lo), 1)}° {"E" if lo >= 0 else "W"}'
+            if src_w == "open-meteo":
+                note = L("weather_note_at", where=where)
+            else:
+                note += " " + L("weather_where_om", where=where)
         if wx.get("dd_base") is not None:
-            note += " " + L("dd_def_weighted" if wx.get("dd_weighted") else "dd_def", base=f'{L.num(wx["dd_base"], 1)} {tu}')
+            nd = 0 if float(wx["dd_base"]).is_integer() else 1
+            note += " " + L("dd_def_weighted" if wx.get("dd_weighted") else "dd_def", base=f'{L.num(wx["dd_base"], nd)} {tu}')
         P.add("weather", L("s_weather"), "cloud", f'''{P.kicker(L("s_weather"), "cloud")}
 <h2>{head}</h2>
 <div><div class="wide">{temp_chart(L, wx["daily"], n, tu)}</div><div class="narrow">{temp_chart(L, wx["daily"], n, tu, 420, 240, 14)}</div>
