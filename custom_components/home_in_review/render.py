@@ -202,37 +202,59 @@ ul.src{margin:0;padding-left:1.1em;color:var(--ink2);font-size:14.5px}
 .idx a span{color:var(--ink2);font-variant-numeric:tabular-nums}
 .idx a:hover b{color:var(--hi)}
 .idx .y{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-top:26px}
-/* Theme "ha": also the shape of Home Assistant: each slide is a card, quiet titles, no editorial flourishes. Colours,
-   font and card style come from the active HA theme (sent by the panel); outside HA the defaults below apply. */
-:root[data-theme="ha"]{--serif:var(--sans);scroll-snap-type:none}
-:root[data-theme="ha"] body{padding:58px clamp(8px,2vw,16px) 16px}
+/* Theme "ha": the look of Home Assistant's own dashboards (such as Energy): Roboto from Home Assistant itself, a
+   header bar, and each topic as a card in a column layout. Colours and card style come from the active HA theme
+   (sent by the panel); outside Home Assistant the defaults below apply. */
+@font-face{font-family:'HA Roboto';font-weight:400;font-display:swap;src:local("Roboto Regular"),local("Roboto-Regular"),url(/static/fonts/roboto/Roboto-Regular.woff2) format("woff2")}
+@font-face{font-family:'HA Roboto';font-weight:500;font-display:swap;src:local("Roboto Medium"),local("Roboto-Medium"),url(/static/fonts/roboto/Roboto-Medium.woff2) format("woff2")}
+@font-face{font-family:'HA Roboto';font-weight:700;font-display:swap;src:local("Roboto Bold"),local("Roboto-Bold"),url(/static/fonts/roboto/Roboto-Bold.woff2) format("woff2")}
+:root[data-theme="ha"]{--sans:'HA Roboto',Roboto,Noto,sans-serif;--serif:var(--sans);scroll-snap-type:none}
+:root[data-theme="ha"] body{font-size:14px;line-height:1.5;padding:72px clamp(8px,2vw,16px) 16px;max-width:1720px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,540px),1fr));gap:16px;align-items:start}
 @media (min-width:701px){:root[data-theme="ha"] body{padding-right:56px}}
-:root[data-theme="ha"] .slide{min-height:0;scroll-snap-align:none;margin:0 0 16px;align-content:start;gap:clamp(14px,2vw,22px);
-  padding:16px clamp(16px,2.4vw,24px) 24px;background:var(--paper);border:var(--ha-border-w,1px) solid var(--ha-border,var(--line));
-  border-radius:var(--ha-radius,12px);box-shadow:var(--ha-shadow,none)}
-:root[data-theme="ha"] .kicker{font-size:24px;letter-spacing:-.012em;text-transform:none;color:var(--ink);gap:0}
+:root[data-theme="ha"] .slide{min-height:0;scroll-snap-align:none;margin:0;align-content:start;gap:16px;
+  padding:0 16px 20px;background:var(--paper);border:var(--ha-border-w,1px) solid var(--ha-border,var(--line));
+  border-radius:var(--ha-radius,12px);box-shadow:var(--ha-shadow,none);backdrop-filter:var(--ha-backdrop,none);-webkit-backdrop-filter:var(--ha-backdrop,none)}
+:root[data-theme="ha"] .cover,:root[data-theme="ha"] #story{grid-column:1/-1}
+:root[data-theme="ha"] .kicker{font-size:24px;line-height:1.2;letter-spacing:-.012em;text-transform:none;color:var(--ink);gap:0;padding:20px 0 4px}
 :root[data-theme="ha"] .kicker b,:root[data-theme="ha"] .kicker .ic,:root[data-theme="ha"] .kicker:after,
 :root[data-theme="ha"] .wm,:root[data-theme="ha"] .pg,:root[data-theme="ha"] .bar{display:none}
-:root[data-theme="ha"] h2{font-size:clamp(17px,1.5vw,20px);font-weight:400;letter-spacing:0;color:var(--ink2);max-width:none;line-height:1.35}
+:root[data-theme="ha"] h2{font-size:16px;font-weight:400;letter-spacing:0;color:var(--ink2);max-width:none;line-height:1.4}
 :root[data-theme="ha"] h2 em{font-style:normal;font-weight:500}
-:root[data-theme="ha"] .hero{font-size:clamp(36px,4vw,52px);font-weight:400;letter-spacing:-.01em}
-:root[data-theme="ha"] .cover{gap:28px}
-:root[data-theme="ha"] .cover h1{font-size:clamp(40px,6vw,72px);font-weight:400;letter-spacing:-.01em;line-height:1}
-:root[data-theme="ha"] .cover h1 span{font-style:normal;font-size:.36em}
+:root[data-theme="ha"] .hero{font-size:40px;font-weight:400;letter-spacing:0}
+:root[data-theme="ha"] .hero small{font-size:14px}
+:root[data-theme="ha"] .split,:root[data-theme="ha"] .head2{grid-template-columns:1fr;gap:16px;align-items:start}
+:root[data-theme="ha"] .head2 .trend{justify-self:start}
+:root[data-theme="ha"] .stats{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px 20px}
+:root[data-theme="ha"] .cover{gap:20px;padding-top:20px}
+:root[data-theme="ha"] .cover h1{font-size:clamp(36px,5vw,56px);font-weight:400;letter-spacing:0;line-height:1.05}
+:root[data-theme="ha"] .cover h1 span{font-style:normal;font-size:.4em}
 :root[data-theme="ha"] .figs div,:root[data-theme="ha"] .card,:root[data-theme="ha"] .mfoot a{border-top:1px solid var(--line)}
 :root[data-theme="ha"] .rec .tot{border-top:1px solid var(--ink2)}
 :root[data-theme="ha"] .figs b,:root[data-theme="ha"] .stat .v,:root[data-theme="ha"] .card .cv,:root[data-theme="ha"] .bb .bh b,
 :root[data-theme="ha"] .mfoot a b,:root[data-theme="ha"] .idx a b{font-weight:400;letter-spacing:0}
-:root[data-theme="ha"] .figs b{font-size:clamp(24px,2.6vw,34px)}
-:root[data-theme="ha"] .stat .v{font-size:24px}
-:root[data-theme="ha"] .card .cv{font-size:clamp(26px,2.6vw,34px)}
-:root[data-theme="ha"] .story p{font-size:16px}
-:root[data-theme="ha"] .story p:first-child{font-size:18px}
+:root[data-theme="ha"] .figs b{font-size:28px}
+:root[data-theme="ha"] .stat .v{font-size:22px}
+:root[data-theme="ha"] .card .cv{font-size:28px}
+:root[data-theme="ha"] .bb .bh b,:root[data-theme="ha"] .mfoot a b{font-size:22px}
+:root[data-theme="ha"] .story p{font-size:14px}
+:root[data-theme="ha"] .story p:first-child{font-size:16px}
+:root[data-theme="ha"] table,:root[data-theme="ha"] .rank .r,:root[data-theme="ha"] .rec{font-size:14px}
+/* wide charts (1000 units) are drawn about half size in a card: larger text keeps axis labels near 11 px */
+:root[data-theme="ha"] svg[viewBox^="0 0 1000 "]{padding-left:16px}
+:root[data-theme="ha"] svg[viewBox^="0 0 1000 "] .ax{font-size:20px}
+:root[data-theme="ha"] svg[viewBox^="0 0 1000 "] .vl{font-size:21px}
 :root[data-theme="ha"] #tip,:root[data-theme="ha"] .themes select,:root[data-theme="ha"] .nav a:hover:after{background:var(--card-solid,var(--paper))}
-:root[data-theme="ha"] .topbar a,:root[data-theme="ha"] .topbar select,:root[data-theme="ha"] .topbar .hmenu{background:var(--card-solid,var(--paper))}
-:root[data-theme="ha"] .topbar{background:var(--bg);padding-bottom:10px}
-:root[data-theme="ha"] .slide{max-width:1180px;margin-left:auto;margin-right:auto}
-:root[data-theme="ha"] .split,:root[data-theme="ha"] .head2{align-items:start}
+/* header bar like Home Assistant's own */
+:root[data-theme="ha"] .topbar{height:56px;padding:0 8px 0 12px;background:var(--hdr-bg,var(--card-solid,var(--paper)));
+  border-bottom:1px solid var(--line);color:var(--hdr-ink,var(--ink))}
+:root[data-theme="ha"] .topbar a,:root[data-theme="ha"] .topbar select,:root[data-theme="ha"] .topbar .hmenu{font:400 14px var(--sans);
+  letter-spacing:0;text-transform:none;color:inherit;background:none;border:0;border-radius:8px;padding:8px 10px;backdrop-filter:none;-webkit-backdrop-filter:none}
+:root[data-theme="ha"] .topbar .home{font-size:20px;padding:8px 6px}
+:root[data-theme="ha"] .topbar .hmenu{font-size:20px}
+:root[data-theme="ha"] .topbar a:hover,:root[data-theme="ha"] .topbar select:hover,:root[data-theme="ha"] .topbar .hmenu:hover{
+  color:inherit;background:color-mix(in srgb,currentColor 10%,transparent)}
+:root[data-theme="ha"] .topbar select option{background:var(--card-solid,var(--paper));color:var(--ink)}
 """
 
 # Fonts ship with the integration (SIL Open Font License, see frontend/fonts): nothing is loaded from elsewhere.

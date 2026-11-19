@@ -21,6 +21,8 @@ const HA_THEME_VARS = {
   "--s4": ["--energy-solar-color"],
   "--s5": ["--energy-battery-out-color"],
   "--card-solid": ["--card-background-color"],
+  "--hdr-bg": ["--app-header-background-color"],
+  "--hdr-ink": ["--app-header-text-color"],
   "--ha-radius": ["--ha-card-border-radius"],
   "--ha-border": ["--ha-card-border-color", "--divider-color"],
   "--ha-border-w": ["--ha-card-border-width"],
@@ -72,7 +74,8 @@ class HomeInReviewPanel extends HTMLElement {
     const vars = {};
     for (const [to, from] of Object.entries(HA_THEME_VARS)) {
       const v = from.map((n) => cs.getPropertyValue(n).trim()).find(Boolean);
-      if (v) vars[to] = to === "--sans" || to === "--serif" ? `${v}, system-ui, sans-serif` : v;
+      // Home Assistant's Roboto lives in its own page; the report loads the same files as 'HA Roboto'.
+      if (v) vars[to] = to === "--sans" || to === "--serif" ? `${/roboto/i.test(v) ? "'HA Roboto', " : ""}${v}, system-ui, sans-serif` : v;
     }
     const dark = !!(this._hass && this._hass.themes && this._hass.themes.darkMode);
     w.postMessage({ hirHaVars: vars, hirHaDark: dark }, location.origin);
