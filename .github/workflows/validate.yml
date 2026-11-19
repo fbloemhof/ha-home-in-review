@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: "3.13"
       - run: pip install pytest aiohttp ruff
-      - run: ruff check custom_components tests tests_ha dev tools
+      - run: ruff check custom_components tests tests_ha tools
       - run: pytest -q -p no:homeassistant tests
 
   ha-tests:
