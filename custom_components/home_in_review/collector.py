@@ -20,7 +20,7 @@ import statistics as pystats
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from . import extras, weather
+from . import extras, gas, weather
 from .const import DEFAULT_MAX_HOURLY_KWH, OUTDOOR_AREA_HINTS, SCHEMA_VERSION
 
 _LOGGER = logging.getLogger(__name__)
@@ -206,6 +206,7 @@ class Collector:
         await self._volume(doc, prefs, "gas", start, end, hours, units["gas"], cap=25 if metric else 900)
         await self._weather(doc, cfg, start, end, hours, tz, metric)
         await self._indoor(doc, start, end, hours, metric)
+        self._gas_heating(doc, metric)
         self._totals(doc)
         cap = float(self.opt.get("max_hourly_kwh") or DEFAULT_MAX_HOURLY_KWH)
         await extras.heat_pump(self, doc, start, end, hours, cap)
@@ -365,6 +366,20 @@ class Collector:
         doc["_load"] = load  # internal, removed before saving
         return price
 
+    def _gas_heating(self, doc: dict, metric: bool) -> None:
+        """Gas per degree day, and (when possible) heating versus hot water and cooking; see gas.py."""
+        g, w = doc.get("gas"), doc.get("weather")
+        if not g or not w or not w.get("daily"):
+            return
+        base_t = 18.0 if metric else 65.0
+        # Degree days in the same unit as the weather slide (°C-days, or °F-days for US units).
+        dd = {x["d"]: max(0.0, base_t - x["mean"]) for x in w["daily"] if x.get("mean") is not None}
+        daily = {x["d"]: x["v"] for x in g.get("daily", [])}
+        keys = sorted(set(daily) | set(dd))
+        res = gas.split([daily.get(k) for k in keys], [dd.get(k) for k in keys], self.opt.get("gas_base_per_day"))
+        if res:
+            g.update(res)
+
     @staticmethod
     def _totals(doc: dict) -> None:
         """Total energy cost = electricity (bought - sold) + gas + fixed costs. Water is shown separately."""
@@ -440,7 +455,13 @@ class Collector:
         # Gas can be metered in energy units; keep the unit that was actually used.
         if kind == "gas" and stat_unit and meta and next(iter(meta.values())).get("unit_class") == "energy":
             unit = "kWh"
-        doc[kind] = {"amount": amount, "unit": unit, "cost": cost, "per_day": amount / max(1, len(hours) / 24)}
+        tz = ZoneInfo(doc["period"]["time_zone"])
+        per_day: dict[str, float] = {}
+        for h, v in days.items():
+            k = dt.datetime.fromtimestamp(h, tz).strftime("%Y-%m-%d")
+            per_day[k] = per_day.get(k, 0.0) + v
+        doc[kind] = {"amount": amount, "unit": unit, "cost": cost, "per_day": amount / max(1, len(hours) / 24),
+                     "daily": [{"d": k, "v": per_day[k]} for k in sorted(per_day)]}
 
     # ------------------------------------------------------------------ weather
     async def _weather(self, doc, cfg, start, end, hours, tz, metric) -> None:

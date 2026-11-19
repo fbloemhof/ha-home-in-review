@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.2
+
+**New**
+- Gas: use per degree day, and the split between heating and hot water/cooking (degree-day regression: daily gas ≈
+  base + k × degree days). Set the base per day in the options, or let it be estimated per month. A scatter chart
+  shows every day against the degree days with the fitted line. The AI summary mentions it too.
+- Demo screenshots now include gas and the own-figures cards.
+
+**Fixed**
+- Water and gas cost were labelled with the name of the meter instead of "Cost" and had no comparison.
+
 ## 0.3.1
 
 **Security and reliability** (after an independent code review)

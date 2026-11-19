@@ -105,6 +105,12 @@ def observations(ym: str, docs: dict[str, dict]) -> list[str]:
             line += "".join(f"; {name}: COP {rf['heat_pump_cop']:.1f}" for name, rf in refs if rf.get("heat_pump_cop")) + ")"
         out.append(line + ".")
     compare("Indoor temperature", next((k for k in f if k.startswith("indoor_temperature_")), "-"), tu, 1, absolute=True)
+    gd = doc.get("gas") or {}
+    if gd.get("per_degree_day"):
+        line = f"Gas per heating degree day: {gd['per_degree_day']:.2f} {gd.get('unit', '')}"
+        if gd.get("heating") is not None:
+            line += f"; of the gas, {gd['heating']:.0f} {gd.get('unit', '')} went to heating and {gd['hot_water']:.0f} to hot water and cooking"
+        out.append(line + ".")
     compare("Water used", "water_litres", "litres")
     compare("Car", "car_km", "km")
     if f.get("biggest_devices_kwh"):

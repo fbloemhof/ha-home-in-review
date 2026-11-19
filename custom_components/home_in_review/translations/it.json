@@ -53,14 +53,16 @@
               "fixed_costs_monthly": "Costi fissi dell'energia al mese",
               "max_hourly_kwh": "Massimo prelievo plausibile dalla rete per ora",
               "heat_pump_devices": "Elettricità della pompa di calore",
-              "heat_pump_heat_sensor": "Calore fornito dalla pompa di calore"
+              "heat_pump_heat_sensor": "Calore fornito dalla pompa di calore",
+              "gas_base_per_day": "Gas per acqua calda e cucina al giorno"
             },
             "data_description": {
               "fixed_costs_daily": "Facoltativo, IVA inclusa: quota fissa e oneri di rete.",
               "fixed_costs_monthly": "Facoltativo, IVA inclusa. Usa un importo negativo per uno sconto fisso.",
               "max_hourly_kwh": "I salti del contatore oltre questo valore orario sono considerati errori. Circa il tuo allaccio: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
               "heat_pump_devices": "Qualsiasi marca: uno o più sensori di energia (l'integrazione della pompa, un contatore o una presa smart, ad es. compressore e resistenza integrativa). Aggiunge una slide della pompa di calore con l'elettricità per grado giorno.",
-              "heat_pump_heat_sensor": "Facoltativo: sensori di energia del calore fornito (molte marche separano riscaldamento e acqua calda; scegli entrambi). Aggiunge il COP."
+              "heat_pump_heat_sensor": "Facoltativo: sensori di energia del calore fornito (molte marche separano riscaldamento e acqua calda; scegli entrambi). Aggiunge il COP.",
+              "gas_base_per_day": "Facoltativo, nella tua unità del gas (ad es. 0,4 m³). Divide il gas tra riscaldamento e resto. Vuoto: stimato ogni mese da come il consumo segue i gradi giorno."
             }
           },
           "climate": {

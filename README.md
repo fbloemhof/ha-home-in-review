@@ -42,7 +42,7 @@ help are marked with a `Co-Authored-By: Claude` line. If something looks wrong, 
 | Daily rhythm: average power per hour of day, busiest hour | energy dashboard | a grid source is set up |
 | Weather: temperature, rain, sunshine, degree days vs. 1991–2020 | Open-Meteo and/or your own outdoor sensor and rain gauge | your home has a location |
 | Indoors: temperature, humidity and CO₂ per area | your sensors | climate sensors are assigned to areas |
-| Water and gas | energy dashboard | set up |
+| Water and gas; for gas also use per degree day and the split between heating and hot water/cooking | energy dashboard, weather | set up |
 | Your figures: any statistic as a total, average, extreme, or hours or days above a threshold | your choice | added in the options |
 
 Every figure is compared with the same month last year (when available) or the average of the last twelve
@@ -57,7 +57,8 @@ French, Spanish and Italian so far) and your unit system and currency.
 |---|---|
 | ![Electricity](docs/screenshots/electricity.png) | ![Devices (light theme)](docs/screenshots/devices-light.png) |
 | ![Weather](docs/screenshots/weather.png) | ![Indoors](docs/screenshots/indoor.png) |
-| ![Heat pump](docs/screenshots/heat-pump.png) | ![Year review](docs/screenshots/year-electricity.png) |
+| ![Heat pump](docs/screenshots/heat-pump.png) | ![Gas: heating versus hot water](docs/screenshots/gas.png) |
+| ![Year review](docs/screenshots/year-electricity.png) | ![Your own figures](docs/screenshots/own-figures.png) |
 
 <img src="docs/screenshots/mobile.png" width="240" alt="On a phone">
 
@@ -139,7 +140,10 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
   account or setup). It uses your home's location from Home Assistant. Normals are the 1991–2020 averages for
   your area, computed once and cached. A Home Assistant weather entity can't be used for this: weather
   entities keep no history. You can use your own outdoor temperature sensor instead, and switch Open-Meteo off.
-- **Heat pump**: degree days use a base of 18 °C (65 °F), unweighted.
+- **Heat pump and gas**: degree days use a base of 18 °C (65 °F), unweighted. Gas is split into heating and hot
+  water/cooking with a degree-day regression: daily gas use ≈ base + k × degree days. The base comes from the
+  option "Gas for hot water and cooking per day", or is estimated per month when the month has enough spread in
+  degree days (in a month without heating all gas counts as base).
 - **Year review** is put together from the monthly reports; a running year is shown as "so far" and compared
   with the same months a year earlier.
 - Reports are stored as JSON in `config/home_in_review/` and rendered when you open them, so improvements to

@@ -53,14 +53,16 @@
               "fixed_costs_monthly": "Fixed energy costs per month",
               "max_hourly_kwh": "Largest plausible grid use per hour",
               "heat_pump_devices": "Heat pump electricity",
-              "heat_pump_heat_sensor": "Heat delivered by the heat pump"
+              "heat_pump_heat_sensor": "Heat delivered by the heat pump",
+              "gas_base_per_day": "Gas for hot water and cooking per day"
             },
             "data_description": {
               "fixed_costs_daily": "Optional, including tax: standing charges and grid fees.",
               "fixed_costs_monthly": "Optional, including tax. Use a negative amount for a fixed tax credit.",
               "max_hourly_kwh": "Meter jumps above this per hour are treated as glitches. Roughly your connection: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
               "heat_pump_devices": "Any brand: one or more energy sensors (the heat pump's own integration, a kWh meter or smart plug, e.g. compressor and backup heater). Adds a heat pump slide with electricity per degree day.",
-              "heat_pump_heat_sensor": "Optional: energy sensors for heat delivered (many brands report heating and hot water separately; choose both). Adds the COP."
+              "heat_pump_heat_sensor": "Optional: energy sensors for heat delivered (many brands report heating and hot water separately; choose both). Adds the COP.",
+              "gas_base_per_day": "Optional, in your gas unit (e.g. 0.4 m³). Splits gas into heating and the rest. Empty: estimated per month from how gas use follows the degree days."
             }
           },
           "climate": {

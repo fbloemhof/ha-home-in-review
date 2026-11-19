@@ -1091,6 +1091,49 @@ _more = {
 for _l, (_up, _down, _runs, _pm) in _more.items():
     TEXTS[_l].update({"h_custom_more": _up, "h_custom_less": _down, "unit_runs": _runs, "per_month_short": _pm})
 
+# Gas: heating versus hot water and cooking (0.3.2)
+_gas = {
+    "en": ("The house used <em>{v}</em> of gas, <em>{share}</em> of it for heating.", "Heating", "Hot water and cooking",
+           "Gas per day against degree days",
+           "Hot water and cooking set at {base} per day (options); the rest counts as heating.",
+           "Hot water and cooking estimated at {base} per day from this month: the dashed line is the best fit through the days, where it meets the left axis is the use without heating.",
+           "Hardly any heating this month: all gas counts as hot water and cooking.",
+           "Too little variation in the weather this month to separate heating from hot water. Set a base use per day in the options to see the split."),
+    "nl": ("Het huis gebruikte <em>{v}</em> gas, waarvan <em>{share}</em> voor verwarming.", "Verwarming", "Warm water en koken",
+           "Gas per dag tegen graaddagen",
+           "Warm water en koken ingesteld op {base} per dag (opties); de rest telt als verwarming.",
+           "Warm water en koken geschat op {base} per dag uit deze maand: de stippellijn loopt het best door de dagen; waar hij de linkeras raakt, is het verbruik zonder verwarming.",
+           "Deze maand werd er nauwelijks gestookt: al het gas telt als warm water en koken.",
+           "Te weinig verschil in het weer deze maand om verwarming en warm water te scheiden. Stel een basisverbruik per dag in bij de opties om de splitsing te zien."),
+    "de": ("Das Haus verbrauchte <em>{v}</em> Gas, davon <em>{share}</em> zum Heizen.", "Heizung", "Warmwasser und Kochen",
+           "Gas pro Tag gegen Gradtage",
+           "Warmwasser und Kochen auf {base} pro Tag eingestellt (Optionen); der Rest zählt als Heizung.",
+           "Warmwasser und Kochen aus diesem Monat auf {base} pro Tag geschätzt: Die gestrichelte Linie passt am besten durch die Tage; wo sie die linke Achse trifft, ist der Verbrauch ohne Heizung.",
+           "Kaum geheizt in diesem Monat: alles Gas zählt als Warmwasser und Kochen.",
+           "Zu wenig Wetterschwankung in diesem Monat, um Heizung und Warmwasser zu trennen. Stellen Sie einen Grundverbrauch pro Tag in den Optionen ein."),
+    "fr": ("La maison a consommé <em>{v}</em> de gaz, dont <em>{share}</em> pour le chauffage.", "Chauffage", "Eau chaude et cuisson",
+           "Gaz par jour selon les degrés-jours",
+           "Eau chaude et cuisson réglées à {base} par jour (options) ; le reste compte comme chauffage.",
+           "Eau chaude et cuisson estimées à {base} par jour pour ce mois : la ligne pointillée passe au mieux par les jours ; là où elle touche l'axe de gauche, c'est la consommation sans chauffage.",
+           "Presque pas de chauffage ce mois-ci : tout le gaz compte comme eau chaude et cuisson.",
+           "Trop peu de variation de météo ce mois-ci pour séparer chauffage et eau chaude. Réglez une consommation de base par jour dans les options."),
+    "es": ("La casa usó <em>{v}</em> de gas, <em>{share}</em> para calefacción.", "Calefacción", "Agua caliente y cocina",
+           "Gas por día frente a grados-día",
+           "Agua caliente y cocina fijadas en {base} por día (opciones); el resto cuenta como calefacción.",
+           "Agua caliente y cocina estimadas en {base} por día a partir de este mes: la línea discontinua es el mejor ajuste; donde toca el eje izquierdo está el consumo sin calefacción.",
+           "Casi no hubo calefacción este mes: todo el gas cuenta como agua caliente y cocina.",
+           "Poca variación del tiempo este mes para separar calefacción y agua caliente. Configura un consumo base por día en las opciones."),
+    "it": ("La casa ha usato <em>{v}</em> di gas, di cui il <em>{share}</em> per il riscaldamento.", "Riscaldamento", "Acqua calda e cucina",
+           "Gas al giorno rispetto ai gradi giorno",
+           "Acqua calda e cucina impostate a {base} al giorno (opzioni); il resto conta come riscaldamento.",
+           "Acqua calda e cucina stimate a {base} al giorno da questo mese: la linea tratteggiata è il miglior adattamento; dove tocca l'asse sinistro c'è il consumo senza riscaldamento.",
+           "Quasi nessun riscaldamento questo mese: tutto il gas conta come acqua calda e cucina.",
+           "Troppa poca variazione del meteo questo mese per separare riscaldamento e acqua calda. Imposta un consumo di base al giorno nelle opzioni."),
+}
+for _l, (_h, _heat, _hw, _sc, _opt, _est, _sum, _unk) in _gas.items():
+    TEXTS[_l].update({"h_gas_split": _h, "gas_heating": _heat, "gas_hot_water": _hw, "gas_scatter": _sc,
+                      "gas_note_option": _opt, "gas_note_estimate": _est, "gas_note_summer": _sum, "gas_note_unknown": _unk})
+
 CURRENCY_SYMBOLS = {"EUR": "€", "USD": "$", "GBP": "£", "JPY": "¥", "CHF": "CHF", "SEK": "kr", "NOK": "kr", "DKK": "kr",
                     "AUD": "A$", "CAD": "C$", "NZD": "NZ$", "PLN": "zł", "CZK": "Kč", "INR": "₹"}
 

@@ -53,14 +53,16 @@
               "fixed_costs_monthly": "Vaste energiekosten per maand",
               "max_hourly_kwh": "Grootst mogelijke netafname per uur",
               "heat_pump_devices": "Stroom van de warmtepomp",
-              "heat_pump_heat_sensor": "Door de warmtepomp geleverde warmte"
+              "heat_pump_heat_sensor": "Door de warmtepomp geleverde warmte",
+              "gas_base_per_day": "Gas voor warm water en koken per dag"
             },
             "data_description": {
               "fixed_costs_daily": "Optioneel, inclusief btw: vaste leveringskosten en netbeheer.",
               "fixed_costs_monthly": "Optioneel, inclusief btw. Gebruik een negatief bedrag voor een vaste belastingkorting.",
               "max_hourly_kwh": "Sprongen in de meterstand boven deze waarde per uur gelden als storing. Ongeveer je aansluiting: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh, 1 × 40 A ≈ 9 kWh.",
               "heat_pump_devices": "Elk merk: een of meer energiesensoren (de eigen integratie van de warmtepomp, een kWh-meter of slimme stekker, bijv. compressor en backupheater). Voegt een warmtepompdia toe met stroom per graaddag.",
-              "heat_pump_heat_sensor": "Optioneel: energiesensoren voor de geleverde warmte (veel merken melden verwarming en tapwater apart; kies dan beide). Voegt de COP toe."
+              "heat_pump_heat_sensor": "Optioneel: energiesensoren voor de geleverde warmte (veel merken melden verwarming en tapwater apart; kies dan beide). Voegt de COP toe.",
+              "gas_base_per_day": "Optioneel, in je gaseenheid (bijv. 0,4 m³). Splitst gas in verwarming en de rest. Leeg: per maand geschat uit hoe het gasverbruik de graaddagen volgt."
             }
           },
           "climate": {

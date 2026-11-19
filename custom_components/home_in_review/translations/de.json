@@ -53,14 +53,16 @@
               "fixed_costs_monthly": "Fixe Energiekosten pro Monat",
               "max_hourly_kwh": "Größter plausibler Netzbezug pro Stunde",
               "heat_pump_devices": "Strom der Wärmepumpe",
-              "heat_pump_heat_sensor": "Von der Wärmepumpe gelieferte Wärme"
+              "heat_pump_heat_sensor": "Von der Wärmepumpe gelieferte Wärme",
+              "gas_base_per_day": "Gas für Warmwasser und Kochen pro Tag"
             },
             "data_description": {
               "fixed_costs_daily": "Optional, inkl. Steuern: Grundgebühr und Netzentgelte.",
               "fixed_costs_monthly": "Optional, inkl. Steuern. Negativ für eine feste Steuergutschrift.",
               "max_hourly_kwh": "Zählersprünge darüber gelten als Störung. Etwa Ihr Anschluss: 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
               "heat_pump_devices": "Jede Marke: ein oder mehrere Energiesensoren (Integration der Wärmepumpe, Zähler oder Steckdose, z. B. Verdichter und Heizstab). Fügt eine Wärmepumpen-Folie hinzu.",
-              "heat_pump_heat_sensor": "Optional: Energiesensoren für die gelieferte Wärme (oft getrennt für Heizung und Warmwasser; beide wählen). Ergänzt den COP."
+              "heat_pump_heat_sensor": "Optional: Energiesensoren für die gelieferte Wärme (oft getrennt für Heizung und Warmwasser; beide wählen). Ergänzt den COP.",
+              "gas_base_per_day": "Optional, in Ihrer Gaseinheit (z. B. 0,4 m³). Teilt Gas in Heizung und Rest. Leer: pro Monat geschätzt aus dem Verlauf gegenüber den Gradtagen."
             }
           },
           "climate": {

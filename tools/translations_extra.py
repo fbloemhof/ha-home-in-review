@@ -176,4 +176,13 @@ IT.update({
     "At most 1000 characters.": "Al massimo 1000 caratteri.",
 })
 
+ES.update({
+    "Gas for hot water and cooking per day": "Gas para agua caliente y cocina por día",
+    "Optional, in your gas unit (e.g. 0.4 m³). Splits gas into heating and the rest. Empty: estimated per month from how gas use follows the degree days.": "Opcional, en tu unidad de gas (p. ej. 0,4 m³). Separa el gas en calefacción y el resto. Vacío: se estima cada mes según cómo sigue el consumo a los grados-día.",
+})
+IT.update({
+    "Gas for hot water and cooking per day": "Gas per acqua calda e cucina al giorno",
+    "Optional, in your gas unit (e.g. 0.4 m³). Splits gas into heating and the rest. Empty: estimated per month from how gas use follows the degree days.": "Facoltativo, nella tua unità del gas (ad es. 0,4 m³). Divide il gas tra riscaldamento e resto. Vuoto: stimato ogni mese da come il consumo segue i gradi giorno.",
+})
+
 EXTRA = {"es": ES, "it": IT}

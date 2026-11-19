@@ -394,6 +394,42 @@ def day_bars(L: Lang, period: dict, daily: list | None, fmt, W=420, H=64) -> str
     return "".join(out)
 
 
+def gas_scatter(L: Lang, pts: list[tuple[float, float, str]], base: float | None, k: float | None, unit: str,
+                tu: str, W=1000, H=210) -> str:
+    """Gas per day against degree days, with the line base + k × degree days when the split is known."""
+    if len(pts) < 5:
+        return ""
+    pl, top, bot = 54, 12, 30
+    xmax = max(p[0] for p in pts) or 1
+    ymax = max(p[1] for p in pts) or 1
+    sx = nice_step(xmax, 4)
+    xmax = sx * math.ceil(xmax / sx)
+    sy = nice_step(ymax, 3)
+    ymax = sy * math.ceil(ymax / sy)
+    X = lambda v: pl + v / xmax * (W - pl - 10)  # noqa: E731
+    Y = lambda v: top + (1 - v / ymax) * (H - top - bot)  # noqa: E731
+    out = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="{esc(L("gas_scatter"))}">']
+    t = 0.0
+    while t <= ymax + 1e-9:
+        out.append(f'<line x1="{pl}" x2="{W}" y1="{Y(t):.1f}" y2="{Y(t):.1f}" class="grid"/><text x="{pl - 8}" y="{Y(t) + 4:.1f}" class="ax" text-anchor="end">{L.num(t, 0 if float(sy).is_integer() else 1)}</text>')
+        t += sy
+    t = 0.0
+    while t <= xmax + 1e-9:
+        out.append(f'<text x="{X(t):.1f}" y="{H - 10}" class="ax" text-anchor="middle">{L.num(t, 0 if float(sx).is_integer() else 1)}</text>')
+        t += sx
+    if base is not None and k:
+        # End the line where it leaves the chart, so its slope stays right.
+        x_end = min(xmax, (ymax - base) / k) if base < ymax else 0.0
+        out.append(f'<line x1="{X(0):.1f}" y1="{Y(base):.1f}" x2="{X(x_end):.1f}" y2="{Y(base + k * x_end):.1f}" stroke="var(--hi)" stroke-width="2" stroke-dasharray="6 5"/>')
+        out.append(f'<line x1="{X(0):.1f}" y1="{Y(base):.1f}" x2="{X(xmax):.1f}" y2="{Y(base):.1f}" stroke="var(--s3)" stroke-width="1.5" stroke-dasharray="2 4"/>')
+    for x, y, day in pts:
+        dd = dt.date.fromisoformat(day)
+        tip = f"{dd.day} {L.month_short(dd.month)}: {L.num(y, 2)} {unit} · {L.num(x, 1)} {L('degree_days').lower()}"
+        out.append(f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="5" fill="var(--s1)" opacity=".8" data-tip="{esc(tip)}"/>')
+    out.append(f'<text x="{W}" y="{top + 2}" class="ax" text-anchor="end">↓ {esc(unit)} · {esc(L("degree_days"))} →</text></svg>')
+    return "".join(out)
+
+
 def temp_chart(L: Lang, daily: list[dict], normal: float | None, unit: str, W=1000, H=260, every=7) -> str:
     pts = [x for x in daily if x.get("mean") is not None]
     if not pts:
@@ -897,15 +933,37 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
             amount = f"{L.num(big, 1)} {unit}"
             pd = f'{L.num(x["per_day"], 1)} {unit}'
         head = L("h_water", v=amount, pd=pd) if kind == "water" else L("h_gas", v=amount)
-        stats = [P.stat(L(kind), amount, x["amount"], _get(lambda z, k=kind: z[k]["amount"]), fmt=lambda v, u=unit: (L.num(v / 1000, 1) + " m³") if u == "L" else f"{L.num(v, 1)} {u}"),
+        stats = [P.stat(L(f"s_{kind}"), amount, x["amount"], _get(lambda z, k=kind: z[k]["amount"]), fmt=lambda v, u=unit: (L.num(v / 1000, 1) + " m³") if u == "L" else f"{L.num(v, 1)} {u}"),
                  P.stat(L("per_day"), pd)]
         if x.get("cost") is not None:
-            stats.append(P.stat(L(f"{kind}_cost"), money(x["cost"], 2)))
+            stats.append(P.stat(L("cost_short"), money(x["cost"], 2), x["cost"], _get(lambda z, k=kind: z[k]["cost"]),
+                                lambda v: money(v, 2)))
+        extra = ""
+        if kind == "gas" and x.get("per_degree_day"):
+            gu = unit
+            stats.append(P.stat(L("hp_per_dd"), f'{L.num(x["per_degree_day"], 2)} {gu}', x["per_degree_day"],
+                                _get(lambda z: z["gas"]["per_degree_day"]), lambda v: L.num(v, 2)))
+            if x.get("heating") is not None:
+                stats.append(P.stat(L("gas_heating"), f'{L.num(x["heating"], 1)} {gu}', x["heating"],
+                                    _get(lambda z: z["gas"]["heating"]), lambda v: L.num(v, 1)))
+                stats.append(P.stat(L("gas_hot_water"), f'{L.num(x["hot_water"], 1)} {gu}'))
+                share = x["heating"] / x["amount"] if x["amount"] else 0
+                head = L("h_gas_split", v=amount, share=L.pct(share))
+            wx_days = {w["d"]: w for w in (d.get("weather") or {}).get("daily", [])}
+            base_t = 18.0 if tu == "°C" else 65.0
+            pts = [(max(0.0, base_t - wx_days[g["d"]]["mean"]), g["v"], g["d"]) for g in x.get("daily", [])
+                   if g["d"] in wx_days and wx_days[g["d"]].get("mean") is not None]
+            note_key = {"option": "gas_note_option", "estimate": "gas_note_estimate", "no_heating": "gas_note_summer",
+                        "unknown": "gas_note_unknown"}.get(x.get("base_source"), "gas_note_unknown")
+            extra = (f'<div><div class="wide">{gas_scatter(L, pts, x.get("base_per_day"), x.get("heating_per_degree_day"), gu, tu)}</div>'
+                     f'<div class="narrow">{gas_scatter(L, pts, x.get("base_per_day"), x.get("heating_per_degree_day"), gu, tu, 420, 220)}</div>'
+                     f'<p class="note" style="margin-top:8px">{esc(L(note_key, base=f"{L.num(x.get('base_per_day') or 0, 2)} {gu}"))}</p></div>')
         tr = trend(L, P.series13(_get(lambda z, k=kind, u=unit: z[k]["amount"] / (1000 if u == "L" else 1))), L(f"trend_{kind}"),
                    lambda v: L.num(v, 1))
         P.add(kind, L(f"s_{kind}"), ic, f'''{P.kicker(L(f"s_{kind}"), ic)}
 <div class="split"><div><h2>{head}</h2><div class="hero" style="margin-top:22px">{L.num(big, 1)}<small>{bigu}</small></div></div>
-<div><div class="stats">{"".join(stats)}</div><div style="margin-top:28px">{tr}</div></div></div>''')
+<div><div class="stats">{"".join(stats)}</div>{"" if extra else f'<div style="margin-top:28px">{tr}</div>'}</div></div>
+{f'<div class="head2" style="align-items:start">{extra}{tr}</div>' if extra else ""}''')
 
     # ---------------------------------------------------------------- custom tiles (optional)
     tiles = [t for t in d.get("custom") or [] if t["value"] is not None]

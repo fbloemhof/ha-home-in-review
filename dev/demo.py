@@ -19,6 +19,7 @@ pkg = types.ModuleType("hir")
 pkg.__path__ = [str(ROOT / "custom_components" / "home_in_review")]
 sys.modules["hir"] = pkg
 render = importlib.import_module("hir.render")
+gas = importlib.import_module("hir.gas")
 
 SRC = Path(__file__).resolve().parent / "out"
 OUT = Path(__file__).resolve().parent / "demo"
@@ -93,7 +94,33 @@ def main() -> None:
         if d.get("water"):
             d["water"]["amount"] *= f("w")
             d["water"]["per_day"] *= f("w")
-        d.pop("custom", None)
+        # Demo gas (the author has no gas connection): base use for hot water and cooking plus heating per degree day.
+        if d.get("weather", {}).get("daily"):
+            daily = []
+            for w in d["weather"]["daily"]:
+                if w.get("mean") is None:
+                    continue
+                dd = max(0.0, 18.0 - w["mean"])
+                daily.append({"d": w["d"], "v": max(0.0, 0.45 + 0.27 * dd + rnd.uniform(-0.25, 0.25))})
+            amount = sum(x["v"] for x in daily)
+            d["gas"] = {"amount": amount, "unit": "m³", "cost": amount * 1.38, "per_day": amount / len(daily), "daily": daily}
+            d["gas"].update(gas.split([x["v"] for x in daily],
+                                      [max(0.0, 18.0 - w["mean"]) for w in d["weather"]["daily"] if w.get("mean") is not None]) or {})
+            if d.get("energy", {}).get("total_cost") is not None:
+                d["energy"]["gas_cost"] = d["gas"]["cost"]
+                d["energy"]["total_cost"] += d["gas"]["cost"]
+        names = {"hours_above": ["Desk in use", "Second desk in use", "Standing desk", "TV on", "Wood stove lit"],
+                 "runs_above": ["Dishwasher", "Washing machine", "Tumble dryer"]}
+        seen: dict[str, int] = {}
+        for t in d.get("custom") or []:
+            i = seen.get(t["type"], 0)
+            seen[t["type"]] = i + 1
+            t["name"] = (names.get(t["type"]) or ["Figure"])[min(i, len(names.get(t["type"], ["x"])) - 1)]
+            t["statistic"] = f"sensor.demo_{t['type']}_{i}"
+            fac = f(f"tile{t['type']}{i}")
+            if t.get("value") is not None:
+                t["value"] = round(t["value"] * fac)
+            t["daily"] = [None if v is None else round(v * fac, 1) for v in (t.get("daily") or [])]
         if d.get("story"):
             d["story"] = {"text": STORY, "entity": "ai_task.demo"}
         docs[p.stem] = d

@@ -492,6 +492,14 @@ STEPS["settings"]["sections"]["general"]["data_description"]["admin_only"] = t(
     "Uit: elke Home Assistant-gebruiker in huis kan ze openen (ze tonen energieverbruik, kosten en wanneer ruimtes gebruikt worden).",
     "Aus: jeder Home-Assistant-Benutzer im Haushalt kann sie öffnen (sie zeigen Energieverbrauch, Kosten und Raumnutzung).",
     "Désactivé : tout utilisateur de Home Assistant du foyer peut les ouvrir (ils montrent consommation, coûts et usage des pièces).")
+_en = STEPS["settings"]["sections"]["energy"]
+_en["data"]["gas_base_per_day"] = t("Gas for hot water and cooking per day", "Gas voor warm water en koken per dag",
+                                    "Gas für Warmwasser und Kochen pro Tag", "Gaz pour eau chaude et cuisson par jour")
+_en["data_description"]["gas_base_per_day"] = t(
+    "Optional, in your gas unit (e.g. 0.4 m³). Splits gas into heating and the rest. Empty: estimated per month from how gas use follows the degree days.",
+    "Optioneel, in je gaseenheid (bijv. 0,4 m³). Splitst gas in verwarming en de rest. Leeg: per maand geschat uit hoe het gasverbruik de graaddagen volgt.",
+    "Optional, in Ihrer Gaseinheit (z. B. 0,4 m³). Teilt Gas in Heizung und Rest. Leer: pro Monat geschätzt aus dem Verlauf gegenüber den Gradtagen.",
+    "Facultatif, dans votre unité de gaz (p. ex. 0,4 m³). Sépare le gaz entre chauffage et reste. Vide : estimé chaque mois selon le lien avec les degrés-jours.")
 ERRORS = {
     "statistic_required": t("Choose a statistic.", "Kies een statistiek.", "Wählen Sie eine Statistik.", "Choisissez une statistique."),
     "invalid_url": t("Enter a valid http:// or https:// address without query or fragment.",

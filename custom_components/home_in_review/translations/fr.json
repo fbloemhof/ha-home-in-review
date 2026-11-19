@@ -53,14 +53,16 @@
               "fixed_costs_monthly": "Coûts fixes par mois",
               "max_hourly_kwh": "Consommation horaire maximale plausible",
               "heat_pump_devices": "Électricité de la pompe à chaleur",
-              "heat_pump_heat_sensor": "Chaleur fournie par la pompe à chaleur"
+              "heat_pump_heat_sensor": "Chaleur fournie par la pompe à chaleur",
+              "gas_base_per_day": "Gaz pour eau chaude et cuisson par jour"
             },
             "data_description": {
               "fixed_costs_daily": "Facultatif, TTC : abonnement et frais de réseau.",
               "fixed_costs_monthly": "Facultatif, TTC. Montant négatif pour un crédit d'impôt fixe.",
               "max_hourly_kwh": "Les sauts au-delà sont considérés comme des erreurs. Environ votre raccordement : 3 × 25 A ≈ 17 kWh, 3 × 35 A ≈ 24 kWh.",
               "heat_pump_devices": "Toute marque : un ou plusieurs capteurs d'énergie (intégration de la pompe, compteur ou prise, p. ex. compresseur et appoint). Ajoute une diapositive pompe à chaleur.",
-              "heat_pump_heat_sensor": "Facultatif : capteurs de chaleur fournie (souvent chauffage et eau chaude séparés ; choisissez les deux). Ajoute le COP."
+              "heat_pump_heat_sensor": "Facultatif : capteurs de chaleur fournie (souvent chauffage et eau chaude séparés ; choisissez les deux). Ajoute le COP.",
+              "gas_base_per_day": "Facultatif, dans votre unité de gaz (p. ex. 0,4 m³). Sépare le gaz entre chauffage et reste. Vide : estimé chaque mois selon le lien avec les degrés-jours."
             }
           },
           "climate": {

@@ -20,6 +20,7 @@ from .const import (
     CONF_EXCLUDED_AREAS,
     CONF_FIXED_DAILY,
     CONF_FIXED_MONTHLY,
+    CONF_GAS_BASE,
     CONF_HP_DEVICES,
     CONF_HP_HEAT,
     CONF_MAX_HOURLY_KWH,
@@ -92,7 +93,7 @@ def sanitize(raw: dict) -> dict:
             o[k] = v
     if raw.get(CONF_USE_OPEN_METEO) is not None:
         o[CONF_USE_OPEN_METEO] = bool(raw[CONF_USE_OPEN_METEO])
-    for k, lo, hi in ((CONF_FIXED_DAILY, 0, 100), (CONF_FIXED_MONTHLY, -1000, 10000), (CONF_MAX_HOURLY_KWH, 1, 1000)):
+    for k, lo, hi in ((CONF_GAS_BASE, 0, 1000), (CONF_FIXED_DAILY, 0, 100), (CONF_FIXED_MONTHLY, -1000, 10000), (CONF_MAX_HOURLY_KWH, 1, 1000)):
         if (v := _number(raw.get(k), lo, hi)) is not None:
             o[k] = v
     if raw.get(CONF_EVCC_URL):

@@ -303,3 +303,21 @@ def test_count_runs():
     assert len(count_runs(active, None)) == 3
     assert len(count_runs(active, 3)) == 4  # 2 h + 3 h blocks count once, the 7-hour block as two programmes
     assert count_runs([], 3) == []
+
+
+def test_gas_split():
+    from hir import gas
+
+    dd = [float(x % 15) for x in range(30)]            # 0..14 degree days, plenty of spread
+    use = [0.5 + 0.3 * x for x in dd]                   # base 0.5 per day, 0.3 per degree day
+    r = gas.split(use, dd)
+    assert r["base_source"] == "estimate" and abs(r["base_per_day"] - 0.5) < 1e-9
+    assert abs(r["hot_water"] - 15) < 1e-6 and abs(r["heating"] - (sum(use) - 15)) < 1e-6
+    assert abs(r["heating_per_degree_day"] - 0.3) < 1e-9
+    r = gas.split(use, dd, base_per_day=0.4)            # the option wins
+    assert r["base_source"] == "option" and abs(r["hot_water"] - 12) < 1e-9
+    summer = gas.split([0.6] * 30, [0.2] * 30)
+    assert summer["base_source"] == "no_heating" and summer["heating"] == 0
+    flat = gas.split([3.0] * 30, [8.0] * 30)            # no spread: no reliable split
+    assert flat["base_source"] == "unknown" and "heating" not in flat and flat["per_degree_day"] == 3 / 8
+    assert gas.split([], []) is None
