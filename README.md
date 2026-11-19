@@ -57,12 +57,13 @@ French, Spanish and Italian so far) and your unit system and currency.
 |---|---|
 | ![Electricity](docs/screenshots/electricity.png) | ![Devices (light theme)](docs/screenshots/devices-light.png) |
 | ![Weather](docs/screenshots/weather.png) | ![Indoors](docs/screenshots/indoor.png) |
-| ![Heat pump](docs/screenshots/heat-pump.png) | ![Gas: heating versus hot water](docs/screenshots/gas.png) |
+| ![Heat pump](docs/screenshots/heat-pump.png) | ![Car](docs/screenshots/car.png) |
+| ![Gas: heating versus hot water](docs/screenshots/gas.png) | ![Costs (light theme)](docs/screenshots/costs-light.png) |
 | ![Year review](docs/screenshots/year-electricity.png) | ![Your own figures](docs/screenshots/own-figures.png) |
 
 <img src="docs/screenshots/mobile.png" width="240" alt="On a phone">
 
-*Screenshots use anonymised demo data.*
+*Screenshots use anonymised demo data, in the night theme (and two in the light theme).*
 
 ## Installation
 

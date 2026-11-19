@@ -110,7 +110,17 @@ def main() -> None:
                                       [max(0.0, 18.0 - w["mean"]) for w in d["weather"]["daily"] if w.get("mean") is not None]) or {})
             if d.get("energy", {}).get("total_cost") is not None:
                 d["energy"]["gas_cost"] = d["gas"]["cost"]
-                d["energy"]["total_cost"] += d["gas"]["cost"]
+        # Totals from the (scaled) parts, so the bill adds up in the demo.
+        e = d.get("energy") or {}
+        if e.get("cost_import") is not None:
+            e["total_cost"] = (e["cost_import"] - (e.get("compensation") or 0) + (e.get("gas_cost") or 0)
+                               + (e.get("fixed_costs") or 0))
+            e["bill_total"] = e["total_cost"] + (e.get("water_cost") or 0)
+        # Never show the real (rounded) location or sensor names in the demo.
+        if d.get("weather"):
+            if d["weather"].get("location"):
+                d["weather"]["location"] = {"lat": 52.1, "lon": 5.2}
+            d["weather"].pop("sensor_name", None)
         names = {"hours_above": ["Desk in use", "Second desk in use", "Standing desk", "TV on", "Wood stove lit"],
                  "runs_above": ["Dishwasher", "Washing machine", "Tumble dryer"]}
         seen: dict[str, int] = {}

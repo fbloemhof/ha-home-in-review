@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 (not released yet)
+## 0.4.0
 
 **New**
 - Reports update themselves: each report remembers the version and the settings it was made with. After an update
@@ -21,6 +21,7 @@
   (Nov–Feb ×1.1, Mar/Oct ×1.0, Apr–Sep ×0.8), so gas per degree day can be compared with other services. The weather
   slide states which definition is used, and for which place the weather is (the rounded Home Assistant location,
   or the name of your outdoor sensor).
+- README screenshots in the new design.
 - Click a bar in any month chart (the 13-month trends and the year review) to open that month.
 - The navigation on the right shows each slide's icon instead of a dot (the current one highlighted, the name on
   hover); the heat pump and own figures got icons of their own.
