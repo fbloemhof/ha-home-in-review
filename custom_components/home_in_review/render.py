@@ -351,6 +351,21 @@ def day_sources(x: dict) -> tuple[float, float, float]:
     return x["import"], solar_direct, bat
 
 
+def bar_path(x: float, y: float, w: float, h: float, fill: str, rounded: str | None, r: float = 3) -> str:
+    """A bar (segment) with only its outer end rounded: "top", "bottom" (bars below the axis) or None (a middle
+    segment of a stack)."""
+    if rounded is None:
+        return f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" fill="{fill}"/>'
+    r = min(r, w / 2, h)
+    if rounded == "top":
+        d = (f"M{x:.1f},{y + h:.1f}V{y + r:.1f}Q{x:.1f},{y:.1f} {x + r:.1f},{y:.1f}H{x + w - r:.1f}"
+             f"Q{x + w:.1f},{y:.1f} {x + w:.1f},{y + r:.1f}V{y + h:.1f}Z")
+    else:
+        d = (f"M{x:.1f},{y:.1f}V{y + h - r:.1f}Q{x:.1f},{y + h:.1f} {x + r:.1f},{y + h:.1f}H{x + w - r:.1f}"
+             f"Q{x + w:.1f},{y + h:.1f} {x + w:.1f},{y + h - r:.1f}V{y:.1f}Z")
+    return f'<path d="{d}" fill="{fill}"/>'
+
+
 def daily_energy_chart(L: Lang, daily: list[dict], W=1000, H=340, every=7) -> str:
     """Per day: what the house used, stacked by source (grid, solar directly, battery); returned to the grid below."""
     if not daily:
@@ -374,14 +389,14 @@ def daily_energy_chart(L: Lang, daily: list[dict], W=1000, H=340, every=7) -> st
         w = max(bw - 3, 2)
         grid, solar, bat = day_sources(x)
         y = y0
-        for v, col in ((grid, "var(--s1)"), (solar, "var(--s4)"), (bat, "var(--s5)")):
-            h = v * sc
-            if h > 0.3:
-                out.append(f'<rect x="{px + 1.5:.1f}" y="{y - h:.1f}" width="{w:.1f}" height="{h:.1f}" fill="{col}"/>')
-                y -= h
+        parts = [(v * sc, col) for v, col in ((grid, "var(--s1)"), (solar, "var(--s4)"), (bat, "var(--s5)")) if v * sc > 0.3]
+        for n, (h, col) in enumerate(parts):
+            # only the outer end of the stack is rounded, so the seams between sources stay straight
+            out.append(bar_path(px + 1.5, y - h, w, h, col, rounded="top" if n == len(parts) - 1 else None))
+            y -= h
         hd = x["export"] * sc
         if hd > 0.3:
-            out.append(f'<rect x="{px + 1.5:.1f}" y="{y0:.1f}" width="{w:.1f}" height="{hd:.1f}" fill="var(--s3)"/>')
+            out.append(bar_path(px + 1.5, y0, w, hd, "var(--s3)", rounded="bottom"))
         d = dt.date.fromisoformat(x["d"])
         tip = f'{d.day} {L.month_short(d.month)} · {L("imported")} {L.num(grid, 1)}'
         if x.get("solar"):

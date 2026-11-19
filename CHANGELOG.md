@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+**Fixed**
+- Electricity: the stacked daily bars now have rounded ends like the other charts (only the outer end; the
+  seams between grid, solar and battery stay straight).
+
 ## 0.4.0
 
 **New**
