@@ -173,10 +173,9 @@ td .sm{color:var(--mut);font-size:12.5px;margin-left:6px}
 .mfoot a b{font-family:var(--serif);font-size:clamp(24px,3vw,36px);font-weight:500;letter-spacing:-.02em}
 .mfoot a:hover b{color:var(--hi)}
 .mfoot .nx{text-align:right;grid-column:2}
-.themes{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--mut)}
-.themes button{font:600 12px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);background:var(--paper);
-  border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
-.themes button.on{border-color:var(--hi);color:var(--hi)}
+.themes{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--mut)}
+.themes select{font:500 13px var(--sans);color:var(--ink2);background:var(--paper);border:1px solid var(--line);
+  border-radius:8px;padding:5px 8px;cursor:pointer}
 .pg{position:absolute;right:clamp(20px,6vw,96px);bottom:22px;font-size:12px;color:var(--mut);letter-spacing:.1em}
 .notes{display:grid;gap:8px}
 .story{max-width:40em}
@@ -228,7 +227,7 @@ def theme_head(default: str = "auto") -> str:
     default = default if default in THEMES else "auto"
     return ("<script>(()=>{const r=document.documentElement;let t=new URLSearchParams(location.search).get('theme');"
             "const h=/theme=([a-z]+)/.exec(location.hash);if(h)t=h[1];if(!t){try{t=localStorage.getItem('hir-theme')}catch(e){}}"
-            f"if(!t)t='{default}';if(t&&t!=='auto')r.dataset.theme=t;}})()</script>")
+            f"window.hirDefault='{default}';if(!t)t='{default}';if(t&&t!=='auto')r.dataset.theme=t;}})()</script>")
 
 JS = r"""
 window.hirSlide=()=>{let b='',best=1e9;document.querySelectorAll('.slide').forEach(x=>{const d=Math.abs(x.getBoundingClientRect().top);if(d<best){best=d;b=x.id}});return b};
@@ -243,9 +242,11 @@ document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest
 (()=>{const b=document.querySelector('.hmenu');if(!b||window.parent===window)return;const set=v=>{b.hidden=!v};
  set(/(^|[#&])menu\b/.test(location.hash));addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&'hirNarrow' in e.data)set(!!e.data.hirNarrow)});
  b.onclick=()=>parent.postMessage({homeInReview:'menu'},location.origin)})();
-window.hirTheme=t=>{const r=document.documentElement;delete r.dataset.theme;if(t!=='auto')r.dataset.theme=t;
- try{localStorage.setItem('hir-theme',t)}catch(e){};document.querySelectorAll('.themes button').forEach(b=>b.classList.toggle('on',b.dataset.t===t))};
-(()=>{const t=document.documentElement.dataset.theme||'auto';document.querySelectorAll('.themes button').forEach(b=>b.classList.toggle('on',b.dataset.t===t))})();
+/* Theme per viewer: "default" forgets the viewer's own choice, so the theme set in the options applies again. */
+(()=>{const sel=document.querySelector('.thsel');if(!sel)return;let own=null;try{own=localStorage.getItem('hir-theme')}catch(e){}
+ sel.value=own&&sel.querySelector('option[value="'+own+'"]')?own:'default';
+ sel.onchange=()=>{const t=sel.value==='default'?window.hirDefault:sel.value,r=document.documentElement;delete r.dataset.theme;
+  if(t!=='auto')r.dataset.theme=t;try{sel.value==='default'?localStorage.removeItem('hir-theme'):localStorage.setItem('hir-theme',sel.value)}catch(e){}}})();
 (()=>{const sel=document.querySelector('.msel');if(sel)sel.onchange=()=>hirGo(sel.value);
 addEventListener('keydown',e=>{if(e.target.tagName==='SELECT')return;const k={'[':'.prev',']':'.next'}[e.key];
  if(k){const a=document.querySelector('.topbar '+k);if(a&&!a.hidden)hirGo(a.dataset.go)}});})();
@@ -1167,14 +1168,17 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         foot += f'<a href="#" class="nx" data-go="{nxt}"><span>{esc(L("next"))}</span><b>{esc(mlabel(nxt))}</b></a>'
     foot += "</div>"
     tn = L.t["themes"]
-    themes = "".join(f'<button data-t="{t}" onclick="hirTheme(\'{t}\')">{esc(tn[t])}</button>' for t in ("auto", "light", "dark", "night", "mono"))
+    std = f'{tn["default"]} ({tn.get(theme, theme)})'
+    themes = (f'<select class="thsel" aria-label="{esc(L("theme"))}"><option value="default">{esc(std)}</option>'
+              + "".join(f'<option value="{t}">{esc(tn[t])}</option>' for t in ("auto", "light", "dark", "night", "mono"))
+              + "</select>")
     gen = dt.datetime.fromisoformat(d["generated"])
     P.add("about", L("s_about"), "info", f'''{P.kicker(L("s_about"), "info")}
 <div><div class="l" style="font-size:13px;color:var(--mut)">{esc(L("about_sources"))}</div>
 <ul class="src">{"".join(f"<li>{esc(s)}</li>" for s in src)}</ul></div>
 <div class="notes">{"".join(f'<p class="note">{esc(n)}</p>' for n in notes)}</div>
 <p class="note">{esc(L("generated", d=f"{gen.day} {L.month(gen.month)} {gen.year}"))} · {esc(L("made_with"))}</p>
-<div class="themes">{esc(L("theme"))}: {themes}</div>
+<label class="themes">{esc(L("theme"))} {themes}</label>
 <p style="font-size:15px"><a href="#" data-go="year-{year_key(ym, start_month)}">{esc(L("year_title"))} {esc(year_label(year_key(ym, start_month)))} →</a></p>
 {foot}''')
 

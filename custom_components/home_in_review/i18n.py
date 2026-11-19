@@ -1305,3 +1305,8 @@ class Lang:
 
     def pct(self, x, d: int = 0) -> str:
         return "–" if x is None else f"{self.num(x * 100, d)}%"
+
+# "default" in the theme menu: the theme set in the options
+for _l, _d in {"en": "default", "nl": "standaard", "de": "Standard", "fr": "par défaut", "es": "predeterminado",
+               "it": "predefinito"}.items():
+    TEXTS[_l]["themes"]["default"] = _d

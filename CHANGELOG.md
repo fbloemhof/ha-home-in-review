@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+**Changed**
+- The theme choice at the bottom of a report is now a small menu. Its first item, "default", shows the theme
+  set in the options and forgets the viewer's own choice, so a later change of that option applies again.
+
 **Fixed**
 - Electricity: the stacked daily bars now have rounded ends like the other charts (only the outer end; the
   seams between grid, solar and battery stay straight).
