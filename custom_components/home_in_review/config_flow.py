@@ -238,5 +238,5 @@ class HomeInReviewOptionsFlow(OptionsFlow):
                    for i, t in enumerate(tiles)]
         return self.async_show_form(step_id="tile_remove", data_schema=vol.Schema({
             vol.Optional("tiles", default=[]): selector.SelectSelector(
-                selector.SelectSelectorConfig(options=options, multiple=True)),
+                selector.SelectSelectorConfig(options=options, multiple=True, mode=selector.SelectSelectorMode.LIST)),
         }))
