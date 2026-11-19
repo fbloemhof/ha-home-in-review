@@ -139,10 +139,15 @@ td .sm{color:var(--mut);font-size:12.5px;margin-left:6px}
 .wm{position:absolute;right:clamp(20px,6vw,96px);top:clamp(56px,9vh,96px);width:clamp(100px,14vw,220px);height:auto;color:var(--ink);opacity:.07;stroke-width:.9;pointer-events:none}
 .slide>*:not(.wm):not(.pg){position:relative;z-index:1}
 @media (max-width:700px){.wm{width:90px;opacity:.05}}
-.nav{position:fixed;right:18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:5}
-.nav a{width:9px;height:9px;border-radius:50%;background:var(--line);display:block;position:relative}
-.nav a.on{background:var(--hi);transform:scale(1.25)}
-.nav a:hover:after{content:attr(data-l);position:absolute;right:18px;top:50%;transform:translateY(-50%);white-space:nowrap;
+.nav{position:fixed;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px;z-index:5;
+  max-height:calc(100svh - 120px);padding:6px 4px;border-radius:14px;background:color-mix(in srgb,var(--bg) 70%,transparent)}
+.nav a{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;position:relative;color:var(--mut);opacity:.75;
+  transition:color .15s,opacity .15s,background .15s}
+.nav a .ic{width:17px;height:17px}
+.nav a:hover{opacity:1;color:var(--ink)}
+.nav a.on{opacity:1;color:var(--hi);background:color-mix(in srgb,var(--hi) 14%,transparent)}
+@media (max-height:640px){.nav a{width:22px;height:22px}.nav a .ic{width:14px;height:14px}.nav{gap:2px}}
+.nav a:hover:after{content:attr(data-l);position:absolute;right:36px;top:50%;transform:translateY(-50%);white-space:nowrap;
   font-size:12px;background:var(--paper);color:var(--ink);padding:3px 8px;border-radius:6px;border:1px solid var(--line)}
 @media (max-width:700px){.nav{display:none}}
 .bar{position:fixed;left:0;top:0;height:3px;background:var(--hi);width:0;z-index:6}
@@ -273,6 +278,8 @@ ICONS = {
     "thermo": '<path d="M10 4.5a2 2 0 0 1 4 0v9.8a4 4 0 1 1-4 0z"/><path d="M12 9v8.5"/>',
     "quote": '<path d="M6 7h4v4c0 3-1.3 5-4 6M14 7h4v4c0 3-1.3 5-4 6"/>',
     "car": '<path d="M3.5 16.5v-3.5l2-5a2 2 0 0 1 1.9-1.3h9.2a2 2 0 0 1 1.9 1.3l2 5v3.5"/><path d="M3.5 13h17"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/>',
+    "heatpump": '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="10" cy="12" r="4"/><path d="M10 8.5c1.5 1.2 1.5 2.3 0 3.5s-1.5 2.3 0 3.5"/><path d="M17 9v6"/>',
+    "tiles": '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><path d="M16.5 13v7M13 16.5h7"/>',
     "cloud": '<path d="M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.2 4.5 4.5 0 0 0 7 18z"/>',
 }
 
@@ -606,7 +613,7 @@ class Page:
     def add(self, sid: str, label: str, wm: str, body: str, cls: str = "") -> None:
         n = len(self.slides) + 1
         mark = icon(wm, "ic wm") if sid != "cover" else ""
-        self.slides.append((sid, label, f'<section class="slide {cls}" id="{sid}">{mark}{body}<div class="pg">{n:02d}</div></section>'))
+        self.slides.append((sid, label, f'<section class="slide {cls}" id="{sid}">{mark}{body}<div class="pg">{n:02d}</div></section>', wm))
 
     def kicker(self, label: str, ic: str) -> str:
         return f'<div class="kicker">{icon(ic)}<b>{len(self.slides) + 1:02d}</b>{esc(label)}</div>'
@@ -847,7 +854,7 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         if hp.get("share"):
             stats.append(P.stat(L("share"), L.pct(hp["share"])))
         tr = trend(L, P.series13(_get(lambda x: x["heat_pump"]["electricity"])), L("trend_hp"), lambda v: kwh(v))
-        P.add("heatpump", L("s_heat_pump"), "flame", f'''{P.kicker(L("s_heat_pump"), "flame")}
+        P.add("heatpump", L("s_heat_pump"), "heatpump", f'''{P.kicker(L("s_heat_pump"), "heatpump")}
 <div class="split"><div><h2>{head}</h2><div class="hero" style="margin-top:22px">{hero}</div>{hero_note}</div>
 <div><div class="stats">{"".join(stats)}</div><div style="margin-top:28px">{tr}</div></div></div>
 <p class="note">{esc(L("hp_note", devices=", ".join(hp.get("devices", []))))}</p>''')
@@ -1095,7 +1102,7 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
                      pct=L.pct(abs(best[1])), **best[2])
         else:
             head = esc(L("h_custom"))
-        P.add("custom", L("s_custom"), "info", f'''{P.kicker(L("s_custom"), "info")}
+        P.add("custom", L("s_custom"), "tiles", f'''{P.kicker(L("s_custom"), "tiles")}
 <h2>{head}</h2><div class="cards">{"".join(cards)}</div>''')
 
     # ---------------------------------------------------------------- about
@@ -1154,7 +1161,7 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
 {foot}''')
 
     # ---------------------------------------------------------------- page
-    nav = "".join(f'<a href="#{sid}" data-l="{esc(lab)}"></a>' for sid, lab, _ in P.slides)
+    nav = "".join(f'<a href="#{sid}" data-l="{esc(lab)}" aria-label="{esc(lab)}">{icon(ic)}</a>' for sid, lab, _, ic in P.slides)
     opts = "".join(f'<option value="{x}"{" selected" if x == ym else ""}>{esc(mlabel(x))}</option>' for x in reversed(months))
     top = (f'<div class="topbar">{topbar_left(L)}<div class="mnav">'
            + (f'<a href="#" class="prev" data-go="{prv}">‹</a>' if prv else "")
@@ -1163,7 +1170,7 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
     title = f"{L('title')} · {mname} {y}"
     return (f'<!doctype html><html lang="{L.code}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
             f'<title>{esc(title)}</title>{theme_head(theme)}<style>{font_css()}{CSS}</style></head><body data-ym="{ym}">'
-            f'<div class="bar"></div>{top}<nav class="nav">{nav}</nav>{"".join(s for _, _, s in P.slides)}<div id="tip"></div>'
+            f'<div class="bar"></div>{top}<nav class="nav">{nav}</nav>{"".join(s for _, _, s, _ in P.slides)}<div id="tip"></div>'
             f'<script>{JS}</script></body></html>')
 
 
@@ -1371,7 +1378,7 @@ def render_year(key: str, docs: dict[str, dict], lang: str = "en", home_name: st
     if sol:
         topic("solar", L("s_solar"), "sun", E("solar"), kwh, "y_solar")
     if any(m in docs and g(docs[m], "heat_pump", "electricity") for m in months):
-        topic("heatpump", L("s_heat_pump"), "flame", _get(lambda x: x["heat_pump"]["electricity"]), kwh, "y_hp")
+        topic("heatpump", L("s_heat_pump"), "heatpump", _get(lambda x: x["heat_pump"]["electricity"]), kwh, "y_hp")
     if any(m in docs and docs[m].get("car") for m in months):
         topic("car", L("s_car"), "car", _get(lambda x: x["car"]["km"]), lambda v: f"{L.num(v)} km", "y_car")
 
@@ -1473,9 +1480,9 @@ def render_year(key: str, docs: dict[str, dict], lang: str = "en", home_name: st
     P.add("about", L("s_about"), "info", f'''{P.kicker(L("s_about"), "info")}
 <p class="note">{esc(L("year_about", n=len(have)))}</p><p style="font-size:15px">{mlinks}</p>
 <p class="note">{esc(L("made_with"))}</p><div class="mfoot">{"".join(links)}</div>''')
-    nav = "".join(f'<a href="#{sid}" data-l="{esc(lab)}"></a>' for sid, lab, _ in P.slides)
+    nav = "".join(f'<a href="#{sid}" data-l="{esc(lab)}" aria-label="{esc(lab)}">{icon(ic)}</a>' for sid, lab, _, ic in P.slides)
     top = f'<div class="topbar">{topbar_left(L)}<div class="mnav"><a href="#" data-go="{have[-1]}">{esc(L.month(int(have[-1][5:])))} {have[-1][:4]}</a></div></div>'
     return (f'<!doctype html><html lang="{L.code}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
             f'<title>{esc(L("title"))} · {esc(label)}</title>{theme_head(theme)}<style>{font_css()}{CSS}</style></head><body>'
-            f'<div class="bar"></div>{top}<nav class="nav">{nav}</nav>{"".join(s for _, _, s in P.slides)}<div id="tip"></div>'
+            f'<div class="bar"></div>{top}<nav class="nav">{nav}</nav>{"".join(s for _, _, s, _ in P.slides)}<div id="tip"></div>'
             f'<script>{JS}</script></body></html>')

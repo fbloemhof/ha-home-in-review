@@ -19,6 +19,8 @@
   slide states which definition is used, and for which place the weather is (the rounded Home Assistant location,
   or the name of your outdoor sensor).
 - Click a bar in any month chart (the 13-month trends and the year review) to open that month.
+- The navigation on the right shows each slide's icon instead of a dot (the current one highlighted, the name on
+  hover); the heat pump and own figures got icons of their own.
 - Switching month (month menu, ‹ ›, the [ and ] keys or a chart bar) keeps you at the same topic instead of
   jumping back to the top.
 
