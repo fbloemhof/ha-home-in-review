@@ -28,6 +28,8 @@ from .const import (
     CONF_BACKFILL_MONTHS,
     CONF_CAR_CHARGERS,
     CONF_CAR_ODOMETERS,
+    CONF_DD_BASE,
+    CONF_DD_WEIGHTED,
     CONF_EVCC_URL,
     CONF_EXCLUDED_AREAS,
     CONF_FIXED_DAILY,
@@ -100,7 +102,7 @@ def _suggest(value: Any) -> dict:
 SECTIONS = {
     "general": [CONF_NOTIFY, CONF_REPORT_DAY, CONF_REPORT_TIME, CONF_YEAR_START, CONF_THEME, CONF_ADMIN_ONLY],
     "energy": [CONF_FIXED_DAILY, CONF_FIXED_MONTHLY, CONF_MAX_HOURLY_KWH, CONF_GAS_BASE, CONF_HP_DEVICES, CONF_HP_HEAT],
-    "climate": [CONF_EXCLUDED_AREAS, CONF_OUTDOOR_SENSOR, CONF_RAIN_SENSOR, CONF_USE_OPEN_METEO],
+    "climate": [CONF_EXCLUDED_AREAS, CONF_OUTDOOR_SENSOR, CONF_RAIN_SENSOR, CONF_USE_OPEN_METEO, CONF_DD_BASE, CONF_DD_WEIGHTED],
     "car": [CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS, CONF_EVCC_URL, CONF_TM_URL, CONF_TM_TOKEN, CONF_TM_HOME],
     "ai": [CONF_AI_TASK, CONF_AI_INSTRUCTIONS],
 }
@@ -137,6 +139,7 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             # outdoor exclusion.
             o[CONF_EXCLUDED_AREAS] = flat.get(CONF_EXCLUDED_AREAS) or []
             o[CONF_USE_OPEN_METEO] = bool(flat.get(CONF_USE_OPEN_METEO, True))
+            o[CONF_DD_WEIGHTED] = bool(flat.get(CONF_DD_WEIGHTED, False))
             o[CONF_YEAR_START] = int(flat.get(CONF_YEAR_START, 1))
             o[CONF_ADMIN_ONLY] = bool(flat.get(CONF_ADMIN_ONLY, False))
             # Validate the outside addresses here as well (the backend repeats this, see options.py). Errors are
@@ -194,6 +197,10 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             vol.Optional(CONF_RAIN_SENSOR, description=_suggest(o.get(CONF_RAIN_SENSOR))): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", device_class="precipitation")),
             vol.Required(CONF_USE_OPEN_METEO, default=o.get(CONF_USE_OPEN_METEO, True)): selector.BooleanSelector(),
+            vol.Optional(CONF_DD_BASE, description=_suggest(o.get(CONF_DD_BASE))): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=-10, max=80, step=0.5, mode=BOX,
+                                              unit_of_measurement=self.hass.config.units.temperature_unit)),
+            vol.Required(CONF_DD_WEIGHTED, default=bool(o.get(CONF_DD_WEIGHTED, False))): selector.BooleanSelector(),
         })
         car = vol.Schema({
             vol.Optional(CONF_CAR_ODOMETERS, description=_suggest(o.get(CONF_CAR_ODOMETERS))): selector.EntitySelector(

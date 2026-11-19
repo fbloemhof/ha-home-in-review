@@ -73,13 +73,17 @@
               "excluded_areas": "Aree che non sono interne",
               "outdoor_sensor": "Sensore di temperatura esterna",
               "use_open_meteo": "Usa Open-Meteo per il meteo",
-              "rain_sensor": "Pluviometro"
+              "rain_sensor": "Pluviometro",
+              "degree_day_base": "Soglia di riscaldamento per i gradi giorno",
+              "degree_days_weighted": "Gradi giorno ponderati (metodo olandese)"
             },
             "data_description": {
               "excluded_areas": "I sensori in queste aree sono esclusi dal clima interno. Vuoto = conta tutto.",
               "outdoor_sensor": "Facoltativo. Qualsiasi sensore di temperatura con storico; sostituisce la temperatura modellata.",
               "use_open_meteo": "Archivio meteo gratuito per la tua zona (posizione arrotondata a ~10 km). Disattivato: solo i tuoi sensori, senza valori normali né soleggiamento.",
-              "rain_sensor": "Facoltativo. Un sensore di precipitazione cumulativa (totale); sostituisce la pioggia modellata."
+              "rain_sensor": "Facoltativo. Un sensore di precipitazione cumulativa (totale); sostituisce la pioggia modellata.",
+              "degree_day_base": "Facoltativo. I giorni più freddi contano come giorni di riscaldamento. Vuoto: 18 °C (65 °F).",
+              "degree_days_weighted": "Da novembre a febbraio ×1,1, marzo e ottobre ×1,0, da aprile a settembre ×0,8. Dopo una modifica, rigenera i mesi precedenti (backfill con sovrascrittura)."
             }
           },
           "car": {

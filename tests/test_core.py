@@ -340,3 +340,16 @@ def test_trend_bars_link_to_months():
     assert 'data-go="2026-04"' in html and 'data-go="2026-01"' in html   # earlier months are links
     year = R.render_year("2026-01", docs, "en", None, 1)
     assert 'data-go="2026-07"' in year                                      # year bars open the month
+
+
+def test_degree_day_options():
+    from hir import weather
+
+    days = [{"d": f"2026-10-{i:02d}", "mean": 12.0, "min": 8.0, "max": 16.0, "precip": 0, "sun_h": 3} for i in range(1, 32)]
+    plain = weather.summarize(days, None, 10, True)
+    assert plain["degree_days"] == 31 * 6 and plain["dd_base"] == 18.0
+    nov = [{**d, "d": d["d"].replace("-10-", "-11-")} for d in days[:30]]
+    assert round(weather.summarize(nov, None, 11, True, dd_weighted=True)["degree_days"], 6) == round(30 * 6 * 1.1, 6)
+    assert weather.summarize(days, None, 10, True, dd_base=20)["degree_days"] == 31 * 8
+    us = weather.summarize(days, None, 10, False)        # 12 °C = 53.6 °F, threshold 65 °F
+    assert round(us["degree_days"], 6) == round(31 * (65 - 53.6), 6)

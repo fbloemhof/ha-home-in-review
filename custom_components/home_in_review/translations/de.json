@@ -73,13 +73,17 @@
               "excluded_areas": "Bereiche, die nicht drinnen sind",
               "outdoor_sensor": "Außentemperatursensor",
               "use_open_meteo": "Open-Meteo für das Wetter nutzen",
-              "rain_sensor": "Regenmesser"
+              "rain_sensor": "Regenmesser",
+              "degree_day_base": "Heizgrenze für Gradtage",
+              "degree_days_weighted": "Gewichtete Gradtage (niederländische Methode)"
             },
             "data_description": {
               "excluded_areas": "Sensoren in diesen Bereichen zählen nicht zum Raumklima. Leer = alles zählen.",
               "outdoor_sensor": "Optional. Jeder Temperatursensor mit Verlauf; ersetzt die Modelltemperatur.",
               "use_open_meteo": "Kostenloses Wetterarchiv für Ihre Gegend (Standort auf ~10 km gerundet). Aus: nur Ihre eigenen Sensoren, ohne Normalwerte und Sonne.",
-              "rain_sensor": "Optional. Ein aufsummierender Niederschlagssensor; ersetzt den modellierten Niederschlag."
+              "rain_sensor": "Optional. Ein aufsummierender Niederschlagssensor; ersetzt den modellierten Niederschlag.",
+              "degree_day_base": "Optional. Tage kälter als dieser Wert zählen als Heiztage. Leer: 18 °C (65 °F).",
+              "degree_days_weighted": "November bis Februar zählen ×1,1, März und Oktober ×1,0, April bis September ×0,8. Nach einer Änderung frühere Monate neu erstellen (Rückfüllung mit Überschreiben)."
             }
           },
           "car": {

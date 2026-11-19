@@ -73,13 +73,17 @@
               "excluded_areas": "Ruimtes die niet binnen zijn",
               "outdoor_sensor": "Buitentemperatuursensor",
               "use_open_meteo": "Open-Meteo gebruiken voor het weer",
-              "rain_sensor": "Regenmeter"
+              "rain_sensor": "Regenmeter",
+              "degree_day_base": "Stookgrens voor graaddagen",
+              "degree_days_weighted": "Gewogen graaddagen (zoals Mindergas)"
             },
             "data_description": {
               "excluded_areas": "Sensoren in deze ruimtes tellen niet mee voor het binnenklimaat. Leeg = alles meetellen.",
               "outdoor_sensor": "Optioneel. Elke temperatuursensor met historie; vervangt de modeltemperatuur.",
               "use_open_meteo": "Gratis weerarchief voor jouw omgeving (locatie afgerond op ~10 km). Uit: alleen je eigen sensoren, zonder normalen of zon.",
-              "rain_sensor": "Optioneel. Een neerslagsensor die optelt (totaal); vervangt de neerslag uit het model."
+              "rain_sensor": "Optioneel. Een neerslagsensor die optelt (totaal); vervangt de neerslag uit het model.",
+              "degree_day_base": "Optioneel. Dagen kouder dan dit tellen als stookdag. Leeg: 18 °C. Ook bij Mindergas in te stellen; gebruik dezelfde waarde om te vergelijken.",
+              "degree_days_weighted": "November t/m februari tellen ×1,1, maart en oktober ×1,0, april t/m september ×0,8, zoals Mindergas en energieleveranciers doen. Maak na het wijzigen van dit of de stookgrens eerdere maanden opnieuw (backfill met overschrijven), zodat vergelijkingen kloppen."
             }
           },
           "car": {

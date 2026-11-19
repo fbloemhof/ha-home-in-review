@@ -384,9 +384,10 @@ class Collector:
         g, w = doc.get("gas"), doc.get("weather")
         if not g or not w or not w.get("daily"):
             return
-        base_t = 18.0 if metric else 65.0
-        # Degree days in the same unit as the weather slide (°C-days, or °F-days for US units).
-        dd = {x["d"]: max(0.0, base_t - x["mean"]) for x in w["daily"] if x.get("mean") is not None}
+        # Degree days exactly as on the weather slide (same threshold, weighting and unit).
+        base, weighted = weather.dd_settings(metric, self.opt.get("degree_day_base"), self.opt.get("degree_days_weighted"))
+        dd = {x["d"]: weather.degree_days(x["mean"], int(x["d"][5:7]), base, weighted)
+              for x in w["daily"] if x.get("mean") is not None}
         daily = {x["d"]: x["v"] for x in g.get("daily", [])}
         keys = sorted(set(daily) | set(dd))
         res = gas.split([daily.get(k) for k in keys], [dd.get(k) for k in keys], self.opt.get("gas_base_per_day"))
@@ -526,7 +527,8 @@ class Collector:
                 for day in daily:
                     day["precip"] = per_day.get(day["d"], 0.0)
                 doc["notes"].append("rain_sensor")
-        summary = weather.summarize(daily, normals, start.month, metric)
+        summary = weather.summarize(daily, normals, start.month, metric, self.opt.get("degree_day_base"),
+                                    bool(self.opt.get("degree_days_weighted")))
         if summary:
             summary["source"] = ("sensor" if "outdoor_sensor" in doc["notes"] else "open-meteo") + ("" if use_om else "-only")
             summary["rain_source"] = "sensor" if "rain_sensor" in doc["notes"] else ("open-meteo" if use_om else None)

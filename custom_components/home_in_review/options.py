@@ -16,6 +16,8 @@ from .const import (
     CONF_AI_TASK,
     CONF_CAR_CHARGERS,
     CONF_CAR_ODOMETERS,
+    CONF_DD_BASE,
+    CONF_DD_WEIGHTED,
     CONF_EVCC_URL,
     CONF_EXCLUDED_AREAS,
     CONF_FIXED_DAILY,
@@ -94,6 +96,10 @@ def sanitize(raw: dict) -> dict:
             o[k] = v
     if raw.get(CONF_THEME) in ("auto", "light", "dark", "night", "mono"):
         o[CONF_THEME] = raw[CONF_THEME]
+    if (b := _number(raw.get(CONF_DD_BASE), -10, 80)) is not None:
+        o[CONF_DD_BASE] = b
+    if raw.get(CONF_DD_WEIGHTED) is not None:
+        o[CONF_DD_WEIGHTED] = bool(raw[CONF_DD_WEIGHTED])
     if raw.get(CONF_USE_OPEN_METEO) is not None:
         o[CONF_USE_OPEN_METEO] = bool(raw[CONF_USE_OPEN_METEO])
     for k, lo, hi in ((CONF_GAS_BASE, 0, 1000), (CONF_FIXED_DAILY, -100, 100), (CONF_FIXED_MONTHLY, -1000, 10000), (CONF_MAX_HOURLY_KWH, 1, 1000)):

@@ -529,6 +529,20 @@ _en["data_description"]["fixed_costs_daily"] = t(
     "Optioneel, inclusief btw: vaste leveringskosten en netbeheer min een vaste korting per dag (mag negatief zijn).",
     "Optional, inkl. Steuern: Grundgebühr und Netzentgelte abzüglich einer festen Gutschrift pro Tag (darf negativ sein).",
     "Facultatif, TTC : abonnement et frais de réseau moins une remise fixe par jour (peut être négatif).")
+_cl["data"]["degree_day_base"] = t("Heating threshold for degree days", "Stookgrens voor graaddagen",
+                                   "Heizgrenze für Gradtage", "Seuil de chauffage des degrés-jours")
+_cl["data_description"]["degree_day_base"] = t(
+    "Optional. Days colder than this count as heating days. Empty: 18 °C (65 °F). Mindergas lets you choose this too; use the same value to compare.",
+    "Optioneel. Dagen kouder dan dit tellen als stookdag. Leeg: 18 °C. Ook bij Mindergas in te stellen; gebruik dezelfde waarde om te vergelijken.",
+    "Optional. Tage kälter als dieser Wert zählen als Heiztage. Leer: 18 °C (65 °F).",
+    "Facultatif. Les jours plus froids comptent comme jours de chauffe. Vide : 18 °C (65 °F).")
+_cl["data"]["degree_days_weighted"] = t("Weighted degree days (Dutch method)", "Gewogen graaddagen (zoals Mindergas)",
+                                        "Gewichtete Gradtage (niederländische Methode)", "Degrés-jours pondérés (méthode néerlandaise)")
+_cl["data_description"]["degree_days_weighted"] = t(
+    "November to February count ×1.1, March and October ×1.0, April to September ×0.8, as Mindergas and Dutch gas suppliers do. After changing this or the threshold, re-make earlier months (backfill with overwrite) to keep comparisons fair.",
+    "November t/m februari tellen ×1,1, maart en oktober ×1,0, april t/m september ×0,8, zoals Mindergas en energieleveranciers doen. Maak na het wijzigen van dit of de stookgrens eerdere maanden opnieuw (backfill met overschrijven), zodat vergelijkingen kloppen.",
+    "November bis Februar zählen ×1,1, März und Oktober ×1,0, April bis September ×0,8. Nach einer Änderung frühere Monate neu erstellen (Rückfüllung mit Überschreiben).",
+    "Novembre à février ×1,1, mars et octobre ×1,0, avril à septembre ×0,8. Après un changement, régénérez les mois précédents (rattrapage avec écrasement).")
 ERRORS = {
     "statistic_required": t("Choose a statistic.", "Kies een statistiek.", "Wählen Sie eine Statistik.", "Choisissez une statistique."),
     "invalid_url": t("Enter a valid http:// or https:// address without query or fragment.",

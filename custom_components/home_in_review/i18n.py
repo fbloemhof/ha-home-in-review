@@ -1223,6 +1223,17 @@ _rich = {
 for _l, _d in _rich.items():
     TEXTS[_l].update(_d)
 
+# Degree-day definition (0.4.0)
+for _l, (_plain, _w) in {
+    "en": ("Degree days: heating threshold {base}, unweighted.", "Degree days: heating threshold {base}, weighted (Nov–Feb ×1.1, Mar and Oct ×1.0, Apr–Sep ×0.8)."),
+    "nl": ("Graaddagen: stookgrens {base}, ongewogen.", "Graaddagen: stookgrens {base}, gewogen (nov–feb ×1,1, mrt en okt ×1,0, apr–sep ×0,8)."),
+    "de": ("Gradtage: Heizgrenze {base}, ungewichtet.", "Gradtage: Heizgrenze {base}, gewichtet (Nov–Feb ×1,1, Mär und Okt ×1,0, Apr–Sep ×0,8)."),
+    "fr": ("Degrés-jours : seuil de chauffage {base}, non pondérés.", "Degrés-jours : seuil de chauffage {base}, pondérés (nov–fév ×1,1, mars et oct ×1,0, avr–sep ×0,8)."),
+    "es": ("Grados-día: umbral de calefacción {base}, sin ponderar.", "Grados-día: umbral de calefacción {base}, ponderados (nov–feb ×1,1, mar y oct ×1,0, abr–sep ×0,8)."),
+    "it": ("Gradi giorno: soglia di riscaldamento {base}, non ponderati.", "Gradi giorno: soglia di riscaldamento {base}, ponderati (nov–feb ×1,1, mar e ott ×1,0, apr–set ×0,8)."),
+}.items():
+    TEXTS[_l].update({"dd_def": _plain, "dd_def_weighted": _w})
+
 CURRENCY_SYMBOLS = {"EUR": "€", "USD": "$", "GBP": "£", "JPY": "¥", "CHF": "CHF", "SEK": "kr", "NOK": "kr", "DKK": "kr",
                     "AUD": "A$", "CAD": "C$", "NZD": "NZ$", "PLN": "zł", "CZK": "Kč", "INR": "₹"}
 

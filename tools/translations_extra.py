@@ -210,4 +210,17 @@ IT.update({
 ES["Optional, including tax: standing charges and grid fees minus a fixed daily tax credit (may be negative)."] = "Opcional, con impuestos: término fijo y peajes menos una bonificación fija diaria (puede ser negativo)."
 IT["Optional, including tax: standing charges and grid fees minus a fixed daily tax credit (may be negative)."] = "Facoltativo, IVA inclusa: quota fissa e oneri di rete meno uno sconto fisso giornaliero (può essere negativo)."
 
+ES.update({
+    "Heating threshold for degree days": "Umbral de calefacción para grados-día",
+    "Optional. Days colder than this count as heating days. Empty: 18 °C (65 °F). Mindergas lets you choose this too; use the same value to compare.": "Opcional. Los días más fríos cuentan como días de calefacción. Vacío: 18 °C (65 °F).",
+    "Weighted degree days (Dutch method)": "Grados-día ponderados (método neerlandés)",
+    "November to February count ×1.1, March and October ×1.0, April to September ×0.8, as Mindergas and Dutch gas suppliers do. After changing this or the threshold, re-make earlier months (backfill with overwrite) to keep comparisons fair.": "Noviembre a febrero ×1,1, marzo y octubre ×1,0, abril a septiembre ×0,8. Tras un cambio, vuelve a generar los meses anteriores (backfill con sobrescribir).",
+})
+IT.update({
+    "Heating threshold for degree days": "Soglia di riscaldamento per i gradi giorno",
+    "Optional. Days colder than this count as heating days. Empty: 18 °C (65 °F). Mindergas lets you choose this too; use the same value to compare.": "Facoltativo. I giorni più freddi contano come giorni di riscaldamento. Vuoto: 18 °C (65 °F).",
+    "Weighted degree days (Dutch method)": "Gradi giorno ponderati (metodo olandese)",
+    "November to February count ×1.1, March and October ×1.0, April to September ×0.8, as Mindergas and Dutch gas suppliers do. After changing this or the threshold, re-make earlier months (backfill with overwrite) to keep comparisons fair.": "Da novembre a febbraio ×1,1, marzo e ottobre ×1,0, da aprile a settembre ×0,8. Dopo una modifica, rigenera i mesi precedenti (backfill con sovrascrittura).",
+})
+
 EXTRA = {"es": ES, "it": IT}

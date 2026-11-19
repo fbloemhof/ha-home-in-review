@@ -14,6 +14,9 @@
   average price), use per 100 km, all with comparisons.
 - Typography and colours: Fraunces and Inter ship with the integration (nothing loaded from elsewhere); the night
   theme uses a navy and amber palette. New option **Default theme**.
+- Degree days: options for the heating threshold (default 18 °C / 65 °F) and Dutch weighted degree days
+  (Nov–Feb ×1.1, Mar/Oct ×1.0, Apr–Sep ×0.8), as Mindergas uses, so gas per degree day can be compared. The weather
+  slide states which definition is used.
 - Click a bar in any month chart (the 13-month trends and the year review) to open that month.
 
 **Fixed**

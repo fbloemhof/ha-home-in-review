@@ -73,13 +73,17 @@
               "excluded_areas": "Areas that are not indoors",
               "outdoor_sensor": "Outdoor temperature sensor",
               "use_open_meteo": "Use Open-Meteo for weather",
-              "rain_sensor": "Rain gauge"
+              "rain_sensor": "Rain gauge",
+              "degree_day_base": "Heating threshold for degree days",
+              "degree_days_weighted": "Weighted degree days (Dutch method)"
             },
             "data_description": {
               "excluded_areas": "Sensors in these areas are left out of the indoor climate. Empty = count everything.",
               "outdoor_sensor": "Optional. Any temperature sensor with history; replaces the modelled temperature.",
               "use_open_meteo": "Free weather archive for your area (location rounded to ~10 km). Off: only your own sensors, without normals or sunshine.",
-              "rain_sensor": "Optional. A precipitation sensor that counts up (total); replaces the modelled rainfall."
+              "rain_sensor": "Optional. A precipitation sensor that counts up (total); replaces the modelled rainfall.",
+              "degree_day_base": "Optional. Days colder than this count as heating days. Empty: 18 °C (65 °F). Mindergas lets you choose this too; use the same value to compare.",
+              "degree_days_weighted": "November to February count ×1.1, March and October ×1.0, April to September ×0.8, as Mindergas and Dutch gas suppliers do. After changing this or the threshold, re-make earlier months (backfill with overwrite) to keep comparisons fair."
             }
           },
           "car": {

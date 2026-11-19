@@ -73,13 +73,17 @@
               "excluded_areas": "Pièces qui ne sont pas à l'intérieur",
               "outdoor_sensor": "Capteur de température extérieure",
               "use_open_meteo": "Utiliser Open-Meteo pour la météo",
-              "rain_sensor": "Pluviomètre"
+              "rain_sensor": "Pluviomètre",
+              "degree_day_base": "Seuil de chauffage des degrés-jours",
+              "degree_days_weighted": "Degrés-jours pondérés (méthode néerlandaise)"
             },
             "data_description": {
               "excluded_areas": "Les capteurs de ces pièces sont exclus. Vide = tout compter.",
               "outdoor_sensor": "Facultatif. Tout capteur avec historique ; remplace la température modélisée.",
               "use_open_meteo": "Archive météo gratuite pour votre région (position arrondie à ~10 km). Désactivé : seulement vos capteurs, sans normales ni soleil.",
-              "rain_sensor": "Facultatif. Un capteur de précipitations cumulées ; remplace la pluie modélisée."
+              "rain_sensor": "Facultatif. Un capteur de précipitations cumulées ; remplace la pluie modélisée.",
+              "degree_day_base": "Facultatif. Les jours plus froids comptent comme jours de chauffe. Vide : 18 °C (65 °F).",
+              "degree_days_weighted": "Novembre à février ×1,1, mars et octobre ×1,0, avril à septembre ×0,8. Après un changement, régénérez les mois précédents (rattrapage avec écrasement)."
             }
           },
           "car": {

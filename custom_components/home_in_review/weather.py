@@ -73,21 +73,43 @@ async def normals(src, lat: float, lon: float, cache: dict) -> list[dict] | None
     return out
 
 
-def summarize(days: list[dict], normals: list[dict] | None, month: int, metric: bool) -> dict:
+# Dutch "gewogen graaddagen" (as Mindergas and gas suppliers use): November-February count more, April-September less.
+NL_WEIGHTS = {1: 1.1, 2: 1.1, 3: 1.0, 4: 0.8, 5: 0.8, 6: 0.8, 7: 0.8, 8: 0.8, 9: 0.8, 10: 1.0, 11: 1.1, 12: 1.1}
+
+
+def dd_settings(metric: bool, base: float | None, weighted: bool) -> tuple[float, bool]:
+    """The heating threshold in the display unit (18 °C / 65 °F unless set) and whether to weight by month."""
+    if base is None:
+        base = 18.0 if metric else 65.0
+    return float(base), bool(weighted)
+
+
+def degree_days(mean: float | None, month: int, base: float, weighted: bool) -> float | None:
+    """Heating degree days of one day, in the unit of ``mean`` and ``base``."""
+    if mean is None:
+        return None
+    return max(0.0, base - mean) * (NL_WEIGHTS[month] if weighted else 1.0)
+
+
+def summarize(days: list[dict], normals: list[dict] | None, month: int, metric: bool,
+              dd_base: float | None = None, dd_weighted: bool = False) -> dict:
     """Month statistics. Temperatures are °C internally and converted at the end when not metric."""
     means = [d["mean"] for d in days if d["mean"] is not None]
     if not means:
         return {}
     lows = [d["min"] for d in days if d["min"] is not None]
     highs = [d["max"] for d in days if d["max"] is not None]
-    base = 18.0  # heating degree days base (18 °C ≈ 65 °F)
+    # Degree days are computed in the display unit, with the user's threshold (default 18 °C / 65 °F).
+    base, weighted = dd_settings(metric, dd_base, dd_weighted)
+    to_disp = (lambda c: c) if metric else (lambda c: c * 9 / 5 + 32)
     out = {
         "temp": sum(means) / len(means),
         "min": min(lows) if lows else None,
         "max": max(highs) if highs else None,
         "frost_days": sum(1 for x in lows if x < 0),
         "summer_days": sum(1 for x in highs if x >= 25),
-        "degree_days": sum(max(0.0, base - x) for x in means),
+        "degree_days": sum(degree_days(to_disp(x), month, base, weighted) for x in means),
+        "dd_base": base, "dd_weighted": weighted,
         "precip": sum(d["precip"] or 0 for d in days) if any(d.get("precip") is not None for d in days) else None,
         "sun_h": sum(d["sun_h"] or 0 for d in days) if any(d.get("sun_h") is not None for d in days) else None,
         "days_complete": len(means),
@@ -100,7 +122,6 @@ def summarize(days: list[dict], normals: list[dict] | None, month: int, metric: 
         f = lambda c: None if c is None else c * 9 / 5 + 32  # noqa: E731
         for k in ("temp", "min", "max"):
             out[k] = f(out[k])
-        out["degree_days"] *= 9 / 5
         if "normal" in out:
             out["normal"]["temp"] = f(out["normal"]["temp"])
         for d in out["daily"]:
