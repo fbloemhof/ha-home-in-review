@@ -27,9 +27,11 @@ URL_BASE = "/api/home_in_review"
 PANEL_URL = "home-in-review"
 STATIC_URL = "/home_in_review_static"
 
-# Area names (lower-case, substring match) that are suggested as "not indoor" by default.
+# Words that mark an area or floor as outdoors. A word matches a whole word in the name, or the end of a compound
+# word ("Achtertuin", "Backyard", "Vorgarten"), but not its start ("Tuinkamer" is a room). Garages and storage
+# rooms are deliberately not listed: whether they count as indoors differs per home (set it in the options).
 OUTDOOR_AREA_HINTS = (
-    "garden", "tuin", "outside", "outdoor", "buiten", "balcony", "balkon", "terrace", "terras",
-    "patio", "yard", "garage", "shed", "schuur", "berging", "carport", "driveway", "oprit",
+    "garden", "tuin", "outside", "outdoor", "outdoors", "buiten", "balcony", "balkon", "terrace", "terras",
+    "patio", "yard", "shed", "schuur", "carport", "driveway", "oprit", "porch", "veranda",
     "garten", "jardin", "jardín", "giardino", "außen", "aussen", "exterieur", "extérieur",
 )

@@ -68,7 +68,10 @@ def test_prefer_room_sensors():
 
 
 def test_outdoor_names():
-    assert C.is_outdoor_name("Achtertuin") and C.is_outdoor_name("Back garden") and not C.is_outdoor_name("Kitchen")
+    for name in ("Achtertuin", "Back garden", "Backyard", "Buiten", "Vorgarten", "Balkon"):
+        assert C.is_outdoor_name(name), name
+    for name in ("Kitchen", "Tuinkamer", "Garage", "Berging", "Buitenkeuken"):
+        assert not C.is_outdoor_name(name), name
 
 
 def test_number_formatting():
@@ -114,6 +117,10 @@ class FakeSource:
     async def climate_sensors(self):
         return []
 
+    async def areas(self):
+        return [{"area_id": "garden", "name": "Achtertuin", "floor_name": None},
+                {"area_id": "sun", "name": "Tuinkamer", "floor_name": None}]
+
     async def fetch_json(self, url):
         raise OSError("offline")
 
@@ -128,6 +135,7 @@ def test_collect_and_render_offline():
     assert round(e["total_cost"], 4) == round(hours * (0.3 - 0.02) + 10, 4)
     assert doc["devices"]["items"][0]["name"] == "Fridge"
     assert "weather" not in doc  # no location
+    assert doc["indoor_sources"]["excluded_areas"] == ["Achtertuin"] and doc["indoor_sources"]["excluded_auto"]
     docs = {"2026-02": doc}
     for lang in ("en", "nl"):
         html = R.render_month("2026-02", docs, lang=lang, home_name="Test")

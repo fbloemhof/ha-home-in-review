@@ -95,7 +95,9 @@ class WsSource:
         return out
 
     async def areas(self):
-        return [{"area_id": a["area_id"], "name": a["name"]} for a in await self.call({"type": "config/area_registry/list"})]
+        floors = {f["floor_id"]: f["name"] for f in await self.call({"type": "config/floor_registry/list"})}
+        return [{"area_id": a["area_id"], "name": a["name"], "floor_name": floors.get(a.get("floor_id"))}
+                for a in await self.call({"type": "config/area_registry/list"})]
 
     async def fetch_json(self, url):
         async with self.session.get(url, timeout=aiohttp.ClientTimeout(total=120)) as r:

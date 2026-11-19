@@ -116,7 +116,7 @@ class HomeInReview:
             await self.store.async_save(f"{year:04d}-{month:02d}", doc)
             return doc
 
-    async def backfill(self, months: int) -> None:
+    async def backfill(self, months: int, overwrite: bool = False) -> None:
         first = await first_month(self.source)
         if first is None:
             _LOGGER.info("Backfill skipped: no grid statistics in the energy dashboard")
@@ -127,7 +127,7 @@ class HomeInReview:
             ym = f"{y:04d}-{m:02d}"
             if (y, m) < first:
                 break
-            if ym not in self.store.docs:
+            if overwrite or ym not in self.store.docs:
                 try:
                     await self.generate(y, m)
                     done += 1
@@ -139,12 +139,12 @@ class HomeInReview:
                 y, m = y - 1, 12
         _LOGGER.info("Backfill finished: %s month(s) generated", done)
 
-    def start_backfill(self, months: int, initial: bool = False) -> None:
+    def start_backfill(self, months: int, initial: bool = False, overwrite: bool = False) -> None:
         if self.backfill_task and not self.backfill_task.done():
             raise HomeAssistantError("A backfill is already running")
 
         async def run() -> None:
-            await self.backfill(months)
+            await self.backfill(months, overwrite)
             if initial:
                 self.hass.config_entries.async_update_entry(self.entry, data={**self.entry.data, "backfilled": True})
 
@@ -221,13 +221,15 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         return {"month": f"{y:04d}-{m:02d}", "sections": doc.get("sections", [])}
 
     async def svc_backfill(call: ServiceCall) -> None:
-        _runtime(hass).start_backfill(int(call.data.get("months", DEFAULT_BACKFILL_MONTHS)))
+        _runtime(hass).start_backfill(int(call.data.get("months", DEFAULT_BACKFILL_MONTHS)),
+                                      overwrite=bool(call.data.get("overwrite")))
 
     hass.services.async_register(DOMAIN, "generate", svc_generate, vol.Schema({
         vol.Optional("month"): cv.string, vol.Optional("notify", default=False): cv.boolean}),
         supports_response=SupportsResponse.OPTIONAL)
     hass.services.async_register(DOMAIN, "backfill", svc_backfill, vol.Schema({
-        vol.Optional("months", default=DEFAULT_BACKFILL_MONTHS): vol.All(vol.Coerce(int), vol.Range(1, 120))}))
+        vol.Optional("months", default=DEFAULT_BACKFILL_MONTHS): vol.All(vol.Coerce(int), vol.Range(1, 120)),
+        vol.Optional("overwrite", default=False): cv.boolean}))
     return True
 
 

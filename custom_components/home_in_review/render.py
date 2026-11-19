@@ -167,6 +167,7 @@ td .sm{color:var(--mut);font-size:12.5px;margin-left:6px}
   border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
 .themes button.on{border-color:var(--hi);color:var(--hi)}
 .pg{position:absolute;right:clamp(20px,6vw,96px);bottom:22px;font-size:12px;color:var(--mut);letter-spacing:.1em}
+.notes{display:grid;gap:8px}
 ul.src{margin:0;padding-left:1.1em;color:var(--ink2);font-size:14.5px}
 #tip{position:fixed;pointer-events:none;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:8px;
   padding:6px 10px;font-size:13px;box-shadow:0 6px 24px rgba(0,0,0,.12);opacity:0;transition:opacity .1s;z-index:9;max-width:280px}
@@ -520,7 +521,7 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
 <div class="stats">{"".join(stats)}</div>''')
 
     # ---------------------------------------------------------------- costs
-    if e.get("net_cost") is not None:
+    if e.get("total_cost") is not None:
         tot = e["total_cost"]
         avg, refs = P.compare(lambda x: x["energy"]["total_cost"])
         if tot < 0:
@@ -531,7 +532,9 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
                     else L("h_cost_more" if diff > 0 else "h_cost_less", v=money(abs(diff)), **refs))
         else:
             head = L("h_cost_first", v=money(tot))
-        paid = [(L("import_cost"), e.get("cost_import") or 0, "var(--cost)")]
+        paid = [(L("import_cost"), e["cost_import"], "var(--cost)")] if e.get("cost_import") is not None else []
+        if e.get("gas_cost"):
+            paid.append((L("gas_cost"), e["gas_cost"], "color-mix(in srgb,var(--s4) 70%,var(--bg))"))
         if e.get("fixed_costs"):
             paid.append((L("fixed"), e["fixed_costs"], "color-mix(in srgb,var(--cost) 55%,var(--bg))"))
         back = [(L("compensation"), e["compensation"], "var(--s3)")] if e.get("compensation") else []
@@ -727,6 +730,21 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         notes.append(L("glitches", list=", ".join(f"{k} ({v}×)" for k, v in e["glitch_hours"].items())))
     if e.get("partial_from"):
         notes.append(L("partial_month", d=e["partial_from"]))
+    srcs = d.get("indoor_sources")
+    if srcs:
+        if srcs["excluded_areas"]:
+            notes.append(L("excl_auto" if srcs["excluded_auto"] else "excl_set", list=", ".join(srcs["excluded_areas"])))
+        by_reason: dict[str, dict[str, int]] = {}
+        for x in srcs["dropped"]:
+            area = x.get("area") or "–"
+            by_reason.setdefault(x["reason"], {}).setdefault(area, 0)
+            by_reason[x["reason"]][area] += 1
+        for reason in ("not_room_sensor", "co2_module", "implausible", "coverage"):
+            if reason in by_reason:
+                areas_n = ", ".join(f"{a} ({n})" if n > 1 else a for a, n in sorted(by_reason[reason].items()))
+                notes.append(L(f"drop_{reason}", list=areas_n))
+        if srcs.get("no_area"):
+            notes.append(L("drop_no_area", n=srcs["no_area"]))
     months = sorted(docs)
     i = months.index(ym)
     prv = months[i - 1] if i > 0 else None
@@ -747,7 +765,7 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
     P.add("about", L("s_about"), "info", f'''{P.kicker(L("s_about"), "info")}
 <div><div class="l" style="font-size:13px;color:var(--mut)">{esc(L("about_sources"))}</div>
 <ul class="src">{"".join(f"<li>{esc(s)}</li>" for s in src)}</ul></div>
-{"".join(f'<p class="note">{esc(n)}</p>' for n in notes)}
+<div class="notes">{"".join(f'<p class="note">{esc(n)}</p>' for n in notes)}</div>
 <p class="note">{esc(L("generated", d=f"{gen.day} {L.month(gen.month)} {gen.year}"))} · {esc(L("made_with"))}</p>
 <div class="themes">{esc(L("theme"))}: {themes}</div>
 {foot}''')

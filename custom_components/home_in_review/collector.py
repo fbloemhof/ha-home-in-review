@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import datetime as dt
 import logging
+import re
 import statistics as pystats
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -43,8 +44,8 @@ def hour_starts(start: dt.datetime, end: dt.datetime) -> list[int]:
 
 
 def is_outdoor_name(name: str) -> bool:
-    n = name.lower()
-    return any(h in n for h in OUTDOOR_AREA_HINTS)
+    words = re.findall(r"[^\W\d_]+", name.lower())
+    return any(w == h or w.endswith(h) for w in words for h in OUTDOOR_AREA_HINTS)
 
 
 def prefer_room_sensors(sensors: list[dict]) -> list[dict]:
@@ -62,8 +63,10 @@ def prefer_room_sensors(sensors: list[dict]) -> list[dict]:
     for s in sensors:
         if s["device_class"] == "temperature":
             if s.get("device_id") in co2_only:
+                s["_drop"] = "co2_module"
                 continue
             if s["area_id"] in climate_areas and s.get("device_id") not in humid_devices:
+                s["_drop"] = "not_room_sensor"
                 continue
         out.append(s)
     return out
@@ -203,6 +206,7 @@ class Collector:
         await self._volume(doc, prefs, "gas", start, end, hours, units["gas"], cap=25 if metric else 900)
         await self._weather(doc, cfg, start, end, hours, tz, metric)
         await self._indoor(doc, start, end, hours, metric)
+        self._totals(doc)
         doc["sections"] = [k for k in ("energy", "devices", "batteries", "water", "gas", "weather", "indoor") if doc.get(k)]
         return doc
 
@@ -339,6 +343,20 @@ class Collector:
         doc["_load"] = load  # internal, removed before saving
         return price
 
+    @staticmethod
+    def _totals(doc: dict) -> None:
+        """Total energy cost = electricity (bought - sold) + gas + fixed costs. Water is shown separately."""
+        e = doc.get("energy")
+        gas = (doc.get("gas") or {}).get("cost")
+        if not e:
+            return
+        parts = [e.get("net_cost"), gas]
+        if all(p is None for p in parts):
+            e["total_cost"] = None
+            return
+        e["gas_cost"] = gas
+        e["total_cost"] = sum(p for p in parts if p is not None) + (e.get("fixed_costs") or 0)
+
     def _fixed_costs(self, days: int) -> float | None:
         daily = self.opt.get("fixed_costs_daily")
         monthly = self.opt.get("fixed_costs_monthly")
@@ -439,13 +457,19 @@ class Collector:
     async def _indoor(self, doc, start, end, hours, metric) -> None:
         sensors = await self.src.climate_sensors()
         outdoor = self.opt.get("outdoor_sensor")
-        if self.opt.get("excluded_areas") is not None:
+        auto = self.opt.get("excluded_areas") is None
+        if not auto:
             excluded = set(self.opt["excluded_areas"])
-        else:  # not configured yet: skip areas whose name suggests they are outside
-            excluded = {s["area_id"] for s in sensors
-                        if is_outdoor_name(s.get("area_name") or "") or is_outdoor_name(s.get("floor_name") or "")}
+        else:  # not configured yet: skip areas whose name (or floor name) says they are outside
+            excluded = {a["area_id"] for a in await self.src.areas()
+                        if is_outdoor_name(a.get("name") or "") or is_outdoor_name(a.get("floor_name") or "")}
+        names = {a["area_id"]: a["name"] for a in await self.src.areas()}
+        # What was left out and why, so the report can say so.
+        report = {"excluded_areas": sorted(names.get(a, a) for a in excluded), "excluded_auto": auto,
+                  "no_area": sum(1 for s in sensors if not s.get("area_id")), "dropped": []}
         sensors = [s for s in sensors if s.get("area_id") and s["area_id"] not in excluded and s["entity_id"] != outdoor]
         if not sensors:
+            doc["indoor_sources"] = report
             return
         st = await self.src.statistics({s["entity_id"] for s in sensors}, start, end, "hour",
                                        {"temperature": "°C"}, {"mean", "min", "max"})
@@ -454,13 +478,20 @@ class Collector:
         for s in sensors:
             rows = [r for r in st.get(s["entity_id"], []) if r.get("mean") is not None]
             if len(rows) < MIN_COVERAGE * len(hours):
+                report["dropped"].append({"name": s.get("name") or s["entity_id"], "area": s.get("area_name"), "reason": "coverage"})
                 continue
             m = sum(r["mean"] for r in rows) / len(rows)
             lo, hi = plausible[s["device_class"]]
             if lo <= m <= hi:  # drops e.g. heat-pump water temperatures or a freezer in a utility room
                 usable.append({**s, "_rows": rows, "_mean": m})
+            else:
+                report["dropped"].append({"name": s.get("name") or s["entity_id"], "area": s.get("area_name"), "reason": "implausible"})
+        kept = prefer_room_sensors(usable)
+        report["dropped"] += [{"name": s.get("name") or s["entity_id"], "area": s.get("area_name"), "reason": s["_drop"]}
+                              for s in usable if s.get("_drop")]
+        doc["indoor_sources"] = report
         areas: dict[str, dict] = {}
-        for s in prefer_room_sensors(usable):
+        for s in kept:
             rows, m = s["_rows"], s["_mean"]
             a = areas.setdefault(s["area_id"], {"area_id": s["area_id"], "name": s.get("area_name") or s["area_id"],
                                                 "floor": s.get("floor_name"), "_v": {}})

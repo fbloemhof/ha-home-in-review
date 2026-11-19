@@ -65,7 +65,7 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
 ## Actions
 
 - `home_in_review.generate`: (re)make the report for one month (`month: "2026-10"`, default: last month), optionally with notifications.
-- `home_in_review.backfill`: make missing reports for earlier months.
+- `home_in_review.backfill`: make missing reports for earlier months (`overwrite: true` re-makes existing ones, e.g. after an update).
 
 ## How it works
 
@@ -78,6 +78,12 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
   an area, either directly or through their device. When an area has a device that measures both temperature and humidity, only
   those temperature readings count, so motion sensors, pipe probes and the chip temperature of CO₂ modules
   don't skew the room. Per area the median is used. Implausible values (e.g. water temperatures) are dropped.
+- **Indoors vs. outdoors**: until you choose areas in the options, areas and floors whose name says outdoors
+  (garden, balcony, terrace, shed, driveway and the like, also as the end of a compound word such as
+  "Backyard") are left out. Garages and storage rooms are not, because that differs per home. The last slide of
+  every report lists what was left out and why.
+- **Costs** in the totals are electricity bought minus sold, plus gas and the fixed costs you entered. Water is
+  shown on its own slide.
 - **Weather** comes from [Open-Meteo](https://open-meteo.com) (ERA5 reanalysis, free, no account). Normals are the
   1991–2020 averages for your area, computed once and cached.
 - Reports are stored as JSON in `config/home_in_review/` and rendered when you open them, so improvements to

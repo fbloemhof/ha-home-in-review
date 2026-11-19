@@ -47,15 +47,28 @@
       "name": "Rapport maken",
       "description": "Verzamelt (opnieuw) het rapport voor één maand.",
       "fields": {
-        "month": {"name": "Maand", "description": "Als JJJJ-MM. Standaard de vorige maand."},
-        "notify": {"name": "Melden", "description": "Stuur de ingestelde meldingen."}
+        "month": {
+          "name": "Maand",
+          "description": "Als JJJJ-MM. Standaard de vorige maand."
+        },
+        "notify": {
+          "name": "Melden",
+          "description": "Stuur de ingestelde meldingen."
+        }
       }
     },
     "backfill": {
       "name": "Eerdere rapporten maken",
       "description": "Maakt ontbrekende rapporten voor eerdere maanden op de achtergrond.",
       "fields": {
-        "months": {"name": "Maanden", "description": "Hoeveel maanden terug."}
+        "months": {
+          "name": "Maanden",
+          "description": "Hoeveel maanden terug."
+        },
+        "overwrite": {
+          "name": "Overschrijven",
+          "description": "Maak ook maanden opnieuw die al een rapport hebben (na een update of gewijzigde opties)."
+        }
       }
     }
   }

@@ -47,15 +47,28 @@
       "name": "Generate report",
       "description": "Collects (or re-collects) the report for one month.",
       "fields": {
-        "month": {"name": "Month", "description": "As YYYY-MM. Defaults to last month."},
-        "notify": {"name": "Notify", "description": "Send the configured notifications."}
+        "month": {
+          "name": "Month",
+          "description": "As YYYY-MM. Defaults to last month."
+        },
+        "notify": {
+          "name": "Notify",
+          "description": "Send the configured notifications."
+        }
       }
     },
     "backfill": {
       "name": "Backfill reports",
       "description": "Generates missing reports for earlier months in the background.",
       "fields": {
-        "months": {"name": "Months", "description": "How many months to look back."}
+        "months": {
+          "name": "Months",
+          "description": "How many months to look back."
+        },
+        "overwrite": {
+          "name": "Overwrite",
+          "description": "Also re-make months that already have a report (after an update or a change in options)."
+        }
       }
     }
   }

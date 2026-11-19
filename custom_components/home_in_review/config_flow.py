@@ -57,6 +57,9 @@ class HomeInReviewConfigFlow(ConfigFlow, domain=DOMAIN):
 class HomeInReviewOptionsFlow(OptionsFlow):
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
+            # An emptied area list must be stored as [] ("exclude nothing"), not dropped: a missing key means
+            # "not configured yet", which brings back the automatic outdoor exclusion.
+            user_input.setdefault(CONF_EXCLUDED_AREAS, [])
             return self.async_create_entry(data=user_input)
         o = self.config_entry.options
         notify = sorted(f"notify.{name}" for name in self.hass.services.async_services_for_domain("notify")
@@ -70,7 +73,7 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             vol.Required(CONF_REPORT_DAY, default=o.get(CONF_REPORT_DAY, DEFAULT_REPORT_DAY)): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=1, max=28, step=1, mode=selector.NumberSelectorMode.BOX)),
             vol.Required(CONF_REPORT_TIME, default=o.get(CONF_REPORT_TIME, DEFAULT_REPORT_TIME)): selector.TimeSelector(),
-            vol.Optional(CONF_EXCLUDED_AREAS, default=excluded): selector.AreaSelector(
+            vol.Optional(CONF_EXCLUDED_AREAS, description={"suggested_value": excluded}): selector.AreaSelector(
                 selector.AreaSelectorConfig(multiple=True)),
             vol.Optional(CONF_OUTDOOR_SENSOR, description={"suggested_value": o.get(CONF_OUTDOOR_SENSOR)}): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", device_class="temperature")),

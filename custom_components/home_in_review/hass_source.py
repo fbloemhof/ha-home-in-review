@@ -78,6 +78,14 @@ class HassSource:
                         "area_name": area.name if area else None, "floor_name": floor.name if floor else None})
         return out
 
+    async def areas(self) -> list[dict]:
+        floors = fr.async_get(self.hass)
+        out = []
+        for area in ar.async_get(self.hass).async_list_areas():
+            floor = floors.async_get_floor(area.floor_id) if area.floor_id else None
+            out.append({"area_id": area.id, "name": area.name, "floor_name": floor.name if floor else None})
+        return out
+
     async def fetch_json(self, url: str) -> Any:
         session = async_get_clientsession(self.hass)
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=120)) as resp:
