@@ -171,7 +171,7 @@ class HomeInReviewOptionsFlow(OptionsFlow):
                 selector.SelectSelectorConfig(options=[str(i) for i in range(1, 13)], translation_key="month",
                                               mode=selector.SelectSelectorMode.DROPDOWN)),
             vol.Required(CONF_THEME, default=o.get(CONF_THEME, "auto")): selector.SelectSelector(
-                selector.SelectSelectorConfig(options=["auto", "light", "dark", "night", "mono"], translation_key="theme",
+                selector.SelectSelectorConfig(options=["auto", "light", "dark", "night", "mono", "ha"], translation_key="theme",
                                               mode=selector.SelectSelectorMode.DROPDOWN)),
             vol.Required(CONF_ADMIN_ONLY, default=bool(o.get(CONF_ADMIN_ONLY, False))): selector.BooleanSelector(),
         })

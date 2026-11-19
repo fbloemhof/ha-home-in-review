@@ -181,7 +181,8 @@
         "light": "Licht",
         "dark": "Donker",
         "night": "Nacht",
-        "mono": "Zwart-wit"
+        "mono": "Zwart-wit",
+        "ha": "Home Assistant (volgt je Home Assistant-thema)"
       }
     }
   },

@@ -181,7 +181,8 @@
         "light": "Hell",
         "dark": "Dunkel",
         "night": "Nacht",
-        "mono": "Schwarz-weiß"
+        "mono": "Schwarz-weiß",
+        "ha": "Home Assistant (folgt Ihrem Home-Assistant-Design)"
       }
     }
   },

@@ -181,7 +181,8 @@
         "light": "Chiaro",
         "dark": "Scuro",
         "night": "Notte",
-        "mono": "Bianco e nero"
+        "mono": "Bianco e nero",
+        "ha": "Home Assistant (segue il tuo tema di Home Assistant)"
       }
     }
   },

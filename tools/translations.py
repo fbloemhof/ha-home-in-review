@@ -523,6 +523,8 @@ THEME_NAMES = {
     "dark": t("Dark", "Donker", "Dunkel", "Sombre"),
     "night": t("Night", "Nacht", "Nacht", "Nuit"),
     "mono": t("Black and white", "Zwart-wit", "Schwarz-weiß", "Noir et blanc"),
+    "ha": t("Home Assistant (follows your Home Assistant theme)", "Home Assistant (volgt je Home Assistant-thema)",
+            "Home Assistant (folgt Ihrem Home-Assistant-Design)", "Home Assistant (suit votre thème Home Assistant)"),
 }
 _en["data_description"]["fixed_costs_daily"] = t(
     "Optional, including tax: standing charges and grid fees minus a fixed daily tax credit (may be negative).",

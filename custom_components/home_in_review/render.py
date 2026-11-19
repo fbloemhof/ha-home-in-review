@@ -214,7 +214,7 @@ FONT_FACES = (
     ("Inter", "normal", "400 700", "inter-normal-latin-ext.woff2", "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF"),
     ("Inter", "normal", "400 700", "inter-normal-latin.woff2", "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"),
 )
-THEMES = ("auto", "light", "dark", "night", "mono")
+THEMES = ("auto", "light", "dark", "night", "mono", "ha")
 
 
 def font_css() -> str:
@@ -242,11 +242,18 @@ document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest
 (()=>{const b=document.querySelector('.hmenu');if(!b||window.parent===window)return;const set=v=>{b.hidden=!v};
  set(/(^|[#&])menu\b/.test(location.hash));addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&'hirNarrow' in e.data)set(!!e.data.hirNarrow)});
  b.onclick=()=>parent.postMessage({homeInReview:'menu'},location.origin)})();
+/* Theme "ha": the Home Assistant panel sends the colours of the active HA theme. Until they arrive, and outside
+   Home Assistant, it looks like "auto". */
+window.hirApplyHa=()=>{const r=document.documentElement,v=window.hirHaVars;
+ (window.hirHaKeys||[]).forEach(k=>r.style.removeProperty(k));window.hirHaKeys=[];r.style.removeProperty('color-scheme');
+ if(r.dataset.theme!=='ha'||!v)return;r.style.setProperty('color-scheme',window.hirHaDark?'dark':'light');for(const k in v){if(/^--[a-z0-9-]+$/.test(k)&&typeof v[k]==='string'&&v[k]){r.style.setProperty(k,v[k]);window.hirHaKeys.push(k)}}};
+addEventListener('message',e=>{if(e.source!==parent||e.origin!==location.origin||!e.data||typeof e.data.hirHaVars!=='object')return;
+ window.hirHaVars=e.data.hirHaVars;window.hirHaDark=!!e.data.hirHaDark;hirApplyHa()});
 /* Theme per viewer: "default" forgets the viewer's own choice, so the theme set in the options applies again. */
 (()=>{const sel=document.querySelector('.thsel');if(!sel)return;let own=null;try{own=localStorage.getItem('hir-theme')}catch(e){}
  sel.value=own&&sel.querySelector('option[value="'+own+'"]')?own:'default';
  sel.onchange=()=>{const t=sel.value==='default'?window.hirDefault:sel.value,r=document.documentElement;delete r.dataset.theme;
-  if(t!=='auto')r.dataset.theme=t;try{sel.value==='default'?localStorage.removeItem('hir-theme'):localStorage.setItem('hir-theme',sel.value)}catch(e){}}})();
+  if(t!=='auto')r.dataset.theme=t;hirApplyHa();try{sel.value==='default'?localStorage.removeItem('hir-theme'):localStorage.setItem('hir-theme',sel.value)}catch(e){}}})();
 (()=>{const sel=document.querySelector('.msel');if(sel)sel.onchange=()=>hirGo(sel.value);
 addEventListener('keydown',e=>{if(e.target.tagName==='SELECT')return;const k={'[':'.prev',']':'.next'}[e.key];
  if(k){const a=document.querySelector('.topbar '+k);if(a&&!a.hidden)hirGo(a.dataset.go)}});})();
@@ -1170,7 +1177,7 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
     tn = L.t["themes"]
     std = f'{tn["default"]} ({tn.get(theme, theme)})'
     themes = (f'<select class="thsel" aria-label="{esc(L("theme"))}"><option value="default">{esc(std)}</option>'
-              + "".join(f'<option value="{t}">{esc(tn[t])}</option>' for t in ("auto", "light", "dark", "night", "mono"))
+              + "".join(f'<option value="{t}">{esc(tn[t])}</option>' for t in THEMES)
               + "</select>")
     gen = dt.datetime.fromisoformat(d["generated"])
     P.add("about", L("s_about"), "info", f'''{P.kicker(L("s_about"), "info")}

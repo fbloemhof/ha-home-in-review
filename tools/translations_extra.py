@@ -199,12 +199,14 @@ ES.update({
     "Used until a viewer picks another theme at the end of a report (remembered per browser).": "Se usa hasta que alguien elige otro tema al final de un informe (se recuerda por navegador).",
     "Automatic (follows light/dark)": "Automático (sigue claro/oscuro)", "Light": "Claro", "Dark": "Oscuro", "Night": "Noche",
     "Black and white": "Blanco y negro",
+    "Home Assistant (follows your Home Assistant theme)": "Home Assistant (sigue tu tema de Home Assistant)",
 })
 IT.update({
     "Default theme": "Tema predefinito",
     "Used until a viewer picks another theme at the end of a report (remembered per browser).": "Usato finché qualcuno sceglie un altro tema alla fine di un resoconto (memorizzato per browser).",
     "Automatic (follows light/dark)": "Automatico (segue chiaro/scuro)", "Light": "Chiaro", "Dark": "Scuro", "Night": "Notte",
     "Black and white": "Bianco e nero",
+    "Home Assistant (follows your Home Assistant theme)": "Home Assistant (segue il tuo tema di Home Assistant)",
 })
 
 ES["Optional, including tax: standing charges and grid fees minus a fixed daily tax credit (may be negative)."] = "Opcional, con impuestos: término fijo y peajes menos una bonificación fija diaria (puede ser negativo)."

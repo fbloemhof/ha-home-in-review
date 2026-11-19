@@ -94,7 +94,7 @@ def sanitize(raw: dict) -> dict:
     for k in (CONF_HP_DEVICES, CONF_HP_HEAT, CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS):
         if v := _entities(raw.get(k)):
             o[k] = v
-    if raw.get(CONF_THEME) in ("auto", "light", "dark", "night", "mono"):
+    if raw.get(CONF_THEME) in ("auto", "light", "dark", "night", "mono", "ha"):
         o[CONF_THEME] = raw[CONF_THEME]
     if (b := _number(raw.get(CONF_DD_BASE), -10, 80)) is not None:
         o[CONF_DD_BASE] = b

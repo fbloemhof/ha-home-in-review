@@ -1310,3 +1310,4 @@ class Lang:
 for _l, _d in {"en": "default", "nl": "standaard", "de": "Standard", "fr": "par défaut", "es": "predeterminado",
                "it": "predefinito"}.items():
     TEXTS[_l]["themes"]["default"] = _d
+    TEXTS[_l]["themes"]["ha"] = "Home Assistant"
