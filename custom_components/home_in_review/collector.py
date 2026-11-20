@@ -27,6 +27,7 @@ _LOGGER = logging.getLogger(__name__)
 
 # A meter whose statistics start this long after the month start counts as "partial".
 PARTIAL_GRACE_S = 2 * 86400
+MIN_MEASURED_DAYS = 7  # boiler on-time needed in a month before its measured gas split is used
 # A climate sensor needs this share of hourly values to count.
 MIN_COVERAGE = 0.5
 
@@ -420,13 +421,14 @@ class Collector:
         keys = sorted(set(daily) | set(dd))
         res = gas.split([daily.get(k) for k in keys], [dd.get(k) for k in keys], self.opt.get("gas_base_per_day"),
                         hot_water_only=self.opt.get("gas_use") == "hot_water_only", unit=g.get("unit", "m³"),
-                        fahrenheit=not metric)
+                        fahrenheit=not metric, summer_base=self.opt.get("_gas_summer_base"))
         if res:
             g.update(res)
 
     async def _gas_boiler(self, doc: dict, start, end, hours) -> None:
-        """Replace the estimated gas split by a measured one when the boiler's hot-water/heating on-time sensors
-        (sensor.py) cover the whole month; otherwise the estimate stays."""
+        """Replace the estimated gas split by a measured one from the boiler's hot-water/heating on-time sensors
+        (sensor.py). When they started during the month (at least MIN_MEASURED_DAYS covered), the measured proportion
+        is applied to the whole month; with fewer days the estimate stays."""
         g, boiler = doc.get("gas"), self.opt.get("_boiler") or {}
         if self.opt.get("gas_use") == "hot_water_only":
             return  # set by the user: all gas is hot water and cooking
@@ -434,14 +436,30 @@ class Collector:
             return
         rows = await self._sums(set(boiler.values()), start, end, {"duration": "h"})
         series: dict[str, dict[int, float] | None] = {"dhw": None, "ch": None}
+        since = hours[0]
         for short, sid in boiler.items():
             fs = first_start(rows.get(sid, []))
-            if fs is None or fs > hours[0] + PARTIAL_GRACE_S:
-                return  # not recorded for the whole month yet
+            if fs is None:
+                return
+            since = max(since, fs + 3600)  # the first hour only marks the start of the sensor
             series[short] = hourly_deltas(rows[sid], hours, 1.05)[0]
-        res = gas.split_measured(self.gas_hours, series["dhw"], series["ch"], g.get("degree_days"))
-        if res:
-            g.update(res)
+        full = since <= hours[0] + 3600 + PARTIAL_GRACE_S
+        covered = self.gas_hours if full else {h: v for h, v in self.gas_hours.items() if h >= since}
+        if len(covered) < MIN_MEASURED_DAYS * 24:
+            return  # too little measured yet: keep the estimate
+        res = gas.split_measured(covered, series["dhw"], series["ch"], g.get("degree_days"))
+        if not res:
+            return
+        if not full:
+            # Apply the measured proportion to the whole month.
+            part = res["hot_water"] + res["heating"]
+            share = res["hot_water"] / part if part > 0 else 1.0
+            total, dd_total = g["amount"], g.get("degree_days")
+            res.update({"base_source": "boiler_partial", "hot_water": total * share, "heating": total * (1 - share),
+                        "base_per_day": total * share / max(1.0, len(hours) / 24),
+                        "heating_per_degree_day": total * (1 - share) / dd_total if dd_total and dd_total > 1 and share < 1 else None,
+                        "measured_from": dt.datetime.fromtimestamp(since, ZoneInfo(doc["period"]["time_zone"])).date().isoformat()})
+        g.update(res)
 
     @staticmethod
     def _totals(doc: dict) -> None:

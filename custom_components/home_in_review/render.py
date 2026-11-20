@@ -1175,17 +1175,20 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         # Heating versus hot water: estimated from the weather (needs degree days) or measured from the boiler.
         if only_hw:
             head = L("h_gas_hot_water", v=amount)
-        elif kind == "gas" and x.get("heating") is not None and (x.get("per_degree_day") or x.get("base_source") == "boiler"):
+        elif kind == "gas" and x.get("heating") is not None and (x.get("per_degree_day") or x.get("base_source") in ("boiler", "boiler_partial")):
             stats.append(P.stat(L("gas_heating"), f'{L.num(x["heating"], 1)} {gu}', x["heating"],
                                 _get(lambda z: z["gas"]["heating"]), lambda v: L.num(v, 1)))
             stats.append(P.stat(L("gas_hot_water"), f'{L.num(x["hot_water"], 1)} {gu}'))
             share = x["heating"] / x["amount"] if x["amount"] else 0
             head = L("h_gas_split", v=amount, share=L.pct(share))
-        if kind == "gas" and (x.get("per_degree_day") or x.get("base_source") in ("boiler", "hot_water_only")):
+        if kind == "gas" and (x.get("per_degree_day") or x.get("base_source") in ("boiler", "boiler_partial", "hot_water_only")):
             note_key = {"option": "gas_note_option", "estimate": "gas_note_estimate", "no_heating": "gas_note_summer",
                         "unknown": "gas_note_unknown", "boiler": "gas_note_boiler", "weak": "gas_note_weak",
-                        "hot_water_only": "gas_note_hot_water_only"}.get(x.get("base_source"), "gas_note_unknown")
-            note = f'<p class="note" style="margin-top:8px">{esc(L(note_key, base=f"{L.num(x.get('base_per_day') or 0, 2)} {gu}"))}</p>'
+                        "hot_water_only": "gas_note_hot_water_only", "no_base": "gas_note_no_base",
+                        "summer_base": "gas_note_summer_base", "boiler_partial": "gas_note_boiler_partial"}.get(x.get("base_source"), "gas_note_unknown")
+            mf = dt.date.fromisoformat(x["measured_from"]) if x.get("measured_from") else None
+            since = f"{mf.day} {L.month_short(mf.month)}" if mf else ""
+            note = f'<p class="note" style="margin-top:8px">{esc(L(note_key, base=f"{L.num(x.get('base_per_day') or 0, 2)} {gu}", since=since))}</p>'
             wx_days = {w["d"]: w for w in (d.get("weather") or {}).get("daily", [])}
             base_t = 18.0 if tu == "°C" else 65.0
             pts = [(max(0.0, base_t - wx_days[g["d"]]["mean"]), g["v"], g["d"]) for g in x.get("daily", [])

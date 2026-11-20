@@ -54,7 +54,7 @@ from .store import ReportStore
 from .views import YM, ReportView
 
 # Bump when the collector's output changes, so existing reports are re-made after an update.
-COLLECTOR_VERSION = 6
+COLLECTOR_VERSION = 7
 PLATFORMS = [Platform.SENSOR]
 PRESENTATION_OPTIONS = {"notify_services", "report_day", "report_time", "default_theme", "admin_only",
                         "year_start_month", "backfill_months", "backfilled"}
@@ -109,6 +109,14 @@ class HomeInReview:
                 out[short] = eid
         return out
 
+    def gas_summer_base(self, ym: str) -> float | None:
+        """Gas per day in earlier months without heating (hot water and cooking only), the median of the last ones;
+        used when a month can't show its own base (see gas.split)."""
+        per_day = [(k, (d.get("gas") or {}).get("per_day")) for k, d in self.store.docs.items()
+                   if k < ym and (d.get("gas") or {}).get("base_source") == "no_heating"]
+        values = sorted(v for _, v in sorted(per_day)[-6:] if isinstance(v, (int, float)))
+        return values[len(values) // 2] if values else None
+
     def fingerprint(self) -> str:
         """What a report depends on besides the data: the collector version and the options that change figures.
         Presentation-only options (notifications, schedule, theme, access, year start) are left out. AI settings count:
@@ -126,7 +134,8 @@ class HomeInReview:
         ym = f"{year:04d}-{month:02d}"
         async with self.lock:
             previous = self.store.docs.get(ym)
-            doc = await Collector(self.source, {**self.options, "_boiler": self.boiler_stats()},
+            doc = await Collector(self.source, {**self.options, "_boiler": self.boiler_stats(),
+                                                "_gas_summer_base": self.gas_summer_base(ym)},
                                   self.store.cache).collect(year, month)
             doc["meta"] = {"fingerprint": self.fingerprint(), "collector": COLLECTOR_VERSION}
             keep_previous(doc, previous)

@@ -462,3 +462,44 @@ def test_gas_weak_relation_and_hot_water_only():
     # a home heated with gas still gets its estimate
     heated = [0.45 + 0.27 * d for d in dd]
     assert gas.split(heated, dd)["base_source"] == "estimate"
+
+
+def test_gas_line_below_zero_uses_summer_base():
+    """Tester feedback: heating clearly follows the weather but the best-fit line meets the axis below zero."""
+    from hir import gas
+    pts = [(0.2, 1.0), (2, 1.6), (2.4, 0.2), (2.5, 1.1), (3.6, 2.3), (3.9, 0.2), (4.5, 0.2), (4.8, 2.4), (5.0, 0.7),
+           (5.1, 3.6), (5.2, 1.1), (5.3, 1.3), (5.3, 1.5), (6.2, 1.9), (6.6, 2.9), (6.9, 1.0), (7.1, 3.6), (7.1, 2.4),
+           (7.4, 3.2), (7.5, 3.8), (7.6, 3.5), (7.7, 2.3), (7.9, 2.7), (8.0, 2.5), (8.0, 3.2), (8.5, 2.4), (8.8, 5.3),
+           (9.5, 3.6), (11, 5.8), (5.0, 1.2), (7.3, 2.6)]
+    dd, use = [p[0] for p in pts], [p[1] for p in pts]
+    assert gas.split(use, dd)["base_source"] == "no_base"
+    r = gas.split(use, dd, summer_base=0.3)
+    assert r["base_source"] == "summer_base" and abs(r["hot_water"] - 0.3 * 31) < 1e-9
+    assert abs(r["heating"] - (sum(use) - 0.3 * 31)) < 1e-9
+
+
+def test_collector_boiler_from_mid_month():
+    """On-time sensors set up during the month: the measured proportion is applied to the whole month."""
+    src = FakeSource()
+    src.prefs["energy_sources"].append({"type": "gas", "stat_energy_from": "sensor.gas"})
+    orig = src.statistics
+
+    async def more(ids, start, end, period, units, types):
+        out = await orig(ids, start, end, period, units, types)
+        first = int(start.timestamp())
+        n = int((end - start).total_seconds() // 3600)
+        if "sensor.gas" in ids:
+            out["sensor.gas"] = [{"start": first + k * 3600, "sum": 0.2 * k} for k in range(n)]
+        late = 3 + 9 * 24  # the sensors start on the 10th
+        for sid, per in (("sensor.dhw_time", 0.25), ("sensor.ch_time", 0.75)):
+            if sid in ids:
+                out[sid] = [{"start": first + k * 3600, "sum": per * (k - late)} for k in range(late, n)]
+        return out
+
+    src.statistics = more
+    doc = asyncio.run(C.Collector(src, {"_boiler": {"dhw": "sensor.dhw_time", "ch": "sensor.ch_time"}}).collect(2026, 2))
+    g = doc["gas"]
+    assert g["base_source"] == "boiler_partial" and g["measured_from"] == "2026-02-10"
+    assert abs(g["hot_water"] - g["amount"] / 4) < 1e-6 and abs(g["heating"] - g["amount"] * 3 / 4) < 1e-6
+    html = R.render_month("2026-02", {"2026-02": doc}, "nl", None, 1)
+    assert "sinds 10 feb" in html

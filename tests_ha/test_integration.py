@@ -237,3 +237,13 @@ def test_unreachable_service_keeps_previous_car() -> None:
     fresh = {"energy": {"x": 1}, "notes": [], "meta": {"fingerprint": "abc"}, "sections": ["energy"]}
     keep_previous(fresh, previous)  # no failure: nothing is carried over
     assert "car" not in fresh and fresh["meta"]["fingerprint"] == "abc"
+
+
+async def test_gas_summer_base(recorder_mock, hass: HomeAssistant) -> None:
+    entry = await setup_entry(hass)
+    rt = entry.runtime_data
+    for ym, per_day, src in (("2026-06", 0.3, "no_heating"), ("2026-07", 0.25, "no_heating"),
+                             ("2026-08", 0.35, "no_heating"), ("2026-09", 0.9, "estimate"), ("2026-12", 0.1, "no_heating")):
+        rt.store.docs[ym] = {"gas": {"per_day": per_day, "base_source": src}}
+    assert rt.gas_summer_base("2026-11") == 0.3  # median of earlier months without heating; later months ignored
+    assert rt.gas_summer_base("2026-05") is None

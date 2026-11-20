@@ -23,8 +23,19 @@ KWH_PER_UNIT = {"m³": 9.77, "kWh": 1.0, "ft³": 0.288, "MWh": 1000.0, "CCF": 28
 
 
 def split(gas: list[float | None], dd: list[float | None], base_per_day: float | None = None,
-          hot_water_only: bool = False, unit: str = "m³", fahrenheit: bool = False) -> dict | None:
-    """Split a month of daily gas use. Returns None when there is no usable data."""
+          hot_water_only: bool = False, unit: str = "m³", fahrenheit: bool = False,
+          summer_base: float | None = None) -> dict | None:
+    """Split a month of daily gas use. Returns None when there is no usable data.
+
+    ``summer_base`` is gas per day in earlier months without heating (hot water and cooking only). It is used when
+    the month itself can't show the base: too little spread in the weather, or a best-fit line that meets the axis
+    below zero (heating clearly follows the weather, but the month says nothing about hot water)."""
+
+    def fallback(reason: str) -> dict:
+        if summer_base is not None and summer_base >= 0:
+            return _result(total, min(summer_base * n, total), summer_base, "summer_base", pairs)
+        return _result(total, None, None, reason, pairs)
+
     pairs = [(d, g) for g, d in zip(gas, dd, strict=False) if g is not None and d is not None]
     days = [g for g in gas if g is not None]
     if not days:
@@ -43,20 +54,20 @@ def split(gas: list[float | None], dd: list[float | None], base_per_day: float |
     if fmean(xs) < NO_HEATING_DD:
         return _result(total, total, total / n, "no_heating", pairs)
     if len(pairs) < MIN_DAYS or pstdev(xs) < MIN_SPREAD_DD:
-        return _result(total, None, None, "unknown", pairs)
+        return fallback("unknown")
     mx, my = fmean(xs), fmean(ys)
     sxx = sum((x - mx) ** 2 for x in xs)
     sxy = sum((x - mx) * (y - my) for x, y in zip(xs, ys, strict=True))
     syy = sum((y - my) ** 2 for y in ys)
     k = sxy / sxx
     b = my - k * mx
-    if k <= 0 or b < 0:
-        return _result(total, None, None, "unknown", pairs)
-    if syy <= 0 or sxy * sxy / (sxx * syy) < MIN_R2:
-        return _result(total, None, None, "weak", pairs)
+    if k <= 0 or syy <= 0 or sxy * sxy / (sxx * syy) < MIN_R2:
+        return _result(total, None, None, "weak", pairs)  # gas does not (clearly) rise when it is colder
     kwh_per_c_dd = k * KWH_PER_UNIT.get(unit, 9.77) * (1.8 if fahrenheit else 1.0)
     if kwh_per_c_dd < MIN_HEATING_KWH_PER_DD:
         return _result(total, None, None, "weak", pairs)
+    if b < 0:  # heating clearly follows the weather, but the line says nothing about hot water
+        return fallback("no_base")
     base = min(b * n, total)
     return _result(total, base, b, "estimate", pairs)
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.2
+
+**Fixed**
+- Gas with the boiler's status (OpenTherm): the measured split now also applies to the month in which the status
+  sensors were set up, as soon as they cover at least 7 days; the measured proportion is applied to the whole
+  month and the report says since when it was measured. Before, only months covered completely were measured, so
+  nothing changed until the month after.
+- Gas: when gas clearly follows the weather but the month alone can't show the hot-water part (the best-fit line
+  meets the axis below zero), the report no longer says "too little variation in the weather". It now uses the gas
+  per day of earlier months without heating as hot water and cooking, or explains what is missing. Existing
+  reports are updated automatically.
+
 ## 0.5.1
 
 **Fixed**
