@@ -103,6 +103,11 @@ svg{display:block;width:100%;height:auto;overflow:visible}
 .figs b{display:block;font-family:var(--serif);font-size:clamp(26px,3.4vw,42px);font-weight:500;letter-spacing:-.02em}
 .figs span{font-size:13px;color:var(--mut)}
 @media (max-width:560px){.figs{grid-template-columns:1fr 1fr}}
+.setup{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border:1px solid var(--line);border-radius:10px}
+.setup .ic{flex:none;margin-top:2px;color:var(--mut)}
+.setup b{display:block;font-size:13px;color:var(--ink)}
+.setup p{margin:4px 0 0;font-size:13px;color:var(--ink2)}
+.setup p+p{margin-top:2px}
 .narrow{display:none}
 @media (max-width:640px){.wide{display:none}.narrow{display:block}}
 .rank{display:grid;gap:10px}
@@ -746,10 +751,13 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
         amt = f'{L.num(w["amount"] / 1000, 1)} m³' if w["unit"] == "L" else f'{L.num(w["amount"])} {w["unit"]}'
         figs.append(f'<div>{icon("drop")}<b>{amt}</b><span>{esc(L("water"))}</span></div>')
     top_right = esc(home_name) if home_name else str(y)
+    setup = "".join(f"<p>{esc(L(f'setup_{code}'))}</p>" for code in (d.get("setup_issues") or []))
+    setup_block = (f'<div class="setup">{icon("info")}<div><b>{esc(L("setup_title"))}</b>{setup}'
+                   f'<p>{esc(L("setup_cta"))}</p></div></div>') if setup else ""
     P.add("cover", L("title"), "house", f'''
 <div class="top"><span>{esc(L("title"))}</span><span>{top_right}</span></div>
 <h1>{esc(mname[:1].upper() + mname[1:])}<span>{esc(L("cover_sub"))} · {y}</span></h1>
-<div class="figs">{"".join(figs)}</div>''', "cover")
+<div class="figs">{"".join(figs)}</div>{setup_block}''', "cover")
 
     # ---------------------------------------------------------------- AI summary (optional)
     if d.get("story"):

@@ -1333,3 +1333,45 @@ for _l, (_h, _only, _weak) in _gas_use.items():
 _gas_more = {'en': ('Hot water and cooking taken as {base} a day: gas use in earlier months without heating. The rest counts as heating.', "Gas clearly follows the weather, but this month alone doesn't show how much of it is hot water. Once the reports include months without heating, or with the boiler's status set in the options, the split appears.", "Measured with the boiler's status since {since}: about {base} a day for hot water and cooking. The days before that are split in the same proportion."), 'nl': ('Warm water en koken genomen als {base} per dag: het gasverbruik in eerdere maanden zonder verwarming. De rest telt als verwarming.', 'Het gas volgt het weer duidelijk, maar uit deze maand alleen is niet af te leiden hoeveel warm water is. Zodra er maanden zonder verwarming in de rapporten zitten, of met de ketelstatus in de opties, verschijnt de verdeling.', 'Gemeten met de status van de ketel sinds {since}: ongeveer {base} per dag voor warm water en koken. De dagen daarvoor zijn in dezelfde verhouding verdeeld.'), 'de': ('Warmwasser und Kochen mit {base} pro Tag angesetzt: der Gasverbrauch in früheren Monaten ohne Heizung. Der Rest zählt als Heizung.', 'Das Gas folgt dem Wetter deutlich, aber dieser Monat allein zeigt nicht, wie viel davon Warmwasser ist. Sobald die Berichte Monate ohne Heizung enthalten oder der Kesselstatus in den Optionen gesetzt ist, erscheint die Aufteilung.', 'Gemessen mit dem Kesselstatus seit {since}: etwa {base} pro Tag für Warmwasser und Kochen. Die Tage davor sind im gleichen Verhältnis aufgeteilt.'), 'fr': ('Eau chaude et cuisson comptées à {base} par jour : la consommation de gaz des mois précédents sans chauffage. Le reste compte comme chauffage.', "Le gaz suit clairement la météo, mais ce mois seul ne montre pas la part d'eau chaude. Dès que les rapports contiennent des mois sans chauffage, ou avec l'état de la chaudière dans les options, la répartition apparaît.", "Mesuré avec l'état de la chaudière depuis le {since} : environ {base} par jour pour l'eau chaude et la cuisson. Les jours précédents sont répartis dans la même proportion."), 'es': ('Agua caliente y cocina tomadas como {base} al día: el consumo de gas en meses anteriores sin calefacción. El resto cuenta como calefacción.', 'El gas sigue claramente al tiempo, pero este mes por sí solo no muestra cuánto es agua caliente. En cuanto los informes incluyan meses sin calefacción, o con el estado de la caldera en las opciones, aparecerá el reparto.', 'Medido con el estado de la caldera desde el {since}: unos {base} al día para agua caliente y cocina. Los días anteriores se reparten en la misma proporción.'), 'it': ('Acqua calda e cucina considerate {base} al giorno: il consumo di gas nei mesi precedenti senza riscaldamento. Il resto conta come riscaldamento.', 'Il gas segue chiaramente il meteo, ma questo mese da solo non mostra quanta parte sia acqua calda. Appena i resoconti includono mesi senza riscaldamento, o con lo stato della caldaia nelle opzioni, appare la ripartizione.', 'Misurato con lo stato della caldaia dal {since}: circa {base} al giorno per acqua calda e cucina. I giorni precedenti sono ripartiti nella stessa proporzione.')}
 for _l, (_sb, _nb, _bp) in _gas_more.items():
     TEXTS[_l].update({"gas_note_summer_base": _sb, "gas_note_no_base": _nb, "gas_note_boiler_partial": _bp})
+
+# Unreleased: energy dashboard setup not (fully) done, flagged on the cover
+_setup = {
+    "en": ("Energy dashboard not fully set up", "Settings → Energy in Home Assistant.",
+           "No electricity source is configured yet, so most of this report is empty.",
+           "No price is linked to the electricity import, so costs can't be shown.",
+           "Solar has no power sensor, so its peak power can't be shown.",
+           "The battery has no state-of-charge sensor, so cycles and days full can't be shown."),
+    "nl": ("Energiedashboard nog niet volledig ingericht", "Instellingen → Energie in Home Assistant.",
+           "Er is nog geen elektriciteitsbron ingesteld, dus het grootste deel van dit rapport is leeg.",
+           "Er is geen prijs gekoppeld aan de afname van het net, dus kosten kunnen niet getoond worden.",
+           "Zon heeft geen vermogenssensor, dus het piekvermogen kan niet getoond worden.",
+           "De batterij heeft geen laadtoestand-sensor, dus cycli en dagen vol kunnen niet getoond worden."),
+    "de": ("Energie-Dashboard noch nicht vollständig eingerichtet", "Einstellungen → Energie in Home Assistant.",
+           "Es ist noch keine Stromquelle eingerichtet, daher ist der größte Teil dieses Berichts leer.",
+           "Dem Netzbezug ist kein Preis zugeordnet, daher können keine Kosten angezeigt werden.",
+           "Solar hat keinen Leistungssensor, daher kann die Spitzenleistung nicht angezeigt werden.",
+           "Die Batterie hat keinen Ladezustandssensor, daher können Zyklen und volle Tage nicht angezeigt werden."),
+    "fr": ("Tableau de bord énergie pas encore complet", "Paramètres → Énergie dans Home Assistant.",
+           "Aucune source d'électricité n'est configurée, donc la majeure partie de ce rapport est vide.",
+           "Aucun prix n'est lié au soutirage du réseau, les coûts ne peuvent donc pas être affichés.",
+           "Le solaire n'a pas de capteur de puissance, la puissance de pointe ne peut donc pas être affichée.",
+           "La batterie n'a pas de capteur d'état de charge, les cycles et jours pleins ne peuvent donc pas être "
+           "affichés."),
+    "es": ("Panel de energía aún no configurado del todo", "Ajustes → Energía en Home Assistant.",
+           "Todavía no hay ninguna fuente de electricidad configurada, así que la mayor parte de este informe "
+           "está vacía.",
+           "No hay ningún precio vinculado al consumo de la red, así que no se pueden mostrar los costes.",
+           "La solar no tiene sensor de potencia, así que no se puede mostrar la potencia pico.",
+           "La batería no tiene sensor de estado de carga, así que no se pueden mostrar los ciclos ni los días "
+           "llena."),
+    "it": ("Dashboard energia non ancora configurata del tutto", "Impostazioni → Energia in Home Assistant.",
+           "Non è ancora configurata nessuna fonte di elettricità, quindi la maggior parte di questo rapporto è "
+           "vuota.",
+           "Nessun prezzo è collegato al prelievo dalla rete, quindi i costi non possono essere mostrati.",
+           "Il solare non ha un sensore di potenza, quindi la potenza di picco non può essere mostrata.",
+           "La batteria non ha un sensore di stato di carica, quindi cicli e giorni piena non possono essere "
+           "mostrati."),
+}
+for _l, (_title, _cta, _none, _no_cost, _solar, _bat) in _setup.items():
+    TEXTS[_l].update({"setup_title": _title, "setup_cta": _cta, "setup_none": _none, "setup_no_cost": _no_cost,
+                      "setup_solar_no_power": _solar, "setup_battery_no_soc": _bat})

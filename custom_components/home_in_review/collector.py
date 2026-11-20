@@ -83,6 +83,22 @@ def sections(doc: dict) -> list[str]:
     return [k for k in SECTIONS if doc.get(k)]
 
 
+def setup_issues(prefs: dict[str, list[dict]]) -> list[str]:
+    """Parts of the energy dashboard that are configured but missing a piece this report needs, as short codes
+    for the cover slide. ``none`` (nothing configured at all) replaces the rest: the other codes only make sense
+    once there is at least one electricity source."""
+    if not prefs["imp"]:
+        return ["none"]
+    out = []
+    if not any(x.get("cost") for x in prefs["imp"]):
+        out.append("no_cost")
+    if prefs["solar"] and not any(x.get("rate") for x in prefs["solar"]):
+        out.append("solar_no_power")
+    if prefs["battery"] and not any(x.get("soc") for x in prefs["battery"]):
+        out.append("battery_no_soc")
+    return out
+
+
 def power_rate(src: dict) -> dict | None:
     """The power sensor(s) of an energy source (energy dashboard, 2025.12+): one signed sensor (``stat_rate``,
     positive = discharging / importing / producing, optionally inverted) or one sensor per direction."""
@@ -229,6 +245,7 @@ class Collector:
             "notes": [],
         }
         prefs = parse_energy_prefs(await self.src.energy_prefs())
+        doc["setup_issues"] = setup_issues(prefs)
         price = await self._energy(doc, prefs, start, end, hours, tz)
         # Hourly price (what a kWh cost in that hour) for valuing the heat pump and home charging.
         self.price = price

@@ -54,6 +54,16 @@ def test_parse_prefs_old_and_new_grid_format():
     assert p["exp"] == [{"stat": "sensor.b", "cost": None}]
 
 
+def test_setup_issues():
+    assert C.setup_issues({"imp": [], "solar": [], "battery": []}) == ["none"]
+    assert C.setup_issues({"imp": [{"stat": "a", "cost": None}], "solar": [], "battery": []}) == ["no_cost"]
+    assert C.setup_issues({"imp": [{"stat": "a", "cost": "a_cost"}], "solar": [], "battery": []}) == []
+    assert C.setup_issues({"imp": [{"stat": "a", "cost": "a_cost"}],
+                           "solar": [{"stat": "pv", "rate": None}], "battery": []}) == ["solar_no_power"]
+    assert C.setup_issues({"imp": [{"stat": "a", "cost": "a_cost"}], "solar": [],
+                           "battery": [{"discharge": "b", "soc": None}]}) == ["battery_no_soc"]
+
+
 def test_prefer_room_sensors():
     s = [
         {"entity_id": "t_room", "device_class": "temperature", "device_id": "climate", "area_id": "hall"},
@@ -145,10 +155,12 @@ def test_collect_and_render_offline():
     assert round(dev["value"], 4) == round(hours * 0.1 * 0.3, 4)  # house imports every hour: import price
     assert "weather" not in doc  # no location
     assert doc["indoor_sources"]["excluded_areas"] == ["Achtertuin"] and doc["indoor_sources"]["excluded_auto"]
+    assert doc["setup_issues"] == ["solar_no_power"]  # solar configured without a power sensor
     docs = {"2026-02": doc}
     for lang in ("en", "nl"):
         html = R.render_month("2026-02", docs, lang=lang, home_name="Test")
         assert "<svg" in html and ("February" in html or "Februari" in html)
+        assert 'class="setup"' in html
     assert "Februar" in R.render_index(docs, "en")
 
 
