@@ -13,7 +13,7 @@ per screen.
 Install from the Marketplace (Home Assistant 2026.11+), restart, then add the integration. Other ways: see
 [Installation](#installation).
 
-> **Status: early test version (0.3).** It works on the author's own installation and is now shared with a few
+> **Status: early test version (0.5).** It works on the author's own installation and is now shared with a few
 > testers. Expect rough edges. Please [open an issue](https://github.com/fbloemhof/ha-home-in-review/issues) with
 > what you see.
 
