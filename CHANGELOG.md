@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.1
+
+**Fixed**
+- Gas: a home that only heats water with gas could get part of its gas labelled as heating (e.g. 30%). The split
+  from the weather is now only made when gas clearly follows the degree days and the extra use per degree day is
+  large enough to be space heating; otherwise the report says heating and hot water can't be told apart this month.
+  Existing reports are corrected automatically after the update.
+
+**New**
+- Option **Gas used for**: *Heating and hot water* (default) or *Only hot water and cooking*, for homes heated
+  otherwise (e.g. with a heat pump). All gas then counts as hot water and cooking.
+
 ## 0.5.0
 
 **New**

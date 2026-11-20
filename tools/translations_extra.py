@@ -243,3 +243,16 @@ IT.update({
     "Boiler hot water on-time": "Tempo acqua calda caldaia",
     "Boiler heating on-time": "Tempo riscaldamento caldaia",
 })
+
+ES.update({
+    "Gas used for": "Gas usado para",
+    "Only hot water and cooking: for a home heated otherwise (e.g. a heat pump); all gas then counts as hot water and cooking. Otherwise heating and hot water are split per month from how gas follows the weather, or measured from the boiler's status below.": "Solo agua caliente y cocina: para una casa que se calienta de otra forma (p. ej. una bomba de calor); todo el gas cuenta entonces como agua caliente y cocina. Si no, calefacción y agua caliente se separan cada mes según cómo sigue el gas al tiempo, o se miden con el estado de la caldera de abajo.",
+    "Heating and hot water": "Calefacción y agua caliente",
+    "Only hot water and cooking": "Solo agua caliente y cocina",
+})
+IT.update({
+    "Gas used for": "Gas usato per",
+    "Only hot water and cooking: for a home heated otherwise (e.g. a heat pump); all gas then counts as hot water and cooking. Otherwise heating and hot water are split per month from how gas follows the weather, or measured from the boiler's status below.": "Solo acqua calda e cucina: per una casa riscaldata in altro modo (ad es. una pompa di calore); tutto il gas conta allora come acqua calda e cucina. Altrimenti riscaldamento e acqua calda vengono separati ogni mese da come il gas segue il meteo, oppure misurati dallo stato della caldaia qui sotto.",
+    "Heating and hot water": "Riscaldamento e acqua calda",
+    "Only hot water and cooking": "Solo acqua calda e cucina",
+})

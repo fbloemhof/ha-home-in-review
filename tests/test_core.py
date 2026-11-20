@@ -440,3 +440,25 @@ def test_collector_uses_boiler_on_time():
     assert abs(g["hot_water"] - g["amount"] / 3) < 1e-6 and abs(g["heating"] - g["amount"] * 2 / 3) < 1e-6
     html = R.render_month("2026-02", {"2026-02": doc}, "nl", None, 1)
     assert "Gemeten: per uur verdeeld" in html
+
+
+def test_gas_weak_relation_and_hot_water_only():
+    """A home that only heats water with gas (tester feedback): a slight slope from noise must not become heating."""
+    import random
+
+    from hir import gas
+    rnd = random.Random(3)
+    dd = [rnd.uniform(0, 11) for _ in range(30)]
+    use = [max(0.0, 0.42 + 0.03 * d + rnd.uniform(-0.2, 0.2)) for d in dd]
+    use[7], use[12], use[13] = 2.7, 0.0, 0.0  # an outlier and two days away
+    r = gas.split(use, dd)
+    assert r["base_source"] == "weak" and "heating" not in r
+    only = gas.split(use, dd, hot_water_only=True)
+    assert only["base_source"] == "hot_water_only" and only["heating"] == 0 and abs(only["hot_water"] - sum(use)) < 1e-9
+    # the same slight slope over a wider spread of degree days is clear enough (R²) but far too small for heating
+    wide = [d * 1.6 for d in dd]
+    assert gas.split([max(0.0, 0.42 + 0.03 * d + rnd.uniform(-0.05, 0.05)) for d in wide], wide)["base_source"] == "weak"
+    assert gas.split([0.45 + 0.03 * 9.77 * d for d in dd], dd, unit="kWh")["base_source"] == "weak"
+    # a home heated with gas still gets its estimate
+    heated = [0.45 + 0.27 * d for d in dd]
+    assert gas.split(heated, dd)["base_source"] == "estimate"

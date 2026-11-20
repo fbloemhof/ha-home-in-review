@@ -418,7 +418,9 @@ class Collector:
               for x in w["daily"] if x.get("mean") is not None}
         daily = {x["d"]: x["v"] for x in g.get("daily", [])}
         keys = sorted(set(daily) | set(dd))
-        res = gas.split([daily.get(k) for k in keys], [dd.get(k) for k in keys], self.opt.get("gas_base_per_day"))
+        res = gas.split([daily.get(k) for k in keys], [dd.get(k) for k in keys], self.opt.get("gas_base_per_day"),
+                        hot_water_only=self.opt.get("gas_use") == "hot_water_only", unit=g.get("unit", "m³"),
+                        fahrenheit=not metric)
         if res:
             g.update(res)
 
@@ -426,6 +428,8 @@ class Collector:
         """Replace the estimated gas split by a measured one when the boiler's hot-water/heating on-time sensors
         (sensor.py) cover the whole month; otherwise the estimate stays."""
         g, boiler = doc.get("gas"), self.opt.get("_boiler") or {}
+        if self.opt.get("gas_use") == "hot_water_only":
+            return  # set by the user: all gas is hot water and cooking
         if not g or not boiler or not getattr(self, "gas_hours", None):
             return
         rows = await self._sums(set(boiler.values()), start, end, {"duration": "h"})

@@ -54,7 +54,7 @@ from .store import ReportStore
 from .views import YM, ReportView
 
 # Bump when the collector's output changes, so existing reports are re-made after an update.
-COLLECTOR_VERSION = 5
+COLLECTOR_VERSION = 6
 PLATFORMS = [Platform.SENSOR]
 PRESENTATION_OPTIONS = {"notify_services", "report_day", "report_time", "default_theme", "admin_only",
                         "year_start_month", "backfill_months", "backfilled"}

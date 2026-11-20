@@ -57,6 +57,7 @@
               "heat_pump_devices": "Stroom van de warmtepomp",
               "heat_pump_heat_sensor": "Door de warmtepomp geleverde warmte",
               "gas_base_per_day": "Gas voor warm water en koken per dag",
+              "gas_use": "Gas gebruikt voor",
               "gas_hot_water_active": "Ketel: warm water actief",
               "gas_heating_active": "Ketel: verwarming actief"
             },
@@ -67,6 +68,7 @@
               "heat_pump_devices": "Elk merk: een of meer energiesensoren (de eigen integratie van de warmtepomp, een kWh-meter of slimme stekker, bijv. compressor en backupheater). Voegt een warmtepompdia toe met stroom per graaddag.",
               "heat_pump_heat_sensor": "Optioneel: energiesensoren voor de geleverde warmte (veel merken melden verwarming en tapwater apart; kies dan beide). Voegt de COP toe.",
               "gas_base_per_day": "Optioneel, in je gaseenheid (bijv. 0,4 m³). Splitst gas in verwarming en de rest. Leeg: per maand geschat uit hoe het gasverbruik de graaddagen volgt.",
+              "gas_use": "Alleen warm water en koken: voor een huis dat anders verwarmd wordt (bijv. een warmtepomp); al het gas telt dan als warm water en koken. Anders worden verwarming en warm water per maand gescheiden uit hoe het gas het weer volgt, of gemeten uit de ketelstatus hieronder.",
               "gas_hot_water_active": "Optioneel: de warmwaterstatus van de ketel (bijv. OpenTherm). Hiermee en/of met de verwarmingsstatus wordt gas per uur verdeeld op basis van wat de ketel deed, in plaats van geschat uit het weer. Een sensor telt de uren op; het werkt vanaf de eerste volle maand na het instellen.",
               "gas_heating_active": "Optioneel: de cv-status van de ketel (binary sensor), of een thermostaat (telt als verwarming zolang die 'verwarmen' meldt)."
             }
@@ -187,6 +189,12 @@
         "night": "Nacht",
         "mono": "Zwart-wit",
         "ha": "Home Assistant (volgt je Home Assistant-thema)"
+      }
+    },
+    "gas_use": {
+      "options": {
+        "heating_and_hot_water": "Verwarming en warm water",
+        "hot_water_only": "Alleen warm water en koken"
       }
     }
   },

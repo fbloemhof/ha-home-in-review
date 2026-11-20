@@ -1168,19 +1168,23 @@ def render_month(ym: str, docs: dict[str, dict], lang: str = "en", home_name: st
                                 lambda v: money(v, 2)))
         extra = ""
         gu = unit
-        if kind == "gas" and x.get("per_degree_day"):
+        only_hw = kind == "gas" and x.get("base_source") == "hot_water_only"
+        if kind == "gas" and x.get("per_degree_day") and not only_hw:
             stats.append(P.stat(L("hp_per_dd"), f'{L.num(x["per_degree_day"], 2)} {gu}', x["per_degree_day"],
                                 _get(lambda z: z["gas"]["per_degree_day"]), lambda v: L.num(v, 2)))
         # Heating versus hot water: estimated from the weather (needs degree days) or measured from the boiler.
-        if kind == "gas" and x.get("heating") is not None and (x.get("per_degree_day") or x.get("base_source") == "boiler"):
+        if only_hw:
+            head = L("h_gas_hot_water", v=amount)
+        elif kind == "gas" and x.get("heating") is not None and (x.get("per_degree_day") or x.get("base_source") == "boiler"):
             stats.append(P.stat(L("gas_heating"), f'{L.num(x["heating"], 1)} {gu}', x["heating"],
                                 _get(lambda z: z["gas"]["heating"]), lambda v: L.num(v, 1)))
             stats.append(P.stat(L("gas_hot_water"), f'{L.num(x["hot_water"], 1)} {gu}'))
             share = x["heating"] / x["amount"] if x["amount"] else 0
             head = L("h_gas_split", v=amount, share=L.pct(share))
-        if kind == "gas" and (x.get("per_degree_day") or x.get("base_source") == "boiler"):
+        if kind == "gas" and (x.get("per_degree_day") or x.get("base_source") in ("boiler", "hot_water_only")):
             note_key = {"option": "gas_note_option", "estimate": "gas_note_estimate", "no_heating": "gas_note_summer",
-                        "unknown": "gas_note_unknown", "boiler": "gas_note_boiler"}.get(x.get("base_source"), "gas_note_unknown")
+                        "unknown": "gas_note_unknown", "boiler": "gas_note_boiler", "weak": "gas_note_weak",
+                        "hot_water_only": "gas_note_hot_water_only"}.get(x.get("base_source"), "gas_note_unknown")
             note = f'<p class="note" style="margin-top:8px">{esc(L(note_key, base=f"{L.num(x.get('base_per_day') or 0, 2)} {gu}"))}</p>'
             wx_days = {w["d"]: w for w in (d.get("weather") or {}).get("daily", [])}
             base_t = 18.0 if tu == "°C" else 65.0

@@ -500,6 +500,14 @@ _en["data_description"]["gas_base_per_day"] = t(
     "Optioneel, in je gaseenheid (bijv. 0,4 m³). Splitst gas in verwarming en de rest. Leeg: per maand geschat uit hoe het gasverbruik de graaddagen volgt.",
     "Optional, in Ihrer Gaseinheit (z. B. 0,4 m³). Teilt Gas in Heizung und Rest. Leer: pro Monat geschätzt aus dem Verlauf gegenüber den Gradtagen.",
     "Facultatif, dans votre unité de gaz (p. ex. 0,4 m³). Sépare le gaz entre chauffage et reste. Vide : estimé chaque mois selon le lien avec les degrés-jours.")
+_en["data"]["gas_use"] = t("Gas used for", "Gas gebruikt voor", "Gas verwendet für", "Gaz utilisé pour")
+_en["data_description"]["gas_use"] = t(
+    "Only hot water and cooking: for a home heated otherwise (e.g. a heat pump); all gas then counts as hot water and cooking. Otherwise heating and hot water are split per month from how gas follows the weather, or measured from the boiler's status below.",
+    "Alleen warm water en koken: voor een huis dat anders verwarmd wordt (bijv. een warmtepomp); al het gas telt dan als warm water en koken. Anders worden verwarming en warm water per maand gescheiden uit hoe het gas het weer volgt, of gemeten uit de ketelstatus hieronder.",
+    "Nur Warmwasser und Kochen: für ein anders beheiztes Haus (z. B. Wärmepumpe); alles Gas zählt dann als Warmwasser und Kochen. Sonst werden Heizung und Warmwasser pro Monat aus dem Wetterverlauf getrennt oder aus dem Kesselstatus unten gemessen.",
+    "Uniquement eau chaude et cuisson : pour une maison chauffée autrement (p. ex. pompe à chaleur) ; tout le gaz compte alors comme eau chaude et cuisson. Sinon, chauffage et eau chaude sont séparés chaque mois selon le lien avec la météo, ou mesurés à partir de l'état de la chaudière ci-dessous.")
+GAS_USE = {"heating_and_hot_water": t("Heating and hot water", "Verwarming en warm water", "Heizung und Warmwasser", "Chauffage et eau chaude"),
+           "hot_water_only": t("Only hot water and cooking", "Alleen warm water en koken", "Nur Warmwasser und Kochen", "Uniquement eau chaude et cuisson")}
 _en["data"]["gas_hot_water_active"] = t("Boiler: hot water active", "Ketel: warm water actief",
                                         "Kessel: Warmwasser aktiv", "Chaudière : eau chaude active")
 _en["data_description"]["gas_hot_water_active"] = t(
@@ -621,6 +629,7 @@ for lang in LANGS:
             "month": {"options": {str(i + 1): m for i, m in enumerate(MONTHS[lang])}},
             "tile_type": {"options": {k: v[lang] for k, v in TILE.items()}},
             "theme": {"options": {k: v[lang] for k, v in THEME_NAMES.items()}},
+            "gas_use": {"options": {k: v[lang] for k, v in GAS_USE.items()}},
         },
         "entity": {"sensor": {k: {"name": v[lang]} for k, v in ENTITY.items()}},
         "services": {k: {"name": v["name"][lang], "description": v["description"][lang],

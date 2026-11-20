@@ -3,8 +3,10 @@
 Daily gas use is roughly ``base + k × degree days``: the base is hot water and cooking, which hardly depend on the
 weather; the rest is space heating. The base is either set by the user (per day) or estimated from the month:
 a straight line through (degree days, gas) per day, where the intercept is the base. The estimate is only used when
-the month has enough days and enough spread in degree days, and when the result makes sense (base ≥ 0, k > 0). In
-a month without heating (hardly any degree days) all gas is base.
+the month has enough days and enough spread in degree days, when gas clearly follows the weather (R² ≥ MIN_R2; a
+slight slope also comes from noise, or from colder tap water in winter in a home that only heats water with gas),
+and when the result makes sense (base ≥ 0, k > 0). In a month without heating (hardly any degree days) all gas is
+base. With ``hot_water_only`` (an option) all gas is hot water and cooking.
 """
 from __future__ import annotations
 
@@ -13,9 +15,15 @@ from statistics import fmean, pstdev
 MIN_DAYS = 15
 MIN_SPREAD_DD = 2.0      # standard deviation of daily degree days (°C) needed for a fit
 NO_HEATING_DD = 1.0      # average degree days per day below which a month counts as "no heating"
+MIN_R2 = 0.3             # how clearly daily gas must follow the degree days before part of it is called heating
+# Even a very well insulated home heated with gas uses about this much per °C degree day; a smaller slope comes from
+# noise or from colder tap water in winter, not from space heating.
+MIN_HEATING_KWH_PER_DD = 0.5
+KWH_PER_UNIT = {"m³": 9.77, "kWh": 1.0, "ft³": 0.288, "MWh": 1000.0, "CCF": 28.8}
 
 
-def split(gas: list[float | None], dd: list[float | None], base_per_day: float | None = None) -> dict | None:
+def split(gas: list[float | None], dd: list[float | None], base_per_day: float | None = None,
+          hot_water_only: bool = False, unit: str = "m³", fahrenheit: bool = False) -> dict | None:
     """Split a month of daily gas use. Returns None when there is no usable data."""
     pairs = [(d, g) for g, d in zip(gas, dd, strict=False) if g is not None and d is not None]
     days = [g for g in gas if g is not None]
@@ -23,6 +31,8 @@ def split(gas: list[float | None], dd: list[float | None], base_per_day: float |
         return None
     total = sum(days)
     n = len(days)
+    if hot_water_only:
+        return _result(total, total, total / n, "hot_water_only", pairs)
     if base_per_day is not None:
         base = min(max(0.0, base_per_day) * n, total)
         return _result(total, base, base_per_day, "option", pairs)
@@ -36,10 +46,17 @@ def split(gas: list[float | None], dd: list[float | None], base_per_day: float |
         return _result(total, None, None, "unknown", pairs)
     mx, my = fmean(xs), fmean(ys)
     sxx = sum((x - mx) ** 2 for x in xs)
-    k = sum((x - mx) * (y - my) for x, y in zip(xs, ys, strict=True)) / sxx
+    sxy = sum((x - mx) * (y - my) for x, y in zip(xs, ys, strict=True))
+    syy = sum((y - my) ** 2 for y in ys)
+    k = sxy / sxx
     b = my - k * mx
     if k <= 0 or b < 0:
         return _result(total, None, None, "unknown", pairs)
+    if syy <= 0 or sxy * sxy / (sxx * syy) < MIN_R2:
+        return _result(total, None, None, "weak", pairs)
+    kwh_per_c_dd = k * KWH_PER_UNIT.get(unit, 9.77) * (1.8 if fahrenheit else 1.0)
+    if kwh_per_c_dd < MIN_HEATING_KWH_PER_DD:
+        return _result(total, None, None, "weak", pairs)
     base = min(b * n, total)
     return _result(total, base, b, "estimate", pairs)
 

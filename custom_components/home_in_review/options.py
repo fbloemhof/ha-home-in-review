@@ -25,6 +25,7 @@ from .const import (
     CONF_GAS_BASE,
     CONF_GAS_CH,
     CONF_GAS_DHW,
+    CONF_GAS_USE,
     CONF_HP_DEVICES,
     CONF_HP_HEAT,
     CONF_MAX_HOURLY_KWH,
@@ -40,6 +41,7 @@ from .const import (
     CONF_TM_URL,
     CONF_USE_OPEN_METEO,
     CONF_YEAR_START,
+    GAS_USES,
 )
 from .extras import TILE_TYPES
 from .net import check_url
@@ -96,6 +98,8 @@ def sanitize(raw: dict) -> dict:
     for k in (CONF_HP_DEVICES, CONF_HP_HEAT, CONF_CAR_ODOMETERS, CONF_CAR_CHARGERS):
         if v := _entities(raw.get(k)):
             o[k] = v
+    if raw.get(CONF_GAS_USE) in GAS_USES:
+        o[CONF_GAS_USE] = raw[CONF_GAS_USE]
     if raw.get(CONF_THEME) in ("auto", "light", "dark", "night", "mono", "ha"):
         o[CONF_THEME] = raw[CONF_THEME]
     if (b := _number(raw.get(CONF_DD_BASE), -10, 80)) is not None:

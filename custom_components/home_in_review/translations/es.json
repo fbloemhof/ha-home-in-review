@@ -57,6 +57,7 @@
               "heat_pump_devices": "Electricidad de la bomba de calor",
               "heat_pump_heat_sensor": "Calor entregado por la bomba de calor",
               "gas_base_per_day": "Gas para agua caliente y cocina por día",
+              "gas_use": "Gas usado para",
               "gas_hot_water_active": "Caldera: agua caliente activa",
               "gas_heating_active": "Caldera: calefacción activa"
             },
@@ -67,6 +68,7 @@
               "heat_pump_devices": "Cualquier marca: uno o varios sensores de energía (la integración de la propia bomba, un contador o un enchufe inteligente, p. ej. compresor y resistencia de apoyo). Añade una diapositiva de la bomba de calor con electricidad por grado-día.",
               "heat_pump_heat_sensor": "Opcional: sensores de energía del calor entregado (muchas marcas separan calefacción y agua caliente; elige ambos). Añade el COP.",
               "gas_base_per_day": "Opcional, en tu unidad de gas (p. ej. 0,4 m³). Separa el gas en calefacción y el resto. Vacío: se estima cada mes según cómo sigue el consumo a los grados-día.",
+              "gas_use": "Solo agua caliente y cocina: para una casa que se calienta de otra forma (p. ej. una bomba de calor); todo el gas cuenta entonces como agua caliente y cocina. Si no, calefacción y agua caliente se separan cada mes según cómo sigue el gas al tiempo, o se miden con el estado de la caldera de abajo.",
               "gas_hot_water_active": "Opcional: el estado de agua caliente de la caldera (p. ej. OpenTherm). Con este y/o el estado de calefacción, el gas se reparte por horas según lo que hacía la caldera, en lugar de estimarse a partir del tiempo. Un sensor suma las horas; funciona desde el primer mes completo tras configurarlo.",
               "gas_heating_active": "Opcional: el estado de calefacción de la caldera (sensor binario), o un termostato (cuenta como calefacción mientras indique que calienta)."
             }
@@ -187,6 +189,12 @@
         "night": "Noche",
         "mono": "Blanco y negro",
         "ha": "Home Assistant (sigue tu tema de Home Assistant)"
+      }
+    },
+    "gas_use": {
+      "options": {
+        "heating_and_hot_water": "Calefacción y agua caliente",
+        "hot_water_only": "Solo agua caliente y cocina"
       }
     }
   },
