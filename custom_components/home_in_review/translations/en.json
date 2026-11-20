@@ -69,7 +69,7 @@
               "heat_pump_heat_sensor": "Optional: energy sensors for heat delivered (many brands report heating and hot water separately; choose both). Adds the COP.",
               "gas_base_per_day": "Optional, in your gas unit (e.g. 0.4 m³). Splits gas into heating and the rest. Empty: estimated per month from how gas use follows the degree days.",
               "gas_use": "Only hot water and cooking: for a home heated otherwise (e.g. a heat pump); all gas then counts as hot water and cooking. Otherwise heating and hot water are split per month from how gas follows the weather, or measured from the boiler's status below.",
-              "gas_hot_water_active": "Optional: the boiler's hot-water status (e.g. OpenTherm). With this and/or the heating status, gas is split per hour from what the boiler was doing instead of being estimated from the weather. A sensor adds up the hours; it works from the first full month after setting it up.",
+              "gas_hot_water_active": "Optional: the boiler's hot-water status (e.g. OpenTherm). With this and/or the heating status, gas is split per hour from what the boiler was doing instead of being estimated from the weather. A sensor adds up the hours; it is used once it has measured at least 7 days of a month.",
               "gas_heating_active": "Optional: the boiler's central-heating status (binary sensor), or a thermostat (counts as heating while it reports heating)."
             }
           },

@@ -69,7 +69,7 @@
               "heat_pump_heat_sensor": "Optioneel: energiesensoren voor de geleverde warmte (veel merken melden verwarming en tapwater apart; kies dan beide). Voegt de COP toe.",
               "gas_base_per_day": "Optioneel, in je gaseenheid (bijv. 0,4 m³). Splitst gas in verwarming en de rest. Leeg: per maand geschat uit hoe het gasverbruik de graaddagen volgt.",
               "gas_use": "Alleen warm water en koken: voor een huis dat anders verwarmd wordt (bijv. een warmtepomp); al het gas telt dan als warm water en koken. Anders worden verwarming en warm water per maand gescheiden uit hoe het gas het weer volgt, of gemeten uit de ketelstatus hieronder.",
-              "gas_hot_water_active": "Optioneel: de warmwaterstatus van de ketel (bijv. OpenTherm). Hiermee en/of met de verwarmingsstatus wordt gas per uur verdeeld op basis van wat de ketel deed, in plaats van geschat uit het weer. Een sensor telt de uren op; het werkt vanaf de eerste volle maand na het instellen.",
+              "gas_hot_water_active": "Optioneel: de warmwaterstatus van de ketel (bijv. OpenTherm). Hiermee en/of met de verwarmingsstatus wordt gas per uur verdeeld op basis van wat de ketel deed, in plaats van geschat uit het weer. Een sensor telt de uren op; het telt mee zodra die minstens 7 dagen van een maand heeft gemeten.",
               "gas_heating_active": "Optioneel: de cv-status van de ketel (binary sensor), of een thermostaat (telt als verwarming zolang die 'verwarmen' meldt)."
             }
           },

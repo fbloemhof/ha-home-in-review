@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+**Fixed**
+- The option text for the boiler status now says it is used from 7 measured days (since 0.5.2), not from the
+  first full month.
+
 ## 0.5.2
 
 **Fixed**

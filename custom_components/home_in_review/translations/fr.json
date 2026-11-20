@@ -69,7 +69,7 @@
               "heat_pump_heat_sensor": "Facultatif : capteurs de chaleur fournie (souvent chauffage et eau chaude séparés ; choisissez les deux). Ajoute le COP.",
               "gas_base_per_day": "Facultatif, dans votre unité de gaz (p. ex. 0,4 m³). Sépare le gaz entre chauffage et reste. Vide : estimé chaque mois selon le lien avec les degrés-jours.",
               "gas_use": "Uniquement eau chaude et cuisson : pour une maison chauffée autrement (p. ex. pompe à chaleur) ; tout le gaz compte alors comme eau chaude et cuisson. Sinon, chauffage et eau chaude sont séparés chaque mois selon le lien avec la météo, ou mesurés à partir de l'état de la chaudière ci-dessous.",
-              "gas_hot_water_active": "Facultatif : l'état eau chaude de la chaudière (p. ex. OpenTherm). Avec celui-ci et/ou l'état chauffage, le gaz est réparti heure par heure selon ce que faisait la chaudière, au lieu d'être estimé d'après la météo. Un capteur additionne les heures ; cela s'applique à partir du premier mois complet après la configuration.",
+              "gas_hot_water_active": "Facultatif : l'état eau chaude de la chaudière (p. ex. OpenTherm). Avec celui-ci et/ou l'état chauffage, le gaz est réparti heure par heure selon ce que faisait la chaudière, au lieu d'être estimé d'après la météo. Un capteur additionne les heures ; il est utilisé dès qu'il a mesuré au moins 7 jours d'un mois.",
               "gas_heating_active": "Facultatif : l'état chauffage de la chaudière (capteur binaire), ou un thermostat (compte comme chauffage tant qu'il indique « chauffe »)."
             }
           },

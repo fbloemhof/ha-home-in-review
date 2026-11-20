@@ -103,8 +103,8 @@ Manual install: copy `custom_components/home_in_review` into your `config/custom
     and, optionally, sensors for the heat it delivers (often heating and hot water separately), which adds the COP.
     For a gas boiler: optionally its hot-water and heating status (e.g. from OpenTherm Gateway or ESPHome OpenTherm,
     or a thermostat that reports when it heats). The integration then adds up the hours in two sensors of its own
-    and splits gas per hour into hot water and heating, measured instead of estimated from the weather, from the
-    first full month after setting it up.
+    and splits gas per hour into hot water and heating, measured instead of estimated from the weather, once it
+    has measured at least 7 days of a month.
   - **Indoor climate and weather**: areas that are not indoors, an outdoor temperature sensor, a rain gauge, and
     whether to use Open-Meteo at all.
   - **Car**: for any brand, each car's odometer sensor and your charger's energy sensor. Richer sources are used

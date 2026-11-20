@@ -69,7 +69,7 @@
               "heat_pump_heat_sensor": "Optional: Energiesensoren für die gelieferte Wärme (oft getrennt für Heizung und Warmwasser; beide wählen). Ergänzt den COP.",
               "gas_base_per_day": "Optional, in Ihrer Gaseinheit (z. B. 0,4 m³). Teilt Gas in Heizung und Rest. Leer: pro Monat geschätzt aus dem Verlauf gegenüber den Gradtagen.",
               "gas_use": "Nur Warmwasser und Kochen: für ein anders beheiztes Haus (z. B. Wärmepumpe); alles Gas zählt dann als Warmwasser und Kochen. Sonst werden Heizung und Warmwasser pro Monat aus dem Wetterverlauf getrennt oder aus dem Kesselstatus unten gemessen.",
-              "gas_hot_water_active": "Optional: der Warmwasserstatus des Kessels (z. B. OpenTherm). Damit und/oder mit dem Heizstatus wird Gas stündlich nach dem tatsächlichen Betrieb aufgeteilt statt aus dem Wetter geschätzt. Ein Sensor summiert die Stunden; es gilt ab dem ersten vollen Monat nach der Einrichtung.",
+              "gas_hot_water_active": "Optional: der Warmwasserstatus des Kessels (z. B. OpenTherm). Damit und/oder mit dem Heizstatus wird Gas stündlich nach dem tatsächlichen Betrieb aufgeteilt statt aus dem Wetter geschätzt. Ein Sensor summiert die Stunden; er wird verwendet, sobald er mindestens 7 Tage eines Monats gemessen hat.",
               "gas_heating_active": "Optional: der Heizstatus des Kessels (Binärsensor) oder ein Thermostat (zählt als Heizen, solange es „heizt“ meldet)."
             }
           },

@@ -69,7 +69,7 @@
               "heat_pump_heat_sensor": "Facoltativo: sensori di energia del calore fornito (molte marche separano riscaldamento e acqua calda; scegli entrambi). Aggiunge il COP.",
               "gas_base_per_day": "Facoltativo, nella tua unità del gas (ad es. 0,4 m³). Divide il gas tra riscaldamento e resto. Vuoto: stimato ogni mese da come il consumo segue i gradi giorno.",
               "gas_use": "Solo acqua calda e cucina: per una casa riscaldata in altro modo (ad es. una pompa di calore); tutto il gas conta allora come acqua calda e cucina. Altrimenti riscaldamento e acqua calda vengono separati ogni mese da come il gas segue il meteo, oppure misurati dallo stato della caldaia qui sotto.",
-              "gas_hot_water_active": "Facoltativo: lo stato acqua calda della caldaia (ad es. OpenTherm). Con questo e/o lo stato riscaldamento, il gas viene ripartito ora per ora secondo ciò che faceva la caldaia, invece di essere stimato dal meteo. Un sensore somma le ore; vale dal primo mese completo dopo la configurazione.",
+              "gas_hot_water_active": "Facoltativo: lo stato acqua calda della caldaia (ad es. OpenTherm). Con questo e/o lo stato riscaldamento, il gas viene ripartito ora per ora secondo ciò che faceva la caldaia, invece di essere stimato dal meteo. Un sensore somma le ore; viene usato non appena ha misurato almeno 7 giorni di un mese.",
               "gas_heating_active": "Facoltativo: lo stato riscaldamento della caldaia (sensore binario), oppure un termostato (conta come riscaldamento finché segnala che sta riscaldando)."
             }
           },

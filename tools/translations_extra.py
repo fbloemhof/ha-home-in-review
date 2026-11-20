@@ -229,7 +229,7 @@ EXTRA = {"es": ES, "it": IT}
 
 ES.update({
     "Boiler: hot water active": "Caldera: agua caliente activa",
-    "Optional: the boiler's hot-water status (e.g. OpenTherm). With this and/or the heating status, gas is split per hour from what the boiler was doing instead of being estimated from the weather. A sensor adds up the hours; it works from the first full month after setting it up.": "Opcional: el estado de agua caliente de la caldera (p. ej. OpenTherm). Con este y/o el estado de calefacción, el gas se reparte por horas según lo que hacía la caldera, en lugar de estimarse a partir del tiempo. Un sensor suma las horas; funciona desde el primer mes completo tras configurarlo.",
+    "Optional: the boiler's hot-water status (e.g. OpenTherm). With this and/or the heating status, gas is split per hour from what the boiler was doing instead of being estimated from the weather. A sensor adds up the hours; it is used once it has measured at least 7 days of a month.": "Opcional: el estado de agua caliente de la caldera (p. ej. OpenTherm). Con este y/o el estado de calefacción, el gas se reparte por horas según lo que hacía la caldera, en lugar de estimarse a partir del tiempo. Un sensor suma las horas; se usa en cuanto ha medido al menos 7 días de un mes.",
     "Boiler: heating active": "Caldera: calefacción activa",
     "Optional: the boiler's central-heating status (binary sensor), or a thermostat (counts as heating while it reports heating).": "Opcional: el estado de calefacción de la caldera (sensor binario), o un termostato (cuenta como calefacción mientras indique que calienta).",
     "Boiler hot water on-time": "Tiempo de agua caliente de la caldera",
@@ -237,7 +237,7 @@ ES.update({
 })
 IT.update({
     "Boiler: hot water active": "Caldaia: acqua calda attiva",
-    "Optional: the boiler's hot-water status (e.g. OpenTherm). With this and/or the heating status, gas is split per hour from what the boiler was doing instead of being estimated from the weather. A sensor adds up the hours; it works from the first full month after setting it up.": "Facoltativo: lo stato acqua calda della caldaia (ad es. OpenTherm). Con questo e/o lo stato riscaldamento, il gas viene ripartito ora per ora secondo ciò che faceva la caldaia, invece di essere stimato dal meteo. Un sensore somma le ore; vale dal primo mese completo dopo la configurazione.",
+    "Optional: the boiler's hot-water status (e.g. OpenTherm). With this and/or the heating status, gas is split per hour from what the boiler was doing instead of being estimated from the weather. A sensor adds up the hours; it is used once it has measured at least 7 days of a month.": "Facoltativo: lo stato acqua calda della caldaia (ad es. OpenTherm). Con questo e/o lo stato riscaldamento, il gas viene ripartito ora per ora secondo ciò che faceva la caldaia, invece di essere stimato dal meteo. Un sensore somma le ore; viene usato non appena ha misurato almeno 7 giorni di un mese.",
     "Boiler: heating active": "Caldaia: riscaldamento attivo",
     "Optional: the boiler's central-heating status (binary sensor), or a thermostat (counts as heating while it reports heating).": "Facoltativo: lo stato riscaldamento della caldaia (sensore binario), oppure un termostato (conta come riscaldamento finché segnala che sta riscaldando).",
     "Boiler hot water on-time": "Tempo acqua calda caldaia",
