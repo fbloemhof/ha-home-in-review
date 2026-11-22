@@ -256,3 +256,18 @@ IT.update({
     "Heating and hot water": "Riscaldamento e acqua calda",
     "Only hot water and cooking": "Solo acqua calda e cucina",
 })
+
+ES.update({
+    "Open the most recent report by default": "Abrir por defecto el informe más reciente",
+    "Off: clicking the sidebar item shows the overview of all months. On: it opens the most recent month's report "
+    "directly; the overview stays reachable from within a report.":
+        "Desactivado: al hacer clic en el elemento de la barra lateral se muestra el resumen de todos los meses. "
+        "Activado: abre directamente el informe del mes más reciente; el resumen sigue siendo accesible desde un informe.",
+})
+IT.update({
+    "Open the most recent report by default": "Apri di default il resoconto più recente",
+    "Off: clicking the sidebar item shows the overview of all months. On: it opens the most recent month's report "
+    "directly; the overview stays reachable from within a report.":
+        "Disattivato: cliccando sulla voce della barra laterale si mostra il riepilogo di tutti i mesi. Attivato: "
+        "apre direttamente il resoconto del mese più recente; il riepilogo resta raggiungibile da un resoconto.",
+})

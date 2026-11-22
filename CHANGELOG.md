@@ -6,6 +6,8 @@
 - The report now notices when the energy dashboard isn't (fully) set up — no electricity source, no price linked
   to the import, solar without a power sensor, or a battery without a state-of-charge sensor — and says so on the
   cover with a pointer to Settings → Energy, instead of silently leaving out the slides that need it.
+- Option **Open the most recent report by default**: when set, clicking the sidebar item opens the latest month's
+  report directly instead of the overview. Off by default; the overview stays reachable from within a report.
 
 **Fixed**
 - The option text for the boiler status now says it is used from 7 measured days (since 0.5.2), not from the

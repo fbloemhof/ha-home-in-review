@@ -492,6 +492,18 @@ STEPS["settings"]["sections"]["general"]["data_description"]["admin_only"] = t(
     "Uit: elke Home Assistant-gebruiker in huis kan ze openen (ze tonen energieverbruik, kosten en wanneer ruimtes gebruikt worden).",
     "Aus: jeder Home-Assistant-Benutzer im Haushalt kann sie öffnen (sie zeigen Energieverbrauch, Kosten und Raumnutzung).",
     "Désactivé : tout utilisateur de Home Assistant du foyer peut les ouvrir (ils montrent consommation, coûts et usage des pièces).")
+STEPS["settings"]["sections"]["general"]["data"]["open_latest_month"] = t(
+    "Open the most recent report by default", "Standaard het meest recente rapport openen",
+    "Standardmäßig den aktuellsten Bericht öffnen", "Ouvrir le rapport le plus récent par défaut")
+STEPS["settings"]["sections"]["general"]["data_description"]["open_latest_month"] = t(
+    "Off: clicking the sidebar item shows the overview of all months. On: it opens the most recent month's report "
+    "directly; the overview stays reachable from within a report.",
+    "Uit: klikken op het item in de zijbalk toont het overzicht van alle maanden. Aan: dat opent direct het rapport "
+    "van de meest recente maand; het overzicht blijft bereikbaar vanuit een rapport.",
+    "Aus: ein Klick auf den Eintrag in der Seitenleiste zeigt die Übersicht aller Monate. Ein: öffnet direkt den "
+    "Bericht des aktuellsten Monats; die Übersicht bleibt aus einem Bericht heraus erreichbar.",
+    "Désactivé : cliquer sur l'élément de la barre latérale affiche l'aperçu de tous les mois. Activé : ouvre "
+    "directement le rapport du mois le plus récent ; l'aperçu reste accessible depuis un rapport.")
 _en = STEPS["settings"]["sections"]["energy"]
 _en["data"]["gas_base_per_day"] = t("Gas for hot water and cooking per day", "Gas voor warm water en koken per dag",
                                     "Gas für Warmwasser und Kochen pro Tag", "Gaz pour eau chaude et cuisson par jour")

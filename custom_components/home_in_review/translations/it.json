@@ -38,6 +38,7 @@
               "report_time": "Ora",
               "year_start_month": "Il riepilogo annuale inizia a",
               "admin_only": "Solo gli amministratori possono vedere i resoconti",
+              "open_latest_month": "Apri di default il resoconto più recente",
               "default_theme": "Tema predefinito"
             },
             "data_description": {
@@ -45,6 +46,7 @@
               "report_day": "In questo giorno viene creato il resoconto del mese precedente.",
               "year_start_month": "Gennaio per l'anno solare; ad esempio luglio per una stagione di riscaldamento o il mese in cui inizia il contratto energetico.",
               "admin_only": "Disattivato: ogni utente di Home Assistant in casa può aprirli (mostrano consumi, costi e uso degli ambienti).",
+              "open_latest_month": "Disattivato: cliccando sulla voce della barra laterale si mostra il riepilogo di tutti i mesi. Attivato: apre direttamente il resoconto del mese più recente; il riepilogo resta raggiungibile da un resoconto.",
               "default_theme": "Usato finché qualcuno sceglie un altro tema alla fine di un resoconto (memorizzato per browser)."
             }
           },

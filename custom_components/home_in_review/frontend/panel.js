@@ -5,6 +5,8 @@
 // screens the report shows a menu button in its own top bar; it asks the panel to open the sidebar.
 // For the report theme "Home Assistant" the panel passes the colours and font of the active HA theme to the report,
 // again whenever the theme or dark mode changes.
+// Landing on the panel with no month in the address shows the overview, unless option "openLatest" is set, in
+// which case it opens the most recent report instead.
 
 // Report variable <- Home Assistant theme variables (first one that is set wins).
 const HA_THEME_VARS = {
@@ -85,7 +87,9 @@ class HomeInReviewPanel extends HTMLElement {
 
   _fromRoute() {
     const p = ((this._route && this._route.path) || "").replace(/^\//, "").replace(/\/$/, "");
-    this._show(/^(year-)?\d{4}-\d{2}$/.test(p) ? p : "index");
+    if (/^(year-)?\d{4}-\d{2}$/.test(p)) { this._show(p); return; }
+    const openLatest = !!(this._panel && this._panel.config && this._panel.config.openLatest);
+    this._show(!p && openLatest ? "latest" : "index");
   }
 
   async _show(target, slide = "") {

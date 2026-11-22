@@ -38,6 +38,7 @@
               "report_time": "Uhrzeit",
               "year_start_month": "Jahresrückblick beginnt im",
               "admin_only": "Nur Administratoren dürfen die Berichte sehen",
+              "open_latest_month": "Standardmäßig den aktuellsten Bericht öffnen",
               "default_theme": "Standarddesign"
             },
             "data_description": {
@@ -45,6 +46,7 @@
               "report_day": "An diesem Tag wird der Bericht des Vormonats erstellt.",
               "year_start_month": "Januar für ein Kalenderjahr; zum Beispiel Juli für eine Heizperiode oder den Beginn Ihres Energievertrags.",
               "admin_only": "Aus: jeder Home-Assistant-Benutzer im Haushalt kann sie öffnen (sie zeigen Energieverbrauch, Kosten und Raumnutzung).",
+              "open_latest_month": "Aus: ein Klick auf den Eintrag in der Seitenleiste zeigt die Übersicht aller Monate. Ein: öffnet direkt den Bericht des aktuellsten Monats; die Übersicht bleibt aus einem Bericht heraus erreichbar.",
               "default_theme": "Gilt, bis jemand am Ende eines Berichts ein anderes Design wählt (pro Browser gespeichert)."
             }
           },

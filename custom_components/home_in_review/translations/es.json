@@ -38,6 +38,7 @@
               "report_time": "Hora",
               "year_start_month": "El resumen anual empieza en",
               "admin_only": "Solo los administradores pueden ver los informes",
+              "open_latest_month": "Abrir por defecto el informe más reciente",
               "default_theme": "Tema predeterminado"
             },
             "data_description": {
@@ -45,6 +46,7 @@
               "report_day": "Este día se crea el informe del mes anterior.",
               "year_start_month": "Enero para un año natural; por ejemplo julio para una temporada de calefacción o el mes en que empieza tu contrato de energía.",
               "admin_only": "Desactivado: cualquier usuario de Home Assistant del hogar puede abrirlos (muestran consumo, costes y uso de las estancias).",
+              "open_latest_month": "Desactivado: al hacer clic en el elemento de la barra lateral se muestra el resumen de todos los meses. Activado: abre directamente el informe del mes más reciente; el resumen sigue siendo accesible desde un informe.",
               "default_theme": "Se usa hasta que alguien elige otro tema al final de un informe (se recuerda por navegador)."
             }
           },

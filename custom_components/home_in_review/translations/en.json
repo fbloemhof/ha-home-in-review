@@ -38,6 +38,7 @@
               "report_time": "Time",
               "year_start_month": "Year review starts in",
               "admin_only": "Only administrators can view the reports",
+              "open_latest_month": "Open the most recent report by default",
               "default_theme": "Default theme"
             },
             "data_description": {
@@ -45,6 +46,7 @@
               "report_day": "Last month's report is made on this day.",
               "year_start_month": "January for a calendar year; for example July for a heating season or the month your energy contract starts.",
               "admin_only": "Off: every Home Assistant user in the household can open them (they show energy use, costs and when rooms are used).",
+              "open_latest_month": "Off: clicking the sidebar item shows the overview of all months. On: it opens the most recent month's report directly; the overview stays reachable from within a report.",
               "default_theme": "Used until a viewer picks another theme at the end of a report (remembered per browser)."
             }
           },

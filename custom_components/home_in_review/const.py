@@ -7,6 +7,7 @@ SCHEMA_VERSION = 1
 # Options
 CONF_NOTIFY = "notify_services"
 CONF_ADMIN_ONLY = "admin_only"
+CONF_OPEN_LATEST = "open_latest_month"
 CONF_THEME = "default_theme"
 CONF_REPORT_DAY = "report_day"
 CONF_REPORT_TIME = "report_time"

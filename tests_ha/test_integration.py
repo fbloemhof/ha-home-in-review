@@ -62,6 +62,16 @@ async def test_report_requires_login(recorder_mock, hass: HomeAssistant, hass_cl
     assert (await client.get("/api/home_in_review/report/..%2F..%2Fsecrets")).status in (400, 404)
 
 
+async def test_report_latest(recorder_mock, hass: HomeAssistant, hass_client) -> None:
+    entry = await setup_entry(hass)
+    client = await hass_client()
+    resp = await client.get("/api/home_in_review/report/latest")
+    assert resp.status == 200
+    assert await resp.text() == await (await client.get("/api/home_in_review/report/2026-10")).text()
+    entry.runtime_data.store.docs.clear()
+    assert (await client.get("/api/home_in_review/report/latest")).status == 404
+
+
 async def test_signed_path(recorder_mock, hass: HomeAssistant, hass_ws_client, hass_client_no_auth) -> None:
     await setup_entry(hass)
     ws = await hass_ws_client(hass)

@@ -42,6 +42,7 @@ from .const import (
     CONF_HP_HEAT,
     CONF_MAX_HOURLY_KWH,
     CONF_NOTIFY,
+    CONF_OPEN_LATEST,
     CONF_OUTDOOR_SENSOR,
     CONF_RAIN_SENSOR,
     CONF_REPORT_DAY,
@@ -104,7 +105,7 @@ def _suggest(value: Any) -> dict:
 
 # Settings form: one form with collapsible sections; key -> fields in that section.
 SECTIONS = {
-    "general": [CONF_NOTIFY, CONF_REPORT_DAY, CONF_REPORT_TIME, CONF_YEAR_START, CONF_THEME, CONF_ADMIN_ONLY],
+    "general": [CONF_NOTIFY, CONF_REPORT_DAY, CONF_REPORT_TIME, CONF_YEAR_START, CONF_THEME, CONF_ADMIN_ONLY, CONF_OPEN_LATEST],
     "energy": [CONF_FIXED_DAILY, CONF_FIXED_MONTHLY, CONF_MAX_HOURLY_KWH, CONF_GAS_USE, CONF_GAS_BASE, CONF_GAS_DHW, CONF_GAS_CH,
                CONF_HP_DEVICES, CONF_HP_HEAT],
     "climate": [CONF_EXCLUDED_AREAS, CONF_OUTDOOR_SENSOR, CONF_RAIN_SENSOR, CONF_USE_OPEN_METEO, CONF_DD_BASE, CONF_DD_WEIGHTED],
@@ -147,6 +148,7 @@ class HomeInReviewOptionsFlow(OptionsFlow):
             o[CONF_DD_WEIGHTED] = bool(flat.get(CONF_DD_WEIGHTED, False))
             o[CONF_YEAR_START] = int(flat.get(CONF_YEAR_START, 1))
             o[CONF_ADMIN_ONLY] = bool(flat.get(CONF_ADMIN_ONLY, False))
+            o[CONF_OPEN_LATEST] = bool(flat.get(CONF_OPEN_LATEST, False))
             # Validate the outside addresses here as well (the backend repeats this, see options.py). Errors are
             # shown on the section; the form keeps what the user typed.
             if o.get(CONF_EVCC_URL) and (err := check_url(o[CONF_EVCC_URL], carries_token=False)):
@@ -179,6 +181,7 @@ class HomeInReviewOptionsFlow(OptionsFlow):
                 selector.SelectSelectorConfig(options=["auto", "light", "dark", "night", "mono", "ha"], translation_key="theme",
                                               mode=selector.SelectSelectorMode.DROPDOWN)),
             vol.Required(CONF_ADMIN_ONLY, default=bool(o.get(CONF_ADMIN_ONLY, False))): selector.BooleanSelector(),
+            vol.Required(CONF_OPEN_LATEST, default=bool(o.get(CONF_OPEN_LATEST, False))): selector.BooleanSelector(),
         })
         energy = vol.Schema({
             vol.Optional(CONF_FIXED_DAILY, description=_suggest(o.get(CONF_FIXED_DAILY))): selector.NumberSelector(

@@ -37,6 +37,7 @@ from .const import (
     CONF_GAS_CH,
     CONF_GAS_DHW,
     CONF_NOTIFY,
+    CONF_OPEN_LATEST,
     CONF_REPORT_DAY,
     CONF_REPORT_TIME,
     CONF_YEAR_START,
@@ -57,7 +58,7 @@ from .views import YM, ReportView
 COLLECTOR_VERSION = 8
 PLATFORMS = [Platform.SENSOR]
 PRESENTATION_OPTIONS = {"notify_services", "report_day", "report_time", "default_theme", "admin_only",
-                        "year_start_month", "backfill_months", "backfilled"}
+                        "year_start_month", "backfill_months", "backfilled", "open_latest_month"}
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -334,7 +335,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass, frontend_url_path=PANEL_URL, webcomponent_name="home-in-review-panel",
         sidebar_title="Home in Review", sidebar_icon="mdi:home-analytics",
         module_url=f"{STATIC_URL}/panel.js?v={await hass.async_add_executor_job(_version)}",
-        require_admin=bool(rt.options.get(CONF_ADMIN_ONLY)), config={})
+        require_admin=bool(rt.options.get(CONF_ADMIN_ONLY)),
+        config={"openLatest": bool(rt.options.get(CONF_OPEN_LATEST))})
 
     @callback
     def started(_hass: HomeAssistant | None = None) -> None:

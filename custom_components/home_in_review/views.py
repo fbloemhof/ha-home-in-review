@@ -1,4 +1,5 @@
-"""The report pages (served by Home Assistant's HTTP server): GET /api/home_in_review/report/<YYYY-MM | year-YYYY-MM | index> -> HTML.
+"""The report pages (served by Home Assistant's HTTP server):
+GET /api/home_in_review/report/<YYYY-MM | year-YYYY-MM | index | latest> -> HTML.
 
 Requires a logged-in Home Assistant user, or a short-lived signed path (the sidebar panel uses auth/sign_path).
 With the "administrators only" option, other users get 403. The pages may not load or send anything elsewhere
@@ -49,6 +50,10 @@ class ReportView(HomeAssistantView):
         theme = rt.options.get(CONF_THEME, "auto")
         if name == "index":
             html = render.render_index(docs, lang, home, hass.config.currency, start, theme)
+        elif name == "latest":
+            if not docs:
+                return web.Response(status=404)
+            html = await hass.async_add_executor_job(render.render_month, max(docs), docs, lang, home, start, theme)
         elif name.startswith("year-") and YM.match(name[5:]):
             try:
                 html = await hass.async_add_executor_job(render.render_year, name[5:], docs, lang, home, start, theme)

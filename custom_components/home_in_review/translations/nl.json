@@ -38,6 +38,7 @@
               "report_time": "Tijd",
               "year_start_month": "Jaaroverzicht begint in",
               "admin_only": "Alleen beheerders mogen de rapporten zien",
+              "open_latest_month": "Standaard het meest recente rapport openen",
               "default_theme": "Standaardthema"
             },
             "data_description": {
@@ -45,6 +46,7 @@
               "report_day": "Op deze dag wordt het rapport over de vorige maand gemaakt.",
               "year_start_month": "Januari voor een kalenderjaar; bijvoorbeeld juli voor een stookseizoen of de maand waarin je energiecontract begint.",
               "admin_only": "Uit: elke Home Assistant-gebruiker in huis kan ze openen (ze tonen energieverbruik, kosten en wanneer ruimtes gebruikt worden).",
+              "open_latest_month": "Uit: klikken op het item in de zijbalk toont het overzicht van alle maanden. Aan: dat opent direct het rapport van de meest recente maand; het overzicht blijft bereikbaar vanuit een rapport.",
               "default_theme": "Geldt tot iemand onderaan een rapport een ander thema kiest (dat wordt per browser onthouden)."
             }
           },

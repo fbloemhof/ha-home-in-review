@@ -38,6 +38,7 @@
               "report_time": "Heure",
               "year_start_month": "Le bilan annuel commence en",
               "admin_only": "Seuls les administrateurs peuvent voir les rapports",
+              "open_latest_month": "Ouvrir le rapport le plus récent par défaut",
               "default_theme": "Thème par défaut"
             },
             "data_description": {
@@ -45,6 +46,7 @@
               "report_day": "Le rapport du mois précédent est créé ce jour-là.",
               "year_start_month": "Janvier pour une année civile ; par exemple juillet pour une saison de chauffe ou le début de votre contrat.",
               "admin_only": "Désactivé : tout utilisateur de Home Assistant du foyer peut les ouvrir (ils montrent consommation, coûts et usage des pièces).",
+              "open_latest_month": "Désactivé : cliquer sur l'élément de la barre latérale affiche l'aperçu de tous les mois. Activé : ouvre directement le rapport du mois le plus récent ; l'aperçu reste accessible depuis un rapport.",
               "default_theme": "Utilisé jusqu'à ce qu'un lecteur choisisse un autre thème en fin de rapport (mémorisé par navigateur)."
             }
           },
